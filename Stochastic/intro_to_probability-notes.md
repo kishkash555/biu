@@ -27,27 +27,27 @@ $$\mathbb{P}(A \in \mathcal{F}) \equiv \sum_{\omega \in A}p(\omega)$$
 
 
 #### properties of a probability function
-![prop of cps](a2.png)
+![prop of cps](images/a2.png)
 
 #### uniform probability space
-![def uniform prob space](a3.png)
+![def uniform prob space](images/a3.png)
 
 #### Boole's inequality (upper bound for nondisjoin union)
-![Boole's inequality](a4.png)
+![Boole's inequality](images/a4.png)
 
 #### monotonous sets and continuity of $\mathbb{P}$
-![monotonous and validity of limes](a5.png)
+![monotonous and validity of limes](images/a5.png)
 
 
 ### inclusion-exclusion principle
 
-![inc-ex](a1.png)
+![inc-ex](images/a1.png)
 
 
 ## 2. הסתברות מותנה ואי תלות
 $\mathbb{P}'$ is a new probability function over $\Omega$. In the simple two-dice problem, The elements of $\Omega$ which are no longer possible have probability 0, and from consideration of normalization and symmetry of elements in $S$, we determine $\mathbb{P}'$.
 
-![def conditional](a6.png)
+![def conditional](images/a6.png)
 
 > The definition above results in a valid probability function
 
@@ -56,10 +56,10 @@ For A, B, D events with positive probability:
 $A \subset B \implies \mathbb{P}(D|A) = \mathbb{P}(D|A,B)$
 - chain rule:
 $\mathbb{P}(A \cap B) = \mathbb{P}(B) \cdot \mathbb{P}(A|B)$
-- multicondition: ![multicond](a7.png)
+- multicondition: ![multicond](images/a7.png)
 
 #### חלוקה
-![partition](a8.png)
+![partition](images/a8.png)
 
 a few "paradoxes":
 - at least one child is a boy, what is the chance of both children boys?
@@ -70,7 +70,7 @@ a few "paradoxes":
 #### independence
 
 #### product of probability spaces
-![product space](a9.png)
+![product space](images/a9.png)
 
 ## משתנה מקרי
 ### משתנה מקרי בדיד
@@ -79,9 +79,9 @@ $$p_X(s)= \sum_{X(\omega)=s}\mathbb{P}(\{\omega\})$$
 
 __support__ of $X$: $Supp(X)={\{x \in \mathbb{R}: p_X>0\}}$
 
-![cdf def](a10.png)
+![cdf def](images/a10.png)
 
-![calc prob of subset](a11.png)
+![calc prob of subset](images/a11.png)
 
 
 # הסתברות 2
@@ -92,13 +92,13 @@ __support__ of $X$: $Supp(X)={\{x \in \mathbb{R}: p_X>0\}}$
 - a $\sigma$-algebra can be generated from a subset by taking all countable unions of the set and their complements.
 
 - Other examples:
-![sigma-algebras from wikipedia](a12.png)
+![sigma-algebras from wikipedia](images/a12.png)
 
 - a $\sigma$ algebra can be reduced from $\Omega$ to $\Omega' \subseteq \Omega$ by intersecting each of its members of $\Omega'$
 
-- for measurable space $\{(\Omega_n,\mathcal{F}_n)\}$, the "Direct sum" ![direct_sum](a13.png) is a measurable space.
+- for measurable space $\{(\Omega_n,\mathcal{F}_n)\}$, the "Direct sum" ![direct_sum](images/a13.png) is a measurable space.
 
-\[[what does this signify?]] ![continuity](a14.png)
+\[[what does this signify?]] ![continuity](images/a14.png)
 
 
 #### premeasure

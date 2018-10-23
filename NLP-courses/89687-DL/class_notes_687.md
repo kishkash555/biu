@@ -68,3 +68,89 @@ I can take pairs of letters ("bigrams"). Count the instances of each pair so $\{
 
 I can get this way, by thinking of $w$ as a matrix, to score each language (and I can score more languages than just these 2)
 
+!class 2 22 Oct
+
+#### Example - synthesize xor
+can't do with linear.
+
+### learning as optimization
+
+the label $\mathbf{y}$ is a vector with 1 in the position corresponding to the correct class.
+
+$\mathcal{L}$ will be zero for perfect classification, >0 otherwise. I use an additive loss ("sum over local contributions") to avoid unnecessary calculation complications.
+
+- 0-1 loss
+its the "ideal" loss. but its hard to work with, not differentiable. 
+- hinge loss:
+    - t is the index of the One in the actual
+    - p is the index of the maximal prediction, excepting the true class.
+    - we expect that to be 0 ideally, anything other will be penalizied
+
+- log-loss (aka cross-entropy loss) 
+    - smoother and allows the goal $\mathbf{y}$ to be composed of a "distribution" (more than one nonzero)
+    - remark: the signficance (from statistics) is when the y's represent probability vectors.
+- softmax: normalizaiton of exponents
+
+> remember the cross-entropy formula
+
+> apply the softmax to a linear scorer results in Logistic regression
+
+#### regularization
+why is it not always good? (whiteboard demonstraions of a very high degree function bringing the loss). we need to balance something that works well with something that I can trust as for generalization.
+
+note taht when I train, the "variables" are theta, and x are "constant". the opposite of what happens when predicting.
+
+#### gradient descent
+gradient descent - start from an arbitrary point, check the direction of descent, go a step in that direction and so on.
+
+We "don't know why" it works in our case, we have a lot of minima in our functions and still we get good results. it's true that some scheme include starting from several different points before deciding on best minimum.
+
+explanation of the principle of GD. I continue until I converge or I decide it's enough.
+
+This process is slow. I need to calculate loss over all the data. I have 100K or even 1M samples. It's heavy
+
+#### Stochastic GD
+we estimate the loss on a sample. This is a very crude approximation of the gradient, but it's very fast. It's faster by [size of data]. It works well even though many steps are not "in the right direction". Some argue the noise is actually helpful.
+
+A variation is minibatch SGD - somewhere in between. Now you need to consider the sample size. In many cases a size-one batch actually works well. note that GPUs and even some CPUs, the computational cost of the batch is the same as a single sample. Theory is lacking, work in progress.
+
+there are other schemes for minimization - check and pick the one that semms to work best
+
+## Lecture 3
+### Nonlinear classifier
+
+The problem with the classic sigmoid is that it's easy for the gradient to send us to the rails, but it's hard (small gradient) for the rails to takes us back to the active (linear) area.
+$\tanh$ seems similar but usually works better than sigomid.
+the hard-tanh is a linearized tanh, it has the 0-gradient issue.
+
+reLU is one of the top two today. even it's almost linear (two linear segments) it expresses the function space well.
+
+ELU is a reLU with a smoothed bend. Still reLU is much more popular.
+
+The Representation Power Theorem, if so why use more than one layer?
+- there is a proof that exists, but it doesn't specify it...
+- the proof doesn't limit the breadth of the layer, we need more layers to avoid very very wide layers.
+
+#### tuning, complexity, overfitting  (lec.3 14)
+in NLP, one hidden layer often gives good results (unlike vision for example).
+
+$\eta_t$ is the learning/stepsize parameter. Play with your learning rate until you see a good convergence of the error.
+
+slide 24: if on the Training Set you can't reach zero, you have a bug, or a very serious problem with learning rate. Or the network is inadequate. But you really want to be aware of the convergence on the Dev Set, it tells you if the generalization is working.
+
+slide 25 if you recognize this type of overfitting, you may want to add regularizations, or go for early stopping, don't add epochs that don't improve.
+
+People today misuse the term regularization. When I  penalize based on a "complexity function", it is truly reg10n. This is the original meaning. Recently in DL, people extended it to mean "every method that avoids overfitting" like dropout, randomization etc.
+
+slide 34 why does the L2 work.
+
+in the exercise you write a MLP from scratch.
+
+
+
+
+
+
+
+
+

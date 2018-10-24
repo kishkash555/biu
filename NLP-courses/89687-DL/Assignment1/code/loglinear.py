@@ -1,7 +1,7 @@
 import numpy as np
 
-STUDENT={'name': 'YOUR NAME',
-         'ID': 'YOUR ID NUMBER'}
+STUDENT={'name': 'Shahar Siegman',
+         'ID': '011862141'}
 
 def softmax(x):
     """
@@ -9,14 +9,16 @@ def softmax(x):
     x: a n-dim vector (numpy array)
     returns: an n-dim vector (numpy array) of softmax values
     """
+    ret = np.exp(x)
+    return ret / ret.sum()
     # YOUR CODE HERE
     # Your code should be fast, so use a vectorized implementation using numpy,
     # don't use any loops.
     # With a vectorized implementation, the code should be no more than 2 lines.
     #
     # For numeric stability, use the identify you proved in Ex 2 Q1.
-    return x
-    
+    # return x
+    ### why does the original code say return x?
 
 def classifier_output(x, params):
     """
@@ -25,6 +27,8 @@ def classifier_output(x, params):
     """
     W,b = params
     # YOUR CODE HERE.
+    f_at_x = np.dot(W,x) + b
+    probs = softmax(f_at_x)
     return probs
 
 def predict(x, params):
@@ -52,7 +56,13 @@ def loss_and_gradients(x, y, params):
     """
     W,b = params
     # YOU CODE HERE
+    y_hat = predict(x,params)
+    loss = logloss(y, y_hat)
+    # gW = 
     return loss,[gW,gb]
+
+def logloss(y, y_hat):
+    return np.dot(y,np.log(y_hat))
 
 def create_classifier(in_dim, out_dim):
     """

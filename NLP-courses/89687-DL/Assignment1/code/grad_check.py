@@ -1,7 +1,7 @@
 import numpy as np
 
-STUDENT={'name': 'YOUR NAME',
-         'ID': 'YOUR ID NUMBER'}
+STUDENT={'name': 'Shahar Siegman',
+         'ID': '011862141'}
 
 def gradient_check(f, x):
     """ 
@@ -19,21 +19,25 @@ def gradient_check(f, x):
 
         ### modify x[ix] with h defined above to compute the numerical gradient.
         ### if you change x, make sure to return it back to its original state for the next iteration.
-        ### YOUR CODE HERE:
-        raise NotImplementedError
-        ### END YOUR CODE
-
+        v = x[ix] 
+        x[ix] = v + h/2
+        f2,_ = f(x)
+        x[ix] = v - h/2
+        f1,_ = f(x)
+        x[ix] = v
+        print("f1: {}, f2: {}".format(f1,f2))
+        numeric_gradient = (f2-f1)/h
         # Compare gradients
         reldiff = abs(numeric_gradient - grad[ix]) / max(1, abs(numeric_gradient), abs(grad[ix]))
         if reldiff > 1e-5:
-            print "Gradient check failed."
-            print "First gradient error found at index %s" % str(ix)
-            print "Your gradient: %f \t Numerical gradient: %f" % (grad[ix], numeric_gradient)
+            print("Gradient check failed.")
+            print("First gradient error found at index %s" % str(ix))
+            print("Your gradient: %f \t Numerical gradient: %f" % (grad[ix], numeric_gradient))
             return
     
         it.iternext() # Step to next index
 
-    print "Gradient check passed!"
+    print("Gradient check passed!")
 
 def sanity_check():
     """
@@ -41,12 +45,14 @@ def sanity_check():
     """
     quad = lambda x: (np.sum(x ** 2), x * 2)
 
-    print "Running sanity checks..."
+    print("Running sanity checks...")
     gradient_check(quad, np.array(123.456))      # scalar test
-    gradient_check(quad, np.random.randn(3,))    # 1-D test
+    x = np.random.randn(3,)
+    gradient_check(quad, x)    # 1-D test
     gradient_check(quad, np.random.randn(4,5))   # 2-D test
-    print ""
+    print("")
 
 if __name__ == '__main__':
     # If these fail, your code is definitely wrong.
-    sanity_check()
+    sanity_check()    
+    

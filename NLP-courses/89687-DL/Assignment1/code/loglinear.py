@@ -9,7 +9,8 @@ def softmax(x):
     x: a n-dim vector (numpy array)
     returns: an n-dim vector (numpy array) of softmax values
     """
-    ret = np.exp(x)
+    x0 = x-x.mean()
+    ret = np.exp(x0)
     return ret / ret.sum()
     # YOUR CODE HERE
     # Your code should be fast, so use a vectorized implementation using numpy,
@@ -26,8 +27,8 @@ def classifier_output(x, params):
     of a log-linear classifier with given params on input x.
     """
     W,b = params
-    # YOUR CODE HERE.
-    f_at_x = np.dot(W,x) + b
+    # we use Z = xW + b, where x and b are row vectors
+    f_at_x = np.dot(x,W) + b
     probs = softmax(f_at_x)
     return probs
 
@@ -55,13 +56,38 @@ def loss_and_gradients(x, y, params):
     gb: vector, gradients of b
     """
     W,b = params
-    # YOU CODE HERE
-    y_hat = predict(x,params)
+    # todo: check the shape of b
+    shape_x = x.shape
+    if len(shape_x)>1 and shape_x[1] != 1:
+        print("x should be a column vector, actual shape: {}".format(shape_x))
+        raise AssertionError
+    in_dim = shape_x[0]
+    shape_W = W.shape
+    if shape_W[0] != in_dim:
+        print("number of rows of W ({}) mismatches length of X ({})".format(shape_W[0],in_dim))
+        raise AssertionError
+    out_dim = shape_W[1]
+    shape_b = b.shape
+    if len(shape_b)>1 and shape_b[1] != 1:
+        print("b is not a row vector, actual shape: {}".format(shape_b))
+        raise AssertionError
+    if shape_b[0] != out_dim:
+        print("length of b ({}) mismatches columns of W ({})".format(shape_b[1],out_dim))
+
+    y_hat = classifier_output(x,params)
+    print("y_hat: {}".format(y_hat))
     loss = logloss(y, y_hat)
-    # gW = 
+    y_diff = np.matrix(y_hat-y)
+    gW = np.dot(np.matrix(x).transpose(),y_diff)
+    gb = y_diff 
+    if not np.all(gW.shape==W.shape):
+        print("problem with calculation of gW, size: {}, expected: {}".format(gW.shape, W.shape))
+        print("shape y_diff: {}, shape x: {}".format(y_diff.shape, np.matrix(x).shape))
+        raise AssertionError
     return loss,[gW,gb]
 
 def logloss(y, y_hat):
+    print("in log loss. shape y: {}, shape y_hat: {}".format(y.shape, y_hat.shape))
     return np.dot(y,np.log(y_hat))
 
 def create_classifier(in_dim, out_dim):
@@ -73,43 +99,3 @@ def create_classifier(in_dim, out_dim):
     b = np.zeros(out_dim)
     return [W,b]
 
-if __name__ == '__main__':
-    # Sanity checks for softmax. If these fail, your softmax is definitely wrong.
-    # If these pass, it may or may not be correct.
-    test1 = softmax(np.array([1,2]))
-    print test1
-    assert np.amax(np.fabs(test1 - np.array([0.26894142,  0.73105858]))) <= 1e-6
-
-    test2 = softmax(np.array([1001,1002]))
-    print test2
-    assert np.amax(np.fabs(test2 - np.array( [0.26894142, 0.73105858]))) <= 1e-6
-
-    test3 = softmax(np.array([-1001,-1002])) 
-    print test3 
-    assert np.amax(np.fabs(test3 - np.array([0.73105858, 0.26894142]))) <= 1e-6
-
-
-    # Sanity checks. If these fail, your gradient calculation is definitely wrong.
-    # If they pass, it is likely, but not certainly, correct.
-    from grad_check import gradient_check
-
-    W,b = create_classifier(3,4)
-
-    def _loss_and_W_grad(W):
-        global b
-        loss,grads = loss_and_gradients([1,2,3],0,[W,b])
-        return loss,grads[0]
-
-    def _loss_and_b_grad(b):
-        global W
-        loss,grads = loss_and_gradients([1,2,3],0,[W,b])
-        return loss,grads[1]
-
-    for _ in xrange(10):
-        W = np.random.randn(W.shape[0],W.shape[1])
-        b = np.random.randn(b.shape[0])
-        gradient_check(_loss_and_b_grad, b)
-        gradient_check(_loss_and_W_grad, W)
-
-
-    

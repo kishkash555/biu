@@ -61,3 +61,40 @@ the parts are still debated. is "the" an adjective? (a determiner) some say yes,
 
 some words (strings) are pronounced differently.
 
+
+## bigram viterbi
+הרצאה 29.10 שעה 12:50
+
+a dynamic programming algorithm. 
+I use the best probability 
+
+In each step a table of n * k ^2 
+
+trigram not so complex, but a little different
+for trigrams it is n * k ^3
+
+I still would like to prune, to reduce |k| by eliminating zero- or very small- probability tags in certain position.
+
+what is the score of the best path for reach noun in position 4. I do it by looking at all the options in position 3. 
+
+
+beam search - besk k in every step. not necessary, the full algo is not too heavy.
+
+in this algoirthm i am getting the best score, so I need to remember the dequences as well. the only hting not obvious is that the max and argmax is a loop. i
+
+
+using second-order markov works better. I "need" those extra dependencies. It will be k times slower, which is significant. also requires more memory. why not go to quadruplets? more computation, sparsity problem. 
+
+I will always encounter workds that weren't in the training. even if I saw once (e.g. book <-> noun) it's not reliable. 
+How do I solve that?
+
+1. I replace any unknown word with "unk". how do I train for this? e.g. a word that exists once i also add it to the corpus as unk. 
+
+all unk's will have the same behavior, but not the same tagging. it depends on the markov dependencies.
+
+a finer solution is to use different unk's based on "signature", a morphology of the word. I still need to make sure each word will be mapped to a single signature.
+How to calculate the signatures' probabilities? can take 10%
+
+we stopped at slide 51
+
+exercise: do everything related to hmm

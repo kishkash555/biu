@@ -148,9 +148,86 @@ in the exercise you write a MLP from scratch.
 
 
 
+---- Oct 29th -------
+
+### dealing with overfitting
+
+In deep learning, there are so many parameters, we are always at risk of overfitting.
+
+- early stopping: using loss or accuracy. they are related, but not quite the same. The reason for separating them is that accuracy is hard to optimize to. 
+
+- regularization: "dont let any one parameter become too big". out of the possibly thousands of parameters, a few get large. they probably describe some specific case. I don't know if that's what's happening, but that's the intuition for this requirement.
+
+#### L1 and L2 regularization
+$\R(\Theta)$ 
+L2 regularlization "pulls" all parameters towards zero. If the increment in the paramaters helps the loss function, it will be allowed. if not enough, it won't be allowed.
+
+L2 will prefer many small values. L1 doesn't care where to reduce the value.
+
+Are zeros in the matrix a bad thing? no, they're actually good. easier interpretation, maybe less computations to apply.
+
+we can ask both for l1 and l2- it's called "elastic net"
+
+L2 also called "weight decay"
+
+#### Dropout
+Calculate the gradient substituting some W's with zero. after calculating the gradient, update the true weights (not the zeros)
+
+\[[i will need to halve the values later because the signal will be too strong - technical point. not critical]]
+
+Intuition - avoid focusing on a single "phenomenon". e.g. if you're learning to classify dogs, maybe your network looks for fur. if you reset these weights, it will have to look for other clues, such as the shape of the ears. 
 
 
+#### initialization
+A good i12n is crucial for a good model. A "perfect" i12n will allow maximum accuracy 
+
+Xavier Glorot: the range of distribution meant to avoid saturation of $\tanh$ elements.
+
+\[[skipped 9 slides to talk on gradient checks]] 
+you can check your differentiation by assigning value. 
+
+\[[now going back o the skipped slides]]
+
+#### representations
+The scores have more information than just the single tag (the $\arg \max$)
+
+consider the 6 columns of w. each column represents a language. if I look at the columns, I can see which languages are more similar (similar W vectors). 
+
+Each row represents a bigram. 784 rows. similarity between rows indicates similarities between bigrams.
+
+\[[now slides of lec4]]
+
+The markov-4 is a good assumption, it was prevalent for a long time.
+
+I have an assessment of the probability of the entire sequence. now i can choose the more likely sequence.
+
+in translation: after coming up with several possible translations, i will choose the one with the best language model. it's good for any (discrete) sequence. it's a research field of its own.
+
+The training examples are easy to obtain because any sentence in the language will work.
 
 
+using the one-hot vectors, i can sum them. it will lose the order which is sometimes useful and sometimes not. I can add a decay factor. 
+
+If I chain the individual representations, different-length string will have different-length representations.
+
+W is {size of my vocab x number of neurons}
+
+the 1-hot vector "extracts" from $W$ a row. The first layer's $W$ represents one word in the vocabulary.
+
+With the chaining representation, i have 4 chained $W$s.
+
+slide 37 
+what does each $W$ (each layer) mean?
+$W3$ is the output layer, W3 says which word we be next, w2 what goes with it. what quadruplets go well with it.
+
+If I want a longer lookback window (5 rather than 4 words) I will increase the size of $W1$ by the size of the representation e.g. 300. it's larger but not too bad. 
+
+if i have the probability of the next word given the history, I can generate sentences. Initial condition? *start* symbols
+
+another nice application is for telling a sequence's genre e.g. economics, world news, sports. I can train a LM per corpus and each sentence compare the score it got on each model
+
+the same model can be used to label the qunituplet. Is this DNA sequence "good" or "bad". Or the tagging - what's the right pos for the middle word.
+
+stopped at #56
 
 

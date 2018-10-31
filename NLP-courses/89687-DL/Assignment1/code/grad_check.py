@@ -10,6 +10,8 @@ def gradient_check(f, x):
     - x is the point (numpy array) to check the gradient at
     """ 
     fx, grad = f(x) # Evaluate function value at original point
+    if not np.all(grad.shape==x.shape):
+        print("the shapes of x ({}) and the gradient ({}) do not match ".format(x.shape, grad.shape))
     h = 1e-4
 
     # Iterate over all indexes in x
@@ -25,8 +27,13 @@ def gradient_check(f, x):
         x[ix] = v - h/2
         f1,_ = f(x)
         x[ix] = v
-        print("f1: {}, f2: {}".format(f1,f2))
-        numeric_gradient = (f2-f1)/h
+        numeric_gradient = (f2[0]-f1[0])/h
+        #print("f1: {}, f2: {}, numeric_gardient shape: , analytic gradient shape: ".\
+        #    format(f1,f2))
+        #print(numeric_gradient.shape)
+        #print(grad.shape)
+        print("f1: {}, f2: {}, numeric_gardient: {}, analytic gradient: {}, location: {}, grad at location: {}".\
+            format(f1,f2, numeric_gradient, grad, ix, grad[ix]))
         # Compare gradients
         reldiff = abs(numeric_gradient - grad[ix]) / max(1, abs(numeric_gradient), abs(grad[ix]))
         if reldiff > 1e-5:

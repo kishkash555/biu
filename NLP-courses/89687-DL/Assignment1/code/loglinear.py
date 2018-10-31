@@ -29,7 +29,9 @@ def classifier_output(x, params):
     W,b = params
     # we use Z = xW + b, where x and b are row vectors
     f_at_x = np.dot(x,W) + b
+    print("shape of f_at_x: {}".format(f_at_x.shape))
     probs = softmax(f_at_x)
+    print("shape of probs: {}".format(probs))
     return probs
 
 def predict(x, params):
@@ -42,6 +44,13 @@ def predict(x, params):
     b: vector
     """
     return np.argmax(classifier_output(x, params))
+
+def to_one_hot_row(index,n_ele):
+    """
+    """
+    ret = np.zeros((1,n_ele))
+    ret[0,index] = 1
+    return ret
 
 def loss_and_gradients(x, y, params):
     """
@@ -56,29 +65,34 @@ def loss_and_gradients(x, y, params):
     gb: vector, gradients of b
     """
     W,b = params
-    # todo: check the shape of b
-    shape_x = x.shape
-    if len(shape_x)>1 and shape_x[1] != 1:
-        print("x should be a column vector, actual shape: {}".format(shape_x))
-        raise AssertionError
-    in_dim = shape_x[0]
     shape_W = W.shape
+    out_dim = shape_W[1]
+    y_e = to_one_hot_row(y,out_dim) 
+
+    shape_x = x.shape
+    if len(shape_x)==1 or shape_x[0] != 1:
+        print("x should be a row vector, actual shape: {}".format(shape_x))
+        raise AssertionError
+    in_dim = shape_x[1]
+    
     if shape_W[0] != in_dim:
         print("number of rows of W ({}) mismatches length of X ({})".format(shape_W[0],in_dim))
         raise AssertionError
     out_dim = shape_W[1]
     shape_b = b.shape
-    if len(shape_b)>1 and shape_b[1] != 1:
-        print("b is not a row vector, actual shape: {}".format(shape_b))
+    if len(shape_b)==1:
+        print("b should be a 2d array, actual shape: {}".format(shape_b))
+    if shape_b[0] != 1:
+        print("b should be a row vector, actual shape: {}".format(shape_b))
         raise AssertionError
-    if shape_b[0] != out_dim:
+    if shape_b[1] != out_dim:
         print("length of b ({}) mismatches columns of W ({})".format(shape_b[1],out_dim))
 
     y_hat = classifier_output(x,params)
     print("y_hat: {}".format(y_hat))
-    loss = logloss(y, y_hat)
-    y_diff = np.matrix(y_hat-y)
-    gW = np.dot(np.matrix(x).transpose(),y_diff)
+    loss = logloss(y_e, y_hat)
+    y_diff = np.matrix(y_hat-y_e)
+    gW = np.dot(x.transpose(),y_diff)
     gb = y_diff 
     if not np.all(gW.shape==W.shape):
         print("problem with calculation of gW, size: {}, expected: {}".format(gW.shape, W.shape))
@@ -88,7 +102,7 @@ def loss_and_gradients(x, y, params):
 
 def logloss(y, y_hat):
     print("in log loss. shape y: {}, shape y_hat: {}".format(y.shape, y_hat.shape))
-    return np.dot(y,np.log(y_hat))
+    return -np.dot(y,np.log(y_hat).transpose())
 
 def create_classifier(in_dim, out_dim):
     """
@@ -96,6 +110,6 @@ def create_classifier(in_dim, out_dim):
     with input dimension in_dim and output dimension out_dim.
     """
     W = np.zeros((in_dim, out_dim))
-    b = np.zeros(out_dim)
+    b = np.zeros((1,out_dim))
     return [W,b]
 

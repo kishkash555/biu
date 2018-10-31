@@ -31,19 +31,20 @@ def grad_sanity():
 
     def _loss_and_W_grad(W):
         global b
-        loss,grads = loss_and_gradients(np.array([1,2,3],np.double),0,[W,b])
+        x = np.array([[1,2,3]],np.double)
+        loss,grads = loss_and_gradients(x,0,[W,b])
         return loss,grads[0]
 
-    return _loss_and_W_grad
     
     def _loss_and_b_grad(b):
         global W
-        loss,grads = loss_and_gradients(np.array([1,2,3],np.double),0,[W,b])
+        x = np.array([[1,2,3]],np.double)
+        loss,grads = loss_and_gradients(x,0,[W,b])
         return loss,grads[1]
-
+ 
     for _ in range(1):
         W = np.random.randn(W.shape[0],W.shape[1])
-        b = np.random.randn(b.shape[0])
+        b = np.random.randn(b.shape[0],b.shape[1])
         gradient_check(_loss_and_b_grad, b)
         gradient_check(_loss_and_W_grad, W)
 

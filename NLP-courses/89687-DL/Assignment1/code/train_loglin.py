@@ -3,6 +3,7 @@ import random
 import utils 
 import config 
 import vectorize_utils
+import numpy as np
 
 from collections import Counter
 
@@ -16,12 +17,17 @@ def feats_to_vec(features):
 
 def accuracy_on_dataset(dataset, params):
     good = bad = 0.0
-    for label, features in dataset:
-        # YOUR CODE HERE
-        # Compute the accuracy (a scalar) of the current parameters
-        # on the dataset.
-        # accuracy is (correct_predictions / all_predictions)
-        pass
+    y_y_hat = [(y, ll.predict(x, params)) for x,y in dataset]
+    print("yhat counter: {}".format(Counter([x[1] for x in y_y_hat])))
+    is_good = [a==b for a, b in y_y_hat]
+    return sum(is_good)/len(is_good)
+    for x, y in dataset:
+
+        y_hat = ll.predict(x,params)
+        if y_hat==y:
+            good += 1
+        else:
+            bad +=1
     return good / (good + bad)
 
 def train_classifier(train_data, dev_data, num_iterations, learning_rate, params):
@@ -38,15 +44,19 @@ def train_classifier(train_data, dev_data, num_iterations, learning_rate, params
         cum_loss = 0.0 # total loss in this iteration.
         random.shuffle(train_data)
         for x, y in train_data:
+            x = np.array(x, ndmin = 2) # make row vector    
             loss, grads = ll.loss_and_gradients(x,y,params)
             cum_loss += loss
-            for param, grad in zip(params, grads):
-                param = param - learning_rate * grad
+            params[0] = params[0] - learning_rate * grads[0]
+            params[1] = params[1] - learning_rate * grads[1]
+            #for param, grad in zip(params, grads):
+            #    param = param - learning_rate * grad
 
         train_loss = cum_loss / len(train_data)
         train_accuracy = accuracy_on_dataset(train_data, params)
         dev_accuracy = accuracy_on_dataset(dev_data, params)
-        print(I, train_loss, train_accuracy, dev_accuracy)
+        print("I {}, train_loss {}, train_accuracy {}, dev_accuracy {}, grads {}"\
+            .format(I, loss, train_accuracy, dev_accuracy, grads[1]))
     return params
 
 def initialize_symbol_dict(train_data):
@@ -78,12 +88,15 @@ if __name__ == '__main__':
     train_data = utils.read_data(config.filename_train)
     symbol_dict = initialize_symbol_dict(train_data)
     label_dict = initialize_label_dict(train_data)
-    xy = xy_generator(train_data, utils.text_to_bigrams, symbol_dict, label_dict)
-    in_dim = min(config.max_count, len(label_dict))
+    xy_train = list(xy_generator(train_data, utils.text_to_bigrams, symbol_dict, label_dict))
+    
+    dev_data = utils.read_data(config.filename_dev)
+    xy_dev = list(xy_generator(dev_data, utils.text_to_bigrams, symbol_dict, label_dict))
+    in_dim = min(config.max_count, len(symbol_dict))
     out_dim = len(label_dict)
     print("problem dimensions are: {}".format((in_dim, out_dim)))
     params = ll.create_classifier(in_dim, out_dim)
-    #trained_params = train_classifier(train_data, dev_data, num_iterations, learning_rate, params)
+    trained_params = train_classifier(train_data, dev_data, config.num_iterations, config.learning_rate, params)
 
 
 

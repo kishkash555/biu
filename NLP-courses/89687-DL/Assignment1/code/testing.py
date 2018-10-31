@@ -42,7 +42,7 @@ def grad_sanity():
         loss,grads = loss_and_gradients(x,0,[W,b])
         return loss,grads[1]
  
-    for _ in range(1):
+    for _ in range(10):
         W = np.random.randn(W.shape[0],W.shape[1])
         b = np.random.randn(b.shape[0],b.shape[1])
         gradient_check(_loss_and_b_grad, b)

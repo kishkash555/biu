@@ -29,9 +29,7 @@ def classifier_output(x, params):
     W,b = params
     # we use Z = xW + b, where x and b are row vectors
     f_at_x = np.dot(x,W) + b
-    print("shape of f_at_x: {}".format(f_at_x.shape))
     probs = softmax(f_at_x)
-    print("shape of probs: {}".format(probs))
     return probs
 
 def predict(x, params):
@@ -89,7 +87,7 @@ def loss_and_gradients(x, y, params):
         print("length of b ({}) mismatches columns of W ({})".format(shape_b[1],out_dim))
 
     y_hat = classifier_output(x,params)
-    print("y_hat: {}".format(y_hat))
+    # print("y_hat: {}".format(y_hat))
     loss = logloss(y_e, y_hat)
     y_diff = np.matrix(y_hat-y_e)
     gW = np.dot(x.transpose(),y_diff)
@@ -101,7 +99,7 @@ def loss_and_gradients(x, y, params):
     return loss,[gW,gb]
 
 def logloss(y, y_hat):
-    print("in log loss. shape y: {}, shape y_hat: {}".format(y.shape, y_hat.shape))
+    # print("in log loss. shape y: {}, shape y_hat: {}".format(y.shape, y_hat.shape))
     return -np.dot(y,np.log(y_hat).transpose())
 
 def create_classifier(in_dim, out_dim):

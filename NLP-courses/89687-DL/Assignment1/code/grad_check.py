@@ -34,14 +34,13 @@ def gradient_check(f, x):
         # Compare gradients
         reldiff = abs(numeric_gradient - grad[ix]) / max(1, abs(numeric_gradient), abs(grad[ix]))
         if reldiff > 1e-5:
-            print("Gradient check failed.")
-            print("First gradient error found at index %s" % str(ix))
+            #print("Gradient check failed.")
+            print("gradient error found at index %s" % str(ix))
             print("Your gradient: %f \t Numerical gradient: %f" % (grad[ix], numeric_gradient))
-            return
-    
+        #else: 
+        #    print("Gradient ok. numeric {} analytic {}".format(numeric_gradient, grad[ix]))
         it.iternext() # Step to next index
-
-    print("Gradient check passed!")
+    print("Gradient check complete ")
 
 def sanity_check():
     """

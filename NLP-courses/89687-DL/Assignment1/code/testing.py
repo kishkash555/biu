@@ -1,5 +1,7 @@
 import numpy as np
-from loglinear import softmax, create_classifier, loss_and_gradients
+import loglinear as ll
+import mlp1
+# from loglinear import softmax, create_classifier, loss_and_gradients
 from grad_check import gradient_check
 
 
@@ -27,19 +29,19 @@ def grad_sanity():
     #print(sys.path)
     #from .grad_check import gradient_check
     global W,b
-    W,b = create_classifier(3,6)
+    W,b = ll.create_classifier(3,6)
 
     def _loss_and_W_grad(W):
         global b
         x = np.array([[1,2,3]],np.double)
-        loss,grads = loss_and_gradients(x,0,[W,b])
+        loss,grads = ll.loss_and_gradients(x,0,[W,b])
         return loss,grads[0]
 
     
     def _loss_and_b_grad(b):
         global W
         x = np.array([[1,2,3]],np.double)
-        loss,grads = loss_and_gradients(x,0,[W,b])
+        loss,grads = ll.loss_and_gradients(x,0,[W,b])
         return loss,grads[1]
  
     for _ in range(10):
@@ -49,6 +51,47 @@ def grad_sanity():
         gradient_check(_loss_and_W_grad, W)
 
 
+def mlp1_grad_sanity():
+    # Sanity checks. If these fail, your gradient calculation is definitely wrong.
+    # If they pass, it is likely, but not certainly, correct.
+    # import sys
+    #sys.path.append("C:\Shahar\BarIlan\NLP-courses\89687-DL\Assignment1\code\loglinear.py")
+    #print(sys.path)
+    #from .grad_check import gradient_check
+    W, b, U, b_tag = mlp1.create_classifier(3,4,6)
+
+    def _loss_and_W_grad(W):
+        x = np.array([[1,2,3]],np.double)
+        loss,grads = mlp1.loss_and_gradients(x,0,[W,b,U,b_tag])
+        return loss,grads[0]
+   
+    def _loss_and_b_grad(b):
+        x = np.array([[1,2,3]],np.double)
+        loss,grads = mlp1.loss_and_gradients(x,0,[W,b,U,b_tag])
+        return loss,grads[1]
+
+    def _loss_and_U_grad(U):
+        x = np.array([[1,2,3]],np.double)
+        loss,grads = mlp1.loss_and_gradients(x,0,[W,b,U,b_tag])
+        return loss,grads[2]
+
+    def _loss_and_b_tag_grad(b_tag):
+        x = np.array([[1,2,3]],np.double)
+        loss,grads = mlp1.loss_and_gradients(x,0,[W,b,U,b_tag])
+        return loss,grads[3]
+
+    for _ in range(1):
+        W = randomize_array(W)
+        b = randomize_array(b)
+        U = randomize_array(U)
+        b_tag = randomize_array(b_tag)
+        print(b.shape)
+        gradient_check(_loss_and_b_grad, b)
+        # gradient_check(_loss_and_W_grad, W)
+
+
+def randomize_array(m):
+    return np.random.randn(*m.shape)
     
 if __name__ == "__main__":
     grad_sanity()

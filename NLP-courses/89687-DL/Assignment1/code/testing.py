@@ -80,14 +80,16 @@ def mlp1_grad_sanity():
         loss,grads = mlp1.loss_and_gradients(x,0,[W,b,U,b_tag])
         return loss,grads[3]
 
-    for _ in range(1):
+    for _ in range(10):
         W = randomize_array(W)
         b = randomize_array(b)
         U = randomize_array(U)
         b_tag = randomize_array(b_tag)
         print(b.shape)
+        print("b:")
         gradient_check(_loss_and_b_grad, b)
-        # gradient_check(_loss_and_W_grad, W)
+        print("W:")
+        gradient_check(_loss_and_W_grad, W)
 
 
 def randomize_array(m):

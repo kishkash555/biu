@@ -46,26 +46,24 @@ def loss_and_gradients(x, y, params):
     z2 = np.dot(x,W) + b
     a2 = np.tanh(z2)
     z3 = np.dot(a2,U) + b_tag
-    y_e = ll.to_one_hot_row(y,out_dim)
     y_hat = ll.softmax(z3)
+
+    y_e = ll.to_one_hot_row(y,out_dim)
+
     y_diff = y_hat - y_e
 
     # now we can use backprop
     gU = np.dot(a2.transpose(), y_diff )
     gb_tag = y_diff.copy()
 
-    tmp1 = np.tile(y_diff,(U.shape[0],1)) 
-    print("tmp shape: {}".format(tmp1.shape))
-    tmp2 = np.tile((1-z2**2).transpose(),(1,U.shape[1]))
-    tmp3 = np.tile(x,(W.shape[0],1))
-    gW = tmp1 * U 
-    gW = gW * tmp2
-    gW = gW * tmp3
-    gb = 0
+    delta2 = np.dot(y_diff, U.T) 
+    delta2 = delta2 * (1-a2 ** 2)
+
+    gW = np.dot(x.transpose(), delta2)
+    gb = delta2
+
     loss = ll.logloss(y_e, y_hat)
     return loss,[gW, gb, gU, gb_tag]
-
-
 
     
 

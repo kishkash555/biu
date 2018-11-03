@@ -14,3 +14,9 @@ class mlp1:
     num_iterations = 20
     learning_rate = 0.02
     hidden_layer_size = 150
+
+
+class mlpn:
+    num_iterations = 20
+    learning_rate = 0.02
+    layer_sizes = [600, 150, 6]

@@ -5,8 +5,8 @@ STUDENT={'name': 'YOUR NAME',
          'ID': 'YOUR ID NUMBER'}
 
 def classifier_output(x, params):
-    # YOUR CODE HERE.
-    return probs
+    z_and_a = feedforward_loop(x, params)
+    return z_and_a[-1][1]
 
 def predict(x, params):
     return np.argmax(classifier_output(x, params))
@@ -21,9 +21,12 @@ def layer_ff(a_in, layer_params, sigma):
     which calculates the nonlinearity
     """
     W, b = layer_params
-    z = a_in * W + b
+    if type(a_in) != np.ndarray:
+        print("layer_ff got a_in that is not a numpy array")
+        raise AssertionError
+    z = np.dot(a_in, W) + b
     a_out = sigma(z)
-    return z, a_out
+    return (z, a_out)
 
 def layer_backpropagate(delta_in, a_previous, a_current, layer_params,sigma_prime):
     """
@@ -36,11 +39,25 @@ def layer_backpropagate(delta_in, a_previous, a_current, layer_params,sigma_prim
     delta_out = np.dot(delta_in, W.T)
     delta_out = delta_out * sigma_prime(a_current)
 
-    gW = np.dot(a_previous, delta_out)
+    gW = np.dot(a_previous.transpose(), delta_out)
     gb = delta_out
 
     return  delta_out, gW, gb
 
+
+def feedforward_loop(x, params):
+    z_and_a = [(np.array([]),x)] # 
+    z_and_a.append(layer_ff(x,params[0:2],np.tanh))
+    curr_layer = 1
+    # feedforward loop of hidden layer
+    while curr_layer *2 + 1 < len(params) -2: # the last two parameters are for the softmax layer
+        a_in = z_and_a[-1][1]
+
+        z_and_a.append(layer_ff(a_in, params[curr_layer*2:(curr_layer*2+2)],np.tanh))
+        curr_layer += 1
+
+    z_and_a.append(layer_ff(z_and_a[-1][1],params[-2:],ll.softmax))
+    return z_and_a
 
 
 
@@ -61,24 +78,35 @@ def loss_and_gradients(x, y, params):
     (of course, if we request a linear classifier (ie, params is of length 2),
     you should not have gW2 and gb2.)
     """
-    z_and_a = []
 
-    z_and_a.append(layer_ff(x,params[0:2],np.tanh))
-    curr_layer = 1
-    # feedforward loop of hidden layer
-    while curr_layer *2 < len(params):
-        a_in = z_and_a[-1]
-        z_and_a.append(layer_ff(a_in, params[curr_layer*2:(curr_layer*2+2)],np.tanh))
-        curr_layer+=1
-
+    z_and_a = feedforward_loop(x,params)   
     # feedforward output layer
-    z_and_a.append(layer_ff(z_and_a[-1],params[-2:],ll.softmax))
     y_hat  = z_and_a[-1][1] # the final activation is the estimated y
-    delta = y-y_hat
- 
+    
+    y_e = ll.to_one_hot_row(y,y_hat.shape[1])
+    delta = y_hat - y_e
+
+    
+    grads = []
+    curr_layer = int(len(params)/2)
+    print("len z_and_a: {}".format(len(z_and_a)))
     # now apply backpropagation
-    while curr_layer > 0:
-        layer_backpropagate(delta,)
+    while curr_layer >= 1:
+        print("layer: {}".format(curr_layer))
+        delta, gW, gb = layer_backpropagate(
+            delta,
+            z_and_a[curr_layer-1][1],
+            z_and_a[curr_layer][1],
+            params[curr_layer*2-2:curr_layer*2],
+            lambda a: 1- a**2
+            )
+        grads += [gW, gb]
+        curr_layer -= 1
+
+    loss = ll.logloss(y_e, y_hat)
+    return loss, grads
+
+        
 def create_classifier(dims):
     """
     returns the parameters for a multi-layer perceptron with an arbitrary number

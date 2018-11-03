@@ -16,19 +16,10 @@ def feats_to_vec(features):
     return None
 
 def accuracy_on_dataset(dataset, params):
-    good = bad = 0.0
     y_y_hat = [(y, ll.predict(x, params)) for x,y in dataset]
     print("yhat counter: {}".format(Counter([x[1] for x in y_y_hat])))
     is_good = [a==b for a, b in y_y_hat]
     return sum(is_good)/len(is_good)
-    for x, y in dataset:
-
-        y_hat = ll.predict(x,params)
-        if y_hat==y:
-            good += 1
-        else:
-            bad +=1
-    return good / (good + bad)
 
 def train_classifier(train_data, dev_data, num_iterations, learning_rate, params):
     """
@@ -70,33 +61,32 @@ def initialize_label_dict(train_data):
     return label_dict
 
 def xy_generator(corpus, text_to_ngram, symbol_dict, label_dict):
-    ny = len(label_dict)
-    nx = len(symbol_dict)
     for label, text in corpus:
+        nx = len(symbol_dict)
         ngrams = Counter(text_to_ngram(text)).most_common()
-        y = label_dict[label] 
+        y = label_dict[label]
         x = vectorize_utils.generate_vector(nx,ngrams,symbol_dict)
         yield x, y
 
-if __name__ == '__main__':
-    # YOUR CODE HERE
-    # write code to load the train and dev sets, set up whatever you need,
-    # and call train_classifier.
-    
-    # ...
-    
+
+def main():
     train_data = utils.read_data(config.filename_train)
     symbol_dict = initialize_symbol_dict(train_data)
     label_dict = initialize_label_dict(train_data)
     xy_train = list(xy_generator(train_data, utils.text_to_bigrams, symbol_dict, label_dict))
-    
+
     dev_data = utils.read_data(config.filename_dev)
     xy_dev = list(xy_generator(dev_data, utils.text_to_bigrams, symbol_dict, label_dict))
     in_dim = min(config.max_count, len(symbol_dict))
     out_dim = len(label_dict)
     print("problem dimensions are: {}".format((in_dim, out_dim)))
     params = ll.create_classifier(in_dim, out_dim)
-    trained_params = train_classifier(train_data, dev_data, config.num_iterations, config.learning_rate, params)
+    trained_params = train_classifier(xy_train, xy_dev, config.loglin.num_iterations, config.loglin.learning_rate, params)
+    return trained_params
 
+
+
+if __name__ == '__main__':
+   trained_params = main()
 
 

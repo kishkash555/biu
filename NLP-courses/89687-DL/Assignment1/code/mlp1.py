@@ -80,5 +80,5 @@ def create_classifier(in_dim, hid_dim, out_dim):
     b = np.zeros((1,hid_dim), np.double)
     U = np.zeros((hid_dim,out_dim), np.double)
     b_tag = np.zeros((1,out_dim), np.double)
-    return W,b,U, b_tag
+    return [W,b,U, b_tag]
 

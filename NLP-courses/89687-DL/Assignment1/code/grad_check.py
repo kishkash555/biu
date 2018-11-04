@@ -10,8 +10,9 @@ def gradient_check(f, x):
     - x is the point (numpy array) to check the gradient at
     """ 
     fx, grad = f(x) # Evaluate function value at original point
-    if not np.all(grad.shape==x.shape):
-        print("the shapes of x ({}) and the gradient ({}) do not match ".format(x.shape, grad.shape))
+    # if not np.all(grad.shape==x.shape):
+    #   print("the shapes of x ({}) and the gradient ({}) do not match ".format(x.shape, grad.shape))
+    #   raise AssertionError
     h = 1e-4
 
     # Iterate over all indexes in x
@@ -27,20 +28,16 @@ def gradient_check(f, x):
         x[ix] = v - h/2
         f1,_ = f(x)
         x[ix] = v
-        numeric_gradient = (f2[0]-f1[0])/h
-        #print("numeric: {}\n, analytic: {}".format(numeric_gradient, grad[ix]))
-        print("f1: {}, f2: {}, numeric: {}, analytic: {}, location: {}, ".\
-             format(f1,f2, numeric_gradient, grad[ix], ix ))
+        numeric_gradient = (f2-f1)/h
         # Compare gradients
         reldiff = abs(numeric_gradient - grad[ix]) / max(1, abs(numeric_gradient), abs(grad[ix]))
         if reldiff > 1e-5:
-            #print("Gradient check failed.")
-            print("gradient error found at index %s" % str(ix))
+            print("Gradient check failed.")
+            print("First gradient error found at index %s" % str(ix))
             print("Your gradient: %f \t Numerical gradient: %f" % (grad[ix], numeric_gradient))
-        #else: 
-        #    print("Gradient ok. numeric {} analytic {}".format(numeric_gradient, grad[ix]))
+            return
         it.iternext() # Step to next index
-    print("Gradient check complete ")
+    print("Gradient check passed!")
 
 def sanity_check():
     """

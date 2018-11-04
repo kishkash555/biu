@@ -17,7 +17,8 @@ def feats_to_vec(features):
 
 def accuracy_on_dataset(dataset, params):
     y_y_hat = [(y, ll.predict(x, params)) for x,y in dataset]
-    print("yhat counter: {}".format(Counter([x[1] for x in y_y_hat])))
+    if config.debug:
+        print("yhat counter: {}".format(Counter([x[1] for x in y_y_hat])))
     is_good = [a==b for a, b in y_y_hat]
     return sum(is_good)/len(is_good)
 
@@ -31,6 +32,7 @@ def train_classifier(train_data, dev_data, num_iterations, learning_rate, params
     learning_rate: the learning rate to use.
     params: list of parameters (initial values)
     """
+    prev_dev_accuracy = 0
     for I in range(num_iterations):
         cum_loss = 0.0 # total loss in this iteration.
         random.shuffle(train_data)
@@ -46,8 +48,15 @@ def train_classifier(train_data, dev_data, num_iterations, learning_rate, params
         train_loss = cum_loss / len(train_data)
         train_accuracy = accuracy_on_dataset(train_data, params)
         dev_accuracy = accuracy_on_dataset(dev_data, params)
-        print("I {}, train_loss {}, train_accuracy {}, dev_accuracy {}, grads {}"\
-            .format(I, loss, train_accuracy, dev_accuracy, grads[1]))
+        if dev_accuracy < prev_dev_accuracy:
+            print("early stopping criterion in iteration {} - detriorating dev accuracy".format(I))
+            params = prev_params
+            break
+        prev_params = [p.copy() for p in params]
+        prev_dev_accuracy = dev_accuracy
+        if config.debug:
+            print("I {}, train_loss {}, train_accuracy {}, dev_accuracy {}, grads {}"\
+                .format(I, loss, train_accuracy, dev_accuracy, grads[1]))
     return params
 
 def initialize_symbol_dict(train_data):

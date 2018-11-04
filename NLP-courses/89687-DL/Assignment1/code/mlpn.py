@@ -82,8 +82,6 @@ def loss_and_gradients(x, y, params):
     (of course, if we request a linear classifier (ie, params is of length 2),
     you should not have gW2 and gb2.)
     """
-
-
     z_and_a = feedforward_loop(x,params)   
     # backpropagate output layer
     # given 3 layers, numbered 0, 1, 2 the z_and_a indexes correspond 
@@ -96,12 +94,9 @@ def loss_and_gradients(x, y, params):
     delta = y_hat - y_e
     grads = [np.dot(z_and_a[curr_layer][1].transpose(), delta), delta]
     
-    #print("len params:{}, len z_and_a: {}".format(len(params), len(z_and_a)))
     curr_layer -= 1
     # now apply backpropagation to the tanh layers
     while curr_layer >= 0:
-        #print("layer: {} a_previous: {} a_current: {}"\
-        #   .format(curr_layer,z_and_a[curr_layer][1].shape,z_and_a[curr_layer+1][1].shape))
         delta, gW, gb = layer_backpropagate(
             delta,
             z_and_a[curr_layer][1],

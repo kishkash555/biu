@@ -11,9 +11,9 @@ def softmax_sanity():
     # Sanity checks for softmax. If these fail, your softmax is definitely wrong.
     # If these pass, it may or may not be correct.
     print("running softmax tests")
-    test1 = softmax(np.array([1,2]))
-    test2 = softmax(np.array([1001,1002]))
-    test3 = softmax(np.array([-1001,-1002])) 
+    test1 = ll.softmax(np.array([1,2]))
+    test2 = ll.softmax(np.array([1001,1002]))
+    test3 = ll.softmax(np.array([-1001,-1002])) 
     print ("test1: {}".format(test1))
     assert np.amax(np.fabs(test1 - np.array([0.26894142,  0.73105858]))) <= 1e-6
     print ("test2: {}".format(test2))
@@ -31,7 +31,7 @@ def grad_sanity():
     #from .grad_check import gradient_check
     global W,b
     W,b = ll.create_classifier(3,6)
-
+    b = np.array(b,ndmin=2)
     def _loss_and_W_grad(W):
         global b
         x = np.array([[1,2,3]],np.double)

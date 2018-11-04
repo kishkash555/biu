@@ -43,8 +43,8 @@ def loss_and_gradients(x, y, params):
     W, b, U, b_tag = params
     out_dim = U.shape[1]
     # first, do the entire feedforward
-    z2 = np.dot(x,W) + b
-    a2 = np.tanh(z2)
+    
+    a2 = layer_output(x,[W,b]) 
     z3 = np.dot(a2,U) + b_tag
     y_hat = ll.softmax(z3)
 

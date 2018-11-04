@@ -20,7 +20,9 @@ def layer_ff(a_in, layer_params, sigma):
     sigma is a function from a (row) array to a (row) array
     which calculates the nonlinearity
     """
+    
     W, b = layer_params
+    #print("in layer ff. a_in {}, W {}, b {}".format(a_in.shape,W.shape, b.shape))
     if type(a_in) != np.ndarray:
         print("layer_ff got a_in that is not a numpy array")
         raise AssertionError
@@ -37,8 +39,9 @@ def layer_backpropagate(delta_in, a_previous, a_current, layer_params,sigma_prim
     """
     W, b = layer_params
     delta_out = np.dot(delta_in, W.T)
+    #print("delta_out: {}, delta_in: {}, W: {}, a_prev:{}, a_cur:{}"\
+    #    .format(delta_out.shape, delta_in.shape, W.shape,a_previous.shape, a_current.shape))
     delta_out = delta_out * sigma_prime(a_current)
-
     gW = np.dot(a_previous.transpose(), delta_out)
     gb = delta_out
 
@@ -48,14 +51,15 @@ def layer_backpropagate(delta_in, a_previous, a_current, layer_params,sigma_prim
 def feedforward_loop(x, params):
     z_and_a = [(np.array([]),x)] # 
     z_and_a.append(layer_ff(x,params[0:2],np.tanh))
-    curr_layer = 1
+    curr_layer = 1 # layers are numbered from 0 to layers-1
+    layers = int(len(params)/2)
     # feedforward loop of hidden layer
-    while curr_layer *2 + 1 < len(params) -2: # the last two parameters are for the softmax layer
+    while curr_layer  < layers-1: # the last two parameters are for the softmax layer
         a_in = z_and_a[-1][1]
-
+        print("curr layer {}".format(curr_layer))
         z_and_a.append(layer_ff(a_in, params[curr_layer*2:(curr_layer*2+2)],np.tanh))
         curr_layer += 1
-
+    # now feedforward the softmax
     z_and_a.append(layer_ff(z_and_a[-1][1],params[-2:],ll.softmax))
     return z_and_a
 
@@ -79,28 +83,33 @@ def loss_and_gradients(x, y, params):
     you should not have gW2 and gb2.)
     """
 
+
     z_and_a = feedforward_loop(x,params)   
-    # feedforward output layer
-    y_hat  = z_and_a[-1][1] # the final activation is the estimated y
-    
+    # backpropagate output layer
+    # given 3 layers, numbered 0, 1, 2 the z_and_a indexes correspond 
+    # to the layers as follows:
+    # z_and_a[0] => layer[0], z_and_a[1] => layer[1], z_and_a[2] => layer[2]
+    # the 0th layer has nothing in the z and x as the a
+    curr_layer = int(len(params)/2)-1  # last layer that has a matrix 
+    y_hat  = z_and_a[curr_layer +1][1] # the final activation is the estimated y
     y_e = ll.to_one_hot_row(y,y_hat.shape[1])
     delta = y_hat - y_e
-
+    grads = [np.dot(z_and_a[curr_layer][1].transpose(), delta), delta]
     
-    grads = []
-    curr_layer = int(len(params)/2)
-    print("len z_and_a: {}".format(len(z_and_a)))
-    # now apply backpropagation
-    while curr_layer >= 1:
-        print("layer: {}".format(curr_layer))
+    #print("len params:{}, len z_and_a: {}".format(len(params), len(z_and_a)))
+    curr_layer -= 1
+    # now apply backpropagation to the tanh layers
+    while curr_layer >= 0:
+        #print("layer: {} a_previous: {} a_current: {}"\
+        #   .format(curr_layer,z_and_a[curr_layer][1].shape,z_and_a[curr_layer+1][1].shape))
         delta, gW, gb = layer_backpropagate(
             delta,
-            z_and_a[curr_layer-1][1],
             z_and_a[curr_layer][1],
-            params[curr_layer*2-2:curr_layer*2],
+            z_and_a[curr_layer+1][1],
+            params[(curr_layer+1)*2:(curr_layer+1)*2+2],
             lambda a: 1- a**2
             )
-        grads += [gW, gb]
+        grads = [gW, gb] + grads
         curr_layer -= 1
 
     loss = ll.logloss(y_e, y_hat)

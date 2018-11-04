@@ -28,9 +28,9 @@ def gradient_check(f, x):
         f1,_ = f(x)
         x[ix] = v
         numeric_gradient = (f2[0]-f1[0])/h
-        
-        # print("f1: {}, f2: {}, numeric: {}, analytic: {}, location: {}, ".\
-        #     format(f1,f2, numeric_gradient, grad[ix], ix ))
+        #print("numeric: {}\n, analytic: {}".format(numeric_gradient, grad[ix]))
+        print("f1: {}, f2: {}, numeric: {}, analytic: {}, location: {}, ".\
+             format(f1,f2, numeric_gradient, grad[ix], ix ))
         # Compare gradients
         reldiff = abs(numeric_gradient - grad[ix]) / max(1, abs(numeric_gradient), abs(grad[ix]))
         if reldiff > 1e-5:

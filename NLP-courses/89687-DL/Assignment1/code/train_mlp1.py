@@ -15,7 +15,8 @@ STUDENT={'name': 'SHAHAR SIEGMAN',
 
 def accuracy_on_dataset(dataset, params):
     y_y_hat = [(y, lp.predict(x, params)) for x,y in dataset]
-    print("yhat counter: {}".format(Counter([x[1] for x in y_y_hat])))
+    if config.debug:
+        print("yhat counter: {}".format(Counter([x[1] for x in y_y_hat])))
     is_good = [a==b for a, b in y_y_hat]
     return sum(is_good)/len(is_good)
 
@@ -42,7 +43,7 @@ def train_classifier(train_data, dev_data, num_iterations, learning_rate, params
         train_loss = cum_loss / len(train_data)
         train_accuracy = accuracy_on_dataset(train_data, params)
         dev_accuracy = accuracy_on_dataset(dev_data, params)
-        print("I {0:}, train_loss {1:}, train_accuracy {2:0.5f}, dev_accuracy {3:0.5f}"\
+        print("I {0:}, train_loss {1:}, train_accuracy {2:}, dev_accuracy {3:}"\
             .format(I, train_loss, train_accuracy, dev_accuracy))
     return params
 
@@ -52,7 +53,7 @@ def main(text_to_ngram):
         np.random.seed(config.mlp1.seed)
 
     train_data = utils.read_data(config.filename_train)
-    symbol_dict = tl.initialize_symbol_dict(train_data)
+    symbol_dict = tl.initialize_symbol_dict(train_data,text_to_ngram)
     label_dict = tl.initialize_label_dict(train_data)
     xy_train = list(tl.xy_generator(train_data, text_to_ngram, symbol_dict, label_dict))
 

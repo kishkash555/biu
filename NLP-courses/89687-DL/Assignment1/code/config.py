@@ -24,16 +24,16 @@ class loglin:
     max_iterations = 20
     learning_rate = 0.05
     cleanup = False
-    predict_on_test = True
+    predict_on_test = False
 
 class mlp1:
     num_iterations = 20
-    learning_rate = 0.02
+    learning_rate = 0.005
     hidden_layer_size = 150
     seed = 335
 
 class mlpn:
-    num_iterations = 5
+    num_iterations = 10
     learning_rate = 0.02
-    layer_sizes = [600, 150, 6]
+    layer_sizes = [600, 150,20, 6]
     seed = 335

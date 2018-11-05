@@ -58,8 +58,8 @@ def train_classifier(train_data, dev_data, num_iterations, learning_rate, params
                 .format(I, loss, train_accuracy, dev_accuracy))
     return params
 
-def initialize_symbol_dict(train_data):
-    all_bigrams = utils.create_bigram_vocab(train_data,config.max_count)
+def initialize_symbol_dict(train_data, text_to_ngram):
+    all_bigrams = utils.create_ngram_vocab(train_data,config.max_count, text_to_ngram)
     symbol_dict = vectorize_utils.create_symbol_dict(all_bigrams)
     return symbol_dict
 
@@ -93,16 +93,16 @@ def predict(trained_params, corpus, text_to_ngram, symbol_dict, label_dict):
         yield label_char
 
 
-def main():
+def main(text_to_ngram):
     train_data = utils.read_data(config.filename_train)
     if config.loglin.cleanup:
         train_data = [(ln, utils.cleanup(txt, config.cleanup_config)) for ln, txt in train_data]
-    symbol_dict = initialize_symbol_dict(train_data)
+    symbol_dict = initialize_symbol_dict(train_data, text_to_ngram)
     label_dict = initialize_label_dict(train_data)
-    xy_train = list(xy_generator(train_data, utils.text_to_bigrams, symbol_dict, label_dict))
+    xy_train = list(xy_generator(train_data, text_to_ngram, symbol_dict, label_dict))
 
     dev_data = utils.read_data(config.filename_dev)
-    xy_dev = list(xy_generator(dev_data, utils.text_to_bigrams, symbol_dict, label_dict))
+    xy_dev = list(xy_generator(dev_data, text_to_ngram, symbol_dict, label_dict))
     in_dim = min(config.max_count, len(symbol_dict))
     out_dim = len(label_dict)
     print("problem dimensions are: {}".format((in_dim, out_dim)))
@@ -121,13 +121,13 @@ def main():
     if config.loglin.predict_on_test:
         test_corpus = load_test_corpus(config.filename_test)
         print('\n\n\nsaving predictions for test data, size: {}'.format(len(test_corpus)))
-        predictions = predict(trained_params, test_corpus, utils.text_to_bigrams, symbol_dict, label_dict)
+        predictions = predict(trained_params, test_corpus, text_to_ngram, symbol_dict, label_dict)
         utils.save_strings_to_file(config.filename_pred, predictions)
     return trained_params
 
 
 
 if __name__ == '__main__':
-    trained_params = main()
+    trained_params = main(utils.text_to_bigrams)
 
 

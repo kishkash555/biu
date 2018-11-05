@@ -13,6 +13,9 @@ def read_data(fname):
 def text_to_bigrams(text):
     return ["%s%s" % (c1,c2) for c1,c2 in zip(text,text[1:])]
 
+def text_to_unigrams(text):
+    return [t for t in text]
+
 def cleanup(text, cleanup_config):
     cc= cleanup_config
     if cc.short_strings and len(text) < cc.short_strings:
@@ -27,11 +30,11 @@ def cleanup(text, cleanup_config):
         words = [w for w in words if len(w)<4 or w[:4]!='http']
     return " ".join(words)
 
-def create_bigram_vocab(data, max_count):
-    bigrams = Counter()
+def create_ngram_vocab(data, max_count, text_to_ngrams):
+    ngrams = Counter()
     for _, text in data:
-        bigrams.update(text_to_bigrams(text))
-    return [i for i,j in bigrams.most_common(max_count) ]
+        ngrams.update(text_to_ngrams(text))
+    return [i for i,j in ngrams.most_common(max_count) ]
 
 def save_strings_to_file(fname, strings):
     with open(fname,'wt',encoding='utf8') as a:

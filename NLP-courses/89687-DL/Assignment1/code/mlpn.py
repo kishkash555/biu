@@ -56,7 +56,6 @@ def feedforward_loop(x, params):
     # feedforward loop of hidden layer
     while curr_layer  < layers-1: # the last two parameters are for the softmax layer
         a_in = z_and_a[-1][1]
-        print("curr layer {}".format(curr_layer))
         z_and_a.append(layer_ff(a_in, params[curr_layer*2:(curr_layer*2+2)],np.tanh))
         curr_layer += 1
     # now feedforward the softmax
@@ -82,6 +81,9 @@ def loss_and_gradients(x, y, params):
     (of course, if we request a linear classifier (ie, params is of length 2),
     you should not have gW2 and gb2.)
     """
+
+    if len(x.shape)==1:
+        x = np.array(x, ndmin=2)
     z_and_a = feedforward_loop(x,params)   
     # backpropagate output layer
     # given 3 layers, numbered 0, 1, 2 the z_and_a indexes correspond 

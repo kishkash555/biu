@@ -106,22 +106,22 @@ def mlpn_grad_sanity():
     W, b, U, b_tag = mlpn.create_classifier([3,4,6])
 
     def _loss_and_W_grad(W):
-        x = np.array([[1,2,3]],np.double)
+        x = np.array([1,2,3],np.double)
         loss,grads = mlpn.loss_and_gradients(x,0,[W,b,U,b_tag])
         return loss,grads[0]
    
     def _loss_and_b_grad(b):
-        x = np.array([[1,2,3]],np.double)
+        x = np.array([1,2,3],np.double)
         loss,grads = mlpn.loss_and_gradients(x,0,[W,b,U,b_tag])
         return loss,grads[1]
 
     def _loss_and_U_grad(U):
-        x = np.array([[1,2,3]],np.double)
+        x = np.array([1,2,3],np.double)
         loss,grads = mlpn.loss_and_gradients(x,0,[W,b,U,b_tag])
         return loss,grads[2]
 
     def _loss_and_b_tag_grad(b_tag):
-        x = np.array([[1,2,3]],np.double)
+        x = np.array([1,2,3],np.double)
         loss,grads = mlpn.loss_and_gradients(x,0,[W,b,U,b_tag])
         return loss,grads[3]
 

@@ -44,24 +44,23 @@ def train_classifier(train_data, dev_data, num_iterations, learning_rate, params
         train_loss = cum_loss / len(train_data)
         train_accuracy = accuracy_on_dataset(train_data, params)
         dev_accuracy = accuracy_on_dataset(dev_data, params)
-        if config.debug:
-            print("I {0:}, train_loss {1:}, train_accuracy {2:0.5f}, dev_accuracy {3:0.5f}"\
+        print("I {0:}, train_loss {1:}, train_accuracy {2:0.5f}, dev_accuracy {3:0.5f}"\
                 .format(I, train_loss, train_accuracy, dev_accuracy))
-         if dev_accuracy < prev_dev_accuracy:
+        if dev_accuracy < prev_dev_accuracy:
             print("early stopping criterion in iteration {} - detriorating dev accuracy".format(I))
             params = prev_params
             break
         prev_params = [p.copy() for p in params]
         prev_dev_accuracy = dev_accuracy
 
-     return params
+    return params
 
 def main(text_to_ngram):
     if config.debug:
         np.random.seed(config.mlpn.seed)
 
     train_data = utils.read_data(config.filename_train)
-    symbol_dict = tl.initialize_symbol_dict(train_data)
+    symbol_dict = tl.initialize_symbol_dict(train_data,text_to_ngram)
     label_dict = tl.initialize_label_dict(train_data)
     xy_train = list(tl.xy_generator(train_data, text_to_ngram, symbol_dict, label_dict))
 

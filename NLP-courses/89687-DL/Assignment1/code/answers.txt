@@ -1,0 +1,20 @@
+1. I cannot get better accuracies with the MLP-1 classifier. The reason is most probably that the more sophisticated classifier learns the training data better (easily reaching 100% accuracy on the training), but since it has more parameters it can learn more specific attributes of the sentences in the training that don't generalize to other sets, even if those are closely related texts coming from the same source.
+
+2. The MLP reaches an accuracy of about 54% (even training accuracy is below 70%) when using just unigrams.
+With the loglinear classifer, the accuracy is slightly better, it reaches 66% on the dev with 75% on the train.
+Another advantage of the linear classifier, is the ability to expose the characters that contribute most to the decision.
+These can be seen in the jupyter notebook which I turned it. Some are expected: z for Dutch, "t", "h" and "g" for English,"u" for French. French, Spanish, Italian and German top weights all include at least one accented vowel (which don't exist in English and Dutch). Still, some character that are obviously noise have made their way to the top, including "#" for French, "*" for Italian. This suggest that the training set is noisy and rather small, possibly allowing characteristics of specific frequent users to be incorrectly learned as characteristics of the language.
+
+3.  the xor function is actually a good way to illustrate the strengths and weaknesses of MLPs. The XOR can be solved with a hidden layer of just two nodes. But my experiments show that even after 500 iterations, usually the system doesn't converge to the solution. It does converge to a solution when purposefully initialized. For example, I noticed that 
+W = [[1, -2],[-2,1], U = [[1,0],[0,1]] (with b and b' zero) helps the system reach a solution.
+Here's a solution automatically found with the above initialization:
+[array([[ 1.6290629 , -2.30024073],
+        [-2.16770801,  1.90669083]]),
+ array([[-0.68511391, -0.92221966]]),
+ array([[-0.57128102,  1.57128102],
+        [-0.62629189,  1.62629189]]),
+ array([[-0.82037082,  0.82037082]])]
+ 
+ When the hidden layer is expanded, e.g. 8 nodes, the solution is found easily within 15-30 iterations. It looks like the "redundancy" in representation has advantages for learning.
+ 
+ 

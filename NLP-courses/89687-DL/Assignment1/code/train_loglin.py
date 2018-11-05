@@ -48,15 +48,14 @@ def train_classifier(train_data, dev_data, num_iterations, learning_rate, params
         train_loss = cum_loss / len(train_data)
         train_accuracy = accuracy_on_dataset(train_data, params)
         dev_accuracy = accuracy_on_dataset(dev_data, params)
-        if dev_accuracy < prev_dev_accuracy:
+        if dev_accuracy < prev_dev_accuracy and I > config.loglin.min_iterations:
             print("early stopping criterion in iteration {} - detriorating dev accuracy".format(I))
             params = prev_params
             break
         prev_params = [p.copy() for p in params]
         prev_dev_accuracy = dev_accuracy
-        if config.debug:
-            print("I {}, train_loss {}, train_accuracy {}, dev_accuracy {}, grads {}"\
-                .format(I, loss, train_accuracy, dev_accuracy, grads[1]))
+        print("I {}, train_loss {}, train_accuracy {}, dev_accuracy {}"\
+                .format(I, loss, train_accuracy, dev_accuracy))
     return params
 
 def initialize_symbol_dict(train_data):
@@ -70,16 +69,34 @@ def initialize_label_dict(train_data):
     return label_dict
 
 def xy_generator(corpus, text_to_ngram, symbol_dict, label_dict):
+    nx = len(symbol_dict)
     for label, text in corpus:
-        nx = len(symbol_dict)
         ngrams = Counter(text_to_ngram(text)).most_common()
-        y = label_dict[label]
-        x = vectorize_utils.generate_vector(nx,ngrams,symbol_dict)
-        yield x, y
+        if len(ngrams):
+            y = label_dict[label]
+            x = vectorize_utils.generate_vector(nx, ngrams, symbol_dict)
+            yield x, y
+
+def load_test_corpus(fname):
+    test_data = utils.read_data(fname)
+    corpus = [txt for _,txt in test_data]
+    return corpus
+
+def predict(trained_params, corpus, text_to_ngram, symbol_dict, label_dict):
+    nx = len(symbol_dict)
+    rev_label_dict = { v:k for k, v in label_dict.items()}
+    for text in corpus:
+        ngrams = Counter(text_to_ngram(text)).most_common()
+        x = vectorize_utils.generate_vector(nx, ngrams, symbol_dict)
+        label_int = ll.predict(x, trained_params)
+        label_char = rev_label_dict[label_int]
+        yield label_char
 
 
 def main():
     train_data = utils.read_data(config.filename_train)
+    if config.loglin.cleanup:
+        train_data = [(ln, utils.cleanup(txt, config.cleanup_config)) for ln, txt in train_data]
     symbol_dict = initialize_symbol_dict(train_data)
     label_dict = initialize_label_dict(train_data)
     xy_train = list(xy_generator(train_data, utils.text_to_bigrams, symbol_dict, label_dict))
@@ -90,12 +107,27 @@ def main():
     out_dim = len(label_dict)
     print("problem dimensions are: {}".format((in_dim, out_dim)))
     params = ll.create_classifier(in_dim, out_dim)
-    trained_params = train_classifier(xy_train, xy_dev, config.loglin.num_iterations, config.loglin.learning_rate, params)
+    trained_params = train_classifier(xy_train, xy_dev, config.loglin.max_iterations, config.loglin.learning_rate, params)
+    w, b = trained_params
+    k = 7
+    print("top {} scores for each language:".format(k))
+    for c in range(w.shape[1]):
+        top_k = set(np.argsort(w[:,c])[-k:])
+        print("language: {} bigrams: {}".format(
+            [k for k,v in label_dict.items() if v == c],
+            [(k, np.round(w[v,c],2)) for k,v in symbol_dict.items() if v in top_k]
+            )
+        )  
+    if config.loglin.predict_on_test:
+        test_corpus = load_test_corpus(config.filename_test)
+        print('\n\n\nsaving predictions for test data, size: {}'.format(len(test_corpus)))
+        predictions = predict(trained_params, test_corpus, utils.text_to_bigrams, symbol_dict, label_dict)
+        utils.save_strings_to_file(config.filename_pred, predictions)
     return trained_params
 
 
 
 if __name__ == '__main__':
-   trained_params = main()
+    trained_params = main()
 
 

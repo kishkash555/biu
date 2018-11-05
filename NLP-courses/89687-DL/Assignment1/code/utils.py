@@ -13,11 +13,31 @@ def read_data(fname):
 def text_to_bigrams(text):
     return ["%s%s" % (c1,c2) for c1,c2 in zip(text,text[1:])]
 
+def cleanup(text, cleanup_config):
+    cc= cleanup_config
+    if cc.short_strings and len(text) < cc.short_strings:
+        return ""
+    words = text.split(" ")
+    words = [w for w in words if w!=" " and len(w)>0]
+    if cc.at_sign:
+        words = [w for w in words if w[0]!="@"]
+    if cc.repeating_character:
+        words = [w for w in words if Counter(w).most_common(1)[0][1] < cc.repeating_character]
+    if cc.remove_urls:
+        words = [w for w in words if len(w)<4 or w[:4]!='http']
+    return " ".join(words)
+
 def create_bigram_vocab(data, max_count):
     bigrams = Counter()
     for _, text in data:
         bigrams.update(text_to_bigrams(text))
     return [i for i,j in bigrams.most_common(max_count) ]
+
+def save_strings_to_file(fname, strings):
+    with open(fname,'wt',encoding='utf8') as a:
+        for s in strings:
+            a.write(s+'\n')
+
 
 
 if __name__ == "__main__":

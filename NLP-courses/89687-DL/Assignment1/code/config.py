@@ -8,19 +8,23 @@
 filename_train = "train"
 filename_dev = "dev"
 filename_test = "test"
-
+filename_pred = "test.pred"
 max_count = 600
 
 debug = False
 
-class train_filter:
-    hash = True
+class cleanup_config:
     at_sign = True
     short_strings = 8
+    repeating_character = 5
+    remove_urls = True
 
 class loglin:
-    num_iterations = 20
+    min_iterations = 5
+    max_iterations = 20
     learning_rate = 0.05
+    cleanup = False
+    predict_on_test = True
 
 class mlp1:
     num_iterations = 20

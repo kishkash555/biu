@@ -1,5 +1,6 @@
 import numpy as np
 import loglinear as ll
+import config
 
 STUDENT={'name': 'SHAHAR SIEGMAN',
          'ID': '011862141'}
@@ -44,6 +45,12 @@ def loss_and_gradients(x, y, params):
     out_dim = U.shape[1]
     # first, do the entire feedforward
     
+    shape_b = b.shape
+    if len(shape_b)==1:
+        if config.debug:
+            print("b should be a 2d array, actual shape: {}".format(shape_b))
+        b = np.array(b,np.double, ndmin=2)
+
     a2 = layer_output(x,[W,b]) 
     z3 = np.dot(a2,U) + b_tag
     y_hat = ll.softmax(z3)
@@ -51,7 +58,8 @@ def loss_and_gradients(x, y, params):
     y_e = ll.to_one_hot_row(y,out_dim)
 
     y_diff = y_hat - y_e
-
+    
+    #print("feedforward complete.")
     # now we can use backprop
     gU = np.dot(a2.transpose(), y_diff )
     gb_tag = y_diff.copy()

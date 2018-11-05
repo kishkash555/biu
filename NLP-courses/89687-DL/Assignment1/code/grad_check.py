@@ -9,17 +9,20 @@ def gradient_check(f, x):
     - f should be a function that takes a single argument and outputs the cost and its gradients
     - x is the point (numpy array) to check the gradient at
     """ 
+    
     fx, grad = f(x) # Evaluate function value at original point
-    # if not np.all(grad.shape==x.shape):
-    #   print("the shapes of x ({}) and the gradient ({}) do not match ".format(x.shape, grad.shape))
-    #   raise AssertionError
+    x = np.squeeze(x)
+    grad = np.squeeze(grad)
+    if not np.all(grad.shape==x.shape):
+       print("the shapes of x ({}) and the gradient ({}) do not match ".format(x.shape, grad.shape))
+       raise AssertionError
+    # print("got x: {} returned grad: {} ".format(x,grad))  
     h = 1e-4
 
     # Iterate over all indexes in x
     it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
     while not it.finished:
         ix = it.multi_index
-
         ### modify x[ix] with h defined above to compute the numerical gradient.
         ### if you change x, make sure to return it back to its original state for the next iteration.
         v = x[ix] 
@@ -29,6 +32,8 @@ def gradient_check(f, x):
         f1,_ = f(x)
         x[ix] = v
         numeric_gradient = (f2-f1)/h
+        numeric_gradient = np.squeeze(numeric_gradient)
+        # print("numeric: {}, grad: {}, ix: {}".format(numeric_gradient, grad, ix))
         # Compare gradients
         reldiff = abs(numeric_gradient - grad[ix]) / max(1, abs(numeric_gradient), abs(grad[ix]))
         if reldiff > 1e-5:

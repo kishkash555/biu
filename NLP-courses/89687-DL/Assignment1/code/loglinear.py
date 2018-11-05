@@ -1,4 +1,5 @@
 import numpy as np
+import config
 
 STUDENT={'name': 'Shahar Siegman',
          'ID': '011862141'}
@@ -73,9 +74,10 @@ def loss_and_gradients(x, y, params):
     out_dim = shape_W[1]
     shape_b = b.shape
     if len(shape_b)==1:
-        print("b should be a 2d array, actual shape: {}".format(shape_b))
+        if config.debug:
+            print("b should be a 2d array, actual shape: {}".format(shape_b))
         b = np.array(b,np.double, ndmin=2)
-        print("shape: {}".format(b.shape))
+
     elif shape_b[0] != 1:
         print("b should be a row vector, actual shape: {}".format(shape_b))
         raise AssertionError
@@ -84,9 +86,9 @@ def loss_and_gradients(x, y, params):
 
     y_hat = classifier_output(x,params)
     loss = logloss(y_e, y_hat)
-    y_diff = np.matrix(y_hat-y_e)
+    y_diff = y_hat-y_e
     gW = np.dot(x.transpose(),y_diff)
-    gb = y_diff 
+    gb = y_diff
     if not np.all(gW.shape==W.shape):
         print("problem with calculation of gW, size: {}, expected: {}".format(gW.shape, W.shape))
         print("shape y_diff: {}, shape x: {}".format(y_diff.shape, np.matrix(x).shape))
@@ -131,15 +133,18 @@ if __name__ == '__main__':
     def _loss_and_W_grad(W):
         global b
         loss,grads = loss_and_gradients([1,2,3],0,[W,b])
-        return loss,grads[0]
+        return loss, grads[0]
 
     def _loss_and_b_grad(b):
         global W
         loss,grads = loss_and_gradients([1,2,3],0,[W,b])
-        return loss,grads[1]
+        return loss, grads[1]
 
     for _ in range(10):
         W = np.random.randn(W.shape[0],W.shape[1])
         b = np.random.randn(b.shape[0])
+        # print("b: {}".format(b))
+        # print("itreation: {} grad check b".format(_))
         gradient_check(_loss_and_b_grad, b)
+        # print("grad check W")
         gradient_check(_loss_and_W_grad, W)

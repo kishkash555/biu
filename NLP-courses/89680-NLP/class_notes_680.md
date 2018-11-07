@@ -98,3 +98,72 @@ How to calculate the signatures' probabilities? can take 10%
 we stopped at slide 51
 
 exercise: do everything related to hmm
+
+### POS Tagging - The HMM approach
+#### point (word) estimates
+Part of speech (POS) tagging requires as to map each word to one of 36 categories.
+Naively our task is to find $P(\{y_i\})|\{x_i\})$ where $\{y_i\}$ are the tags in the sentence and $\{x_i\}$ are the words. This requires a lookup table that is exponential in the dictionary and therefore clearly not viable.
+
+So we apply Bayesian Inference principles:
+- $P(y|x)P(x) = P(x,y) = P(x|y)P(y)$ where $P(x)$ is irrelevant as it is constant.
+- now we only need the (unconditional) probability of each tag $y$ and its "qualifier" $P(x|y)$ 
+- Starting with the **un**conditional probability $P(y)$:
+    - It does not depend on $x$, but it does depend on previous $y$'s.
+    - If we assume dependence on the previous tag only:
+        ![markov1](images/i3.png) 
+    - Since $P(y_{i-1})$ dependes on $P(y_{i-2})$ and so forth this results in a chain.
+    - We actually prefer a Markovian chain of order two:
+    ![markov2](images/i4.png)
+    - These can be estimated using MLE.
+    - But for robustness, we prefer an MLE with fallbacks fewere dependencies:
+    ![robust MLE](images/i5.png)  
+    - Note the estimated chain-conditional probabilities are called *transition probabilities* and denoted $q(y_i)$ 
+
+- Now for the conditional probabilty $P(x|y)$:
+    - We make a very bold independence assumption: we will compare just the probabilities of the word conditional with the specific tag:
+    ![tag independence](images/i6.png)
+    - and estimate them using MLE:
+    ![x mle](images/i7.png)
+    - These are called *emission probabilities* and denoted $e_i$.
+
+- To avoid multiplying probabilities we work with the $\log$s:
+![emission transition log](images/i8.png)
+
+#### From single word estimates to sentence-level $\arg \max$
+We still have a search problem on our hand since we want to maximize the tag sequence, not just single tags.
+
+The greedy sequential solution is $O(kn)$ where $n$ are the words and $k$ are the tags.
+
+**Viterbi** devised a dynamic-programming solution. Its invention dates back to 1967 and is useful in the context of decoding convolutional codes, such that exist in wireless communication, genome sequencing and more.
+
+
+
+
+This algorithm generates a path $Y=(y_1,y_2,\ldots,y_N)$, which is a sequence of states $y_t \in S=\{s_1,s_2,\dots,s_T\}$ that generate the observations $X=(x_1,x_2,\ldots, x_N)$ with $x_n \in  O=\{o_1,o_2,\dots,o_W\}$ ($W$ being the count of observations (observation space, see below)).
+
+Two 2-dimensional tables of size $T \times N$ are constructed:
+
+* Each element $V[i,j]$ of $V$ stores the probability of the most likely path so far:
+ $\hat{Y}=(\hat{y}_1,\hat{y}_2,\ldots,\hat{y}_j)$ with $\hat{y}_j=s_i$ that generates 
+ $X=(x_1,x_2,\ldots, x_j)$.
+* Each element $bp[i,j]$ of $bp$ stores $\hat{y}_{j-1}$ of the most likely path so far 
+$\hat{Y}=(\hat{y}_1,\hat{y}_2,\ldots,\hat{y}_{j-1},\hat{y}_j = s_i)$ for $\forall j, 2\leq j \leq T $
+
+The table entries $V[i,j],bp[i,j]$ are filled by increasing order of $T\cdot j+i$.
+
+$V[i,j]=\max_{k}{(V[k,j-1]\cdot Q_{ki}\cdot E_{ix_j})}$, and
+$bp[i,j]=\operatorname{argmax}_{k}{(V[k,j-1]\cdot Q_{ki}\cdot E_{ix_j})}$,
+
+with $Q_{ki}$ and $E_{iy_j}$ as defined below. Note that $E_{ix_j}$ does not need to appear in the latter expression, as it's non-negative and independent of $k$ and thus does not affect the argmax.
+
+
+
+
+
+
+
+ 
+
+
+
+

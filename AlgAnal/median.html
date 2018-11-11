@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+</head>
+<body>
+<!---
+<table>
+    <tr>
+      <th>Firstname</th>
+      <th>Lastname</th>
+      <th>Age</th>
+    </tr>
+    <tr>
+      <td>Jill</td>
+      <td>Smith</td>
+      <td>50</td>
+    </tr>
+    <tr>
+      <td>Eve</td>
+      <td>Jackson</td>
+      <td>94</td>
+    </tr>
+  </table> 
+
+-->
+<script type="text/javascript">
+    function getKB()
+    {
+        document.getElementById("submitButton").disabled = true
+        if (!document.getElementsByName) return;
+        var k = document.getElementsByName("k")[0].value
+        var b = document.getElementsByName("b")[0].value
+        document.getElementById("info").innerText = "k: "+k+", b:"+b
+        startStream()
+        document.addEventListener("inputStreamEmit",updateList(k, b))
+
+        return false
+    }
+
+    function startStream() 
+    {
+        inputStreamNext()
+        var to = setInterval(inputStreamNext,1000)
+        document.getElementById("pauseResumeButton").onclick = function() { 
+            //console.log("in callback!")
+            clearInterval(to); document.getElementById("pauseResumeButton").onclick = startStream }
+        return false
+    }
+
+    function inputStreamNext()
+    {
+        var num = Math.round(Math.random()*100)
+        var event = new CustomEvent("inputStreamEmit", { detail: {number: num }});
+        document.dispatchEvent(event)
+    }
+
+    function updateList(k, b)
+    {
+        lst = []
+        buffers = [newBuffer()]
+        k = k || 8
+        b = b || 10
+        currBuffer = 0
+        return function(e) {
+            num = e.detail.number
+            //lst.push(e.detail.number)
+            //console.log(lst)
+            document.getElementById("theStream").innerText += num + ","
+            updateBuffers(num)
+            updateBuffersDisplay(buffers)
+        }
+        function newBuffer(l,w) { return { buff: [], weight: w || 1, level: l || 0, isFull: false}}
+
+        function updateBuffers(num) 
+        {
+            //console.log(`comparing ${buffers[currBuffer].buff.length} to ${k}`)
+            buffers[currBuffer].buff.push(num)
+            if (buffers[currBuffer].buff.length == k) {        
+                buffers[currBuffer].isFull= true
+                buffers[currBuffer].buff.sort((x,y)=> parseInt(x) < parseInt(y) ? -1 : (x==y ? 0: 1))
+                if (currBuffer == b-1) {
+                    collapseBuffers(buffers[currBuffer].level)
+                    updateBuffersDisplay(buffers)
+                    alert("collapse done")
+                } else {
+                    ++currBuffer
+                    if (buffers.length == currBuffer) {
+                        console.log("adding buffer "+currBuffer)
+                        buffers.push(newBuffer())
+                    }
+                }
+            }
+            
+
+        }   
+
+        function collapseBuffers(level) {
+            var levelBufs = buffers.filter(b => b.level==level)
+            var nBufs = levelBufs.length
+            var sumWeights = levelBufs.map(b=> b.weight).reduce((x,y) => x+y)
+            var cumWeights = 0
+            iters = levelBufs.map((b, i) => ({ ord: i, ind: 0, element: b.buff[0], weight: b.weight, done: false }))
+            console.log(`collapsing ${nBufs} buffers with total weight ${sumWeights} in level ${level}`)
+            var newBuf = []
+            var numiters = iters.length
+            while (numiters) {
+                min_element = Infinity
+                argmin = NaN
+                iters.forEach(it => {
+                    if (!it.done && it.element < min_element) {
+                        min_element = it.element
+                        argmin = it.ord
+                        console.log(`argmin ${argmin}`)
+                    }
+                })
+                
+                var cumWeightsNew = cumWeights + levelBufs[argmin].weight
+                if (parseInt(cumWeightsNew/sumWeights) > parseInt(cumWeights/sumWeights)) {
+                    newBuf.push(min_element)
+                    console.log('sampling element '+min_element)
+                }
+                cumWeights = cumWeightsNew 
+                if (++iters[argmin].ind == levelBufs[argmin].buff.length) {
+                    console.log(`finished iterating ${argmin}`)
+                    iters[argmin].done=true
+                    numiters--
+                } else { 
+                    iters[argmin].element = levelBufs[argmin].buff[iters[argmin].ind]
+                }
+            }
+            for(var j=0; buffers[j].level != level; j++);
+            buffers[j] = {buff: newBuf, weight: sumWeights, level: level+1, isFull: true}
+            currBuffer = j+1
+            
+            for(j+=1; j<b; j++) {
+
+            
+                if (buffers[j].level == level) 
+                {   
+                    console.log('resetting buffer '+j)
+                    buffers[j] = newBuffer()
+                }
+            }
+            console.log(buffers)
+        }
+    
+    }
+        
+    function updateBuffersDisplay(buffers) {
+        document.getElementById("buffers").innerHTML = 
+            buffers.map(b => `level: ${b.level} weight: ${b.weight} ${b.isFull? "Full!" : "<b>Active</b>"} | ${b.buff.join(", ") }`).join('<p>')
+    }
+    
+
+</script>
+<div id="inputs">
+ K: <input type="text" name="k"><br>
+ B: <input type="text" name="b"><br>
+    <button onClick='getKB();return true;' id='submitButton'>Start</button>
+    <button id='pauseResumeButton'>Pause/Resume</button>
+</div>
+<div id="info"></div>
+<div id="theStream"></div>
+<div id="buffers"></div>
+</body>

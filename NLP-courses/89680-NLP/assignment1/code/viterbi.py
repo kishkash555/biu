@@ -23,7 +23,8 @@ def viterbi(N, q, e, T):
 def viterbi_sparse(edges,T):
     """
     edges: an array of lengh n, with triplets: (from_state, to_state, cost)
-    source: http://www.cim.mcgill.ca/~latorres/Viterbi/va_alg.htm
+    see: http://www.cim.mcgill.ca/~latorres/Viterbi/va_alg.htm
+    assumes the last layer has a single state.
     """
     S = []
     l_total = 0.

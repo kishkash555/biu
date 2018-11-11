@@ -40,16 +40,24 @@
 
     function startStream() 
     {
+        period = 2
+        pc = 0
         inputStreamNext()
-        var to = setInterval(inputStreamNext,1000)
+        var to = setInterval(inputStreamNext,500)
         document.getElementById("pauseResumeButton").onclick = function() { 
             //console.log("in callback!")
             clearInterval(to); document.getElementById("pauseResumeButton").onclick = startStream }
+        document.getElementById("slowOrFast").onclick = function() { 
+            period = period == 2 ? 1: 2
+        }
         return false
     }
 
     function inputStreamNext()
     {
+        pc++
+        if (pc % period > 0) 
+            return
         var num = Math.round(Math.random()*100)
         var event = new CustomEvent("inputStreamEmit", { detail: {number: num }});
         document.dispatchEvent(event)
@@ -58,7 +66,9 @@
     function updateList(k, b)
     {
         lst = []
-        buffers = [newBuffer()]
+        buffers=[]
+        for (var y=0; y< b; y++) 
+            buffers.push(newBuffer())
         k = k || 8
         b = b || 10
         currBuffer = 0
@@ -66,7 +76,7 @@
             num = e.detail.number
             //lst.push(e.detail.number)
             //console.log(lst)
-            document.getElementById("theStream").innerText += num + ","
+            document.getElementById("theStream").textContent += num.toString() + "; "
             updateBuffers(num)
             updateBuffersDisplay(buffers)
         }
@@ -81,14 +91,14 @@
                 buffers[currBuffer].buff.sort((x,y)=> parseInt(x) < parseInt(y) ? -1 : (x==y ? 0: 1))
                 if (currBuffer == b-1) {
                     collapseBuffers(buffers[currBuffer].level)
-                    updateBuffersDisplay(buffers)
-                    alert("collapse done")
+                    
+                    
                 } else {
                     ++currBuffer
-                    if (buffers.length == currBuffer) {
-                        console.log("adding buffer "+currBuffer)
-                        buffers.push(newBuffer())
-                    }
+                    // if (buffers.length == currBuffer) {
+                    //    console.log("adding buffer "+currBuffer)
+                    //    buffers.push(newBuffer())
+                    // }
                 }
             }
             
@@ -111,7 +121,6 @@
                     if (!it.done && it.element < min_element) {
                         min_element = it.element
                         argmin = it.ord
-                        console.log(`argmin ${argmin}`)
                     }
                 })
                 
@@ -142,25 +151,34 @@
                     buffers[j] = newBuffer()
                 }
             }
-            console.log(buffers)
+            updateBuffersDisplay(buffers)
+            if (currBuffer >= b) {
+                console.log("running additional collapse")
+                alert("running additional collapse")
+                collapseBuffers(level+1)
+            }
+            else {
+                alert("collapse done")
+            }
         }
     
     }
         
     function updateBuffersDisplay(buffers) {
         document.getElementById("buffers").innerHTML = 
-            buffers.map(b => `level: ${b.level} weight: ${b.weight} ${b.isFull? "Full!" : "<b>Active</b>"} | ${b.buff.join(", ") }`).join('<p>')
+            buffers.map(b => `level: ${b.level} weight: ${b.weight} ${b.isFull? "Full!" : (b.buff.length==0? "empty" : "<b>Active</b>")} | ${b.buff.join(", ") }`).join('<p>')
     }
     
 
 </script>
 <div id="inputs">
- K: <input type="text" name="k"><br>
- B: <input type="text" name="b"><br>
+ K: <input type="text" name="k"  style="margin-top: 1em; margin-bottom: 1em;"><br>
+ B: <input type="text" name="b"  style="margin-top: 1em; margin-bottom: 1em;"><br>
     <button onClick='getKB();return true;' id='submitButton'>Start</button>
-    <button id='pauseResumeButton'>Pause/Resume</button>
+    <button id='pauseResumeButton'>Pause/Resume</button><br>
+    <button id='slowOrFast'>Toggle faster</button>
 </div>
 <div id="info"></div>
-<div id="theStream"></div>
+<div id="theStream" style="margin-top: 1em; margin-bottom: 1em;"></div>
 <div id="buffers"></div>
 </body>

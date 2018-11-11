@@ -51,4 +51,44 @@ worked out in class example from exam 2014 moed bet
 slide 4 a good heuristic:
 - goes down as you near the goal
 - admissible: the computation of the heuristic should be simpler than the true calculation
-- 
+
+----
+Nov. 8 2018
+
+ex1.: python or java
+will be uploaded to the course site
+
+
+consistent: $h(n) - h(n') \leq C(n,n')$ 
+where $h$ is the heuristic and $n,n'$ are two nodes
+
+The monotnity is not a must. consistent <-> montonic
+admissable <-> underestimate.
+
+#### Best FS algorith pseudo code
+1. start with open=initial state
+2. while...
+
+
+#### A* and IDA*
+A* prioritizes based on a combination of the true cost so far and the heuristic to gauge the cost to the goal.
+
+IDA* using threshold  - example
+- A: 12 b: 2 c: 8
+- A's $g$ is larger than the current threshold (which was set as $g(s)=8$)
+- continue with B and C, starting with B
+- B goes to to c:6 and F:8
+- c goes to G3: 11. above threshold
+- F goes to d: 4 
+- d goes to g2: 9 above threshold
+- my list is empty. I rerun the whole thing with a threshold of 9. Now I will reach G2 which has a cost of 9.
+
+- note we only use g for the threshold, not for prioritizing. a stack is good enough here.
+
+- if you were'nt told about duplicate pruning, you may implement the algorithm without closed list and it will go into looops.
+
+
+
+
+
+

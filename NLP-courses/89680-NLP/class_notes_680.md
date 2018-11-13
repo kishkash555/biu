@@ -99,7 +99,7 @@ we stopped at slide 51
 
 exercise: do everything related to hmm
 
-### POS Tagging - The HMM approach
+### POS Tagging - The HMM approach (my summary)
 #### point (word) estimates
 Part of speech (POS) tagging requires as to map each word to one of 36 categories.
 Naively our task is to find $P(\{y_i\})|\{x_i\})$ where $\{y_i\}$ are the tags in the sentence and $\{x_i\}$ are the words. This requires a lookup table that is exponential in the dictionary and therefore clearly not viable.
@@ -159,8 +159,27 @@ with $Q_{ki}$ and $E_{iy_j}$ as defined below. Note that $E_{ix_j}$ does not nee
 
 
 
+-----
+Nov. 12 2018
+(missed first part)
+slide 30 now I have an argmax in there. y' is a much bigger class but I can find the right one using viterbi.
 
+### segmentation
+it's harder to say correct/incorrect because some of the spans are tagged and some aren't.
+- Correct sentences - too harsh. hard to get there
+- each sequence on its own. measure percision and recall: correct predictions of all predictions and correct predicition of segments you were "supposed" to find.
+together they form a good balance between being too confident to being too timid.
 
+slide 60: if I use only sequences I observed in the training i may be aming for recall because other patterns i didn't observed will be missed.
+this will be depenedent on the accuracy of the POS-tagger and specific to a particular task (NP-chunk). So if I am focused on a very specific problem that's good enough. o/w I want to do machine learning.
+
+the _[, ] , ][, None_ is very local, for example I will learn _None_ inside and outside of brackets. also we need to complicate in order to take into account whether I'm inside an open bracket or not.
+
+[[not fully understood how this is learned. slide 100]]
+
+BIO tagging is sufficient. Adding Single and Ending doesn't add "power" but might help learning. I am more sensitive to differences between words that usually appear alone (single), and in the end (for example LTD in the name of a company)
+
+slide 123: cheaper. but i miss features such as length of sequence. works almost as good but much faster.
 
  
 

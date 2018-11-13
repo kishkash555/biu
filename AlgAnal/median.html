@@ -4,6 +4,7 @@
 <meta charset="utf-8"/>
 </head>
 <body>
+    <h1>Streaming Median Simulation</h1>
 <!---
 <table>
     <tr>
@@ -31,6 +32,8 @@
         if (!document.getElementsByName) return;
         var k = document.getElementsByName("k")[0].value
         var b = document.getElementsByName("b")[0].value
+        k = parseInt(k) || 8
+        b = parseInt(b) || 10
         document.getElementById("info").innerText = "k: "+k+", b:"+b
         startStream()
         document.addEventListener("inputStreamEmit",updateList(k, b))
@@ -69,8 +72,7 @@
         buffers=[]
         for (var y=0; y< b; y++) 
             buffers.push(newBuffer())
-        k = k || 8
-        b = b || 10
+
         currBuffer = 0
         return function(e) {
             num = e.detail.number
@@ -181,4 +183,23 @@
 <div id="info"></div>
 <div id="theStream" style="margin-top: 1em; margin-bottom: 1em;"></div>
 <div id="buffers"></div>
+<div id="help">
+    This is a simulation of the streaming-median algorithm.<br>
+    The length of each bucket <code>k</code> and the number of buckets <code>b</code> are required inputs. If 0 or other invalid input is used, the defaults are 8 and 10.<br>
+    After filling in the desired value, press <i>start</i>.
+    A stream of number, one every 1 second, will start appearing. The entire stream will be visible at the top. This is not part of the algorithm and is for review only.
+    At the same time, the buckets will start to fill (and collapse) according to the algorithm logic:
+    <ul>
+    <li>The "buckets" are first filled in order. Once a bucket is full, it is sorted.</li>
+    <li>Once all buckets are full, a <code>COLLAPSE</code> stage occurs. The <code>COLLAPSE</code> compacts all buffers of the current
+     (lowest) level into one buffer by way of uniform sampling, taking the weight into account. </li>
+    <li>Note that when a <code><b>COLLAPSE</b></code> stage completes, the simulation is paused and an alert is popped. The user can examine the results.</li>
+    <li>note that the final step of the algorithm, of finding the true median at any point in time, was not implemented. 
+        Intuitively, it is similar to the uniform sampling, taking a sinlgle sample at the desired percentile of the current numbers (when taking their weights into account)</li>
+    </ul>   
+        The simulation can be 
+     paused at any time using the <i>pause/resume</i> button.<br>
+     To reset the page and rerun the simulation from scratch, hit "refresh" (F5), or go to the address bar and press "enter" again.
+     Enjoy!
+</div>
 </body>

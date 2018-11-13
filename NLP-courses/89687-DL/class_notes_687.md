@@ -230,4 +230,41 @@ the same model can be used to label the qunituplet. Is this DNA sequence "good" 
 
 stopped at #56
 
+-----
+12 Nov. 2018
+### word embeddings and Word2Vec (lec5.pdf)
+The same topic will be covered in 680 from a different angle. Here from the aspect of deep learning and modeling sequences.
+
+Given a prefic, the probability of the next items. Equivalent to What is the probability of this sequence (relative to another)
+
+Embedding layer translates from a symbol, a vocab, to a vector of constant length. each sequence is composed of constant vocabularly. we want symbols appearing in similar contexts to get similar embedding vectors. and we will elaborate. The embedding layer can be transferred to another problem, since this requirement is useful in different applications.
+
+slide 3: we chain the $E$'s (embedding vectors) We chain these vectors and use that as input (a sentence). the final layer will give a probability prediction for each word.
+
+$W^3$ and $softmax$ are expensive because they involve 100,000-row matrices. Maybe i can learn the embedding in a simpler way? 
+
+#### Word2Vec
+If we wanted a full language model in Wiki it would run weeks. Word2Vec can run in hours on Wiki
+##### Collobert and Weston (preceded W2V)
+- instead of predicting the next we will train on predicting the middle word based on surrounding words (e.g. 2 from each side).
+In other words, the most relevent 4 words are the _surrounding_ 4 words. Knowing what word follows helps.
+This change is very minor in terms of network topology and training technique.
+- getting rid of the softmax layer - i don't need probabilities. The loss scoring will be based on ranking.
+- The "incorrect" word is sampled by its frequency in the text.
+
+##### W2V
+after we understand slide 23 we are left with choosing $s(w,c)$.
+the black dog sat on...
+- CBOW: 
+$(V_{the} + V_{black} + V_{sat} + V_{on})\times V'_{dog}$
+- skipgrams
+
+#### Usage of Word2Vec
+cosine similarity is useful. for this purpose, normalized vectors are useful. So would be better to normalize upon loading.
+
+slide 34: I can train a POS tagger similarly, using tagged training set. Still, a good embedding is good to expedite this learning process, since words that have close embeddings are more likely to be the same POS. The embeddings brings the power of massive training data in tasks where no large tagged corpi are available.
+
+Depending on the task, we may choose to keep the E's fixed, or allow them to change in the process of training. 
+
+### Gradient based training
 

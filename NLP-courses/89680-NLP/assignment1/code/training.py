@@ -113,4 +113,5 @@ def getEs(word, train_data):
     return train_data.word_counts[word]/train_data.pos_counter
 
 def getLogEs(word, train_data):
-    return -np.log(train_data.word_counts[word]) + np.log(train_data.pos_counter)
+    epsilon = 0.
+    return -np.log(train_data.word_counts[word]+epsilon) + np.log(train_data.pos_counter)

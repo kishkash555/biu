@@ -1,6 +1,14 @@
-import test
-food_train_data = test.food_train_data
-import viterbi
-import training
+import config
 
-viterbi.trigram_viterbi(['egg','ham','cheese'],food_train_data)
+import training
+import viterbi
+#trigram_viterbi = viterbi.trigram_viterbi
+another_viterbi = viterbi.another_viterbi
+
+train_data = training.read_input('..\\data\\ass1-tagger-train')
+
+v, bp, y = another_viterbi(['Bell', 'makes','and','distributes','electronics'], train_data)
+
+tags = list(train_data.pos_items.keys())
+sentence_tags = [tags[yi] for yi in y]
+print(sentence_tags)

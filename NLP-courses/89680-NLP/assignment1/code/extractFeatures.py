@@ -1,15 +1,24 @@
 import re
 from collections import Counter
 import config
+#import memm_utils
+import sys
 
-def extract_all_sentence_features(tagged_sentence, registered_fes):
-    padded_sentence = [(config.start,'')] *2 + tagged_sentence
+def generate_triplets_from_tagged_sentence(tagged_sentence):
+    padded_sentence = [('', config.start)] *2 + tagged_sentence
     for i in range(2,len(padded_sentence)):
-        word, tag = padded_sentence[i]
-        line = [tag]
-        for fe in registered_fes:
-            line += feature_str(*fe(padded_sentence[i-2:i+1]))
-        yield ' '.join(line)+'\n'
+        yield padded_sentence[i-2:i+1]
+
+def triplet_to_feature_name_value_pairs(tagged_triplet, registered_features_l):
+    for fe in registered_features_l:
+        yield feature_str(*fe(tagged_triplet)) 
+
+def generate_lines_with_tags(tagged_sentence, registered_features_l):
+    for triplet in generate_triplets_from_tagged_sentence(tagged_sentence):
+        features = ' '.join(sum(triplet_to_feature_name_value_pairs(triplet, registered_features_l),[]))
+        if len(features):
+            tag = triplet[2][1]
+            yield tag + ' ' + features +'\n'
 
 curr_word = lambda triplet: triplet[2][0]
 
@@ -33,7 +42,7 @@ def prev_tag(prev_tag):
 
 def previous_2_tags(tag1,tag2):
     def are_last_2(triplet, *argc):
-        return f"last_2_tags_{tag1}_{tag2}", 1 if triplet[0][1]==tag1 and triplet[1][1]==tag2 else 0
+        return (f'last_2_tags_{tag1}_{tag2}', 1 if triplet[0][1]==tag1 and triplet[1][1]==tag2 else 0)
     return are_last_2
 
 
@@ -59,7 +68,6 @@ known_regexs = [
     ("[bcdfghjklmnpqrstvwxyz]{1,2}[aeiou].ed",'limed_loved_shoved'),
     ("[a-z]{2,}ed",'ed'),
     (".{5,}nal",'directional'),
-    (".{5,}ality",'ality'),
     ("(.{1,2}\.)+",'has_dots'),
     (".{4,}al",'al'),
     (".{4,}ality",'ality'),
@@ -70,7 +78,7 @@ known_regexs = [
     ]
 
 regexs = [match_regex(re.compile(ex), fn) for ex, fn in known_regexs]
-registered_features = regexs + [isnumber, iscapitalized] + [is_word(w) for w in known_words] 
+registered_features = regexs + [isnumber, iscapitalized]  
 
 def process_input_for_frequent_words(corpus_file, frequencies):
     word_counts = Counter()
@@ -97,6 +105,7 @@ def process_input_for_frequent_words(corpus_file, frequencies):
 def extract_features(corpus_file, feature_file):
     frequent_words, frequent_tags, frequent_pairs = process_input_for_frequent_words(corpus_file, config.frequncies)
     registered_features_l = registered_features +\
+         [is_word(w) for w in known_words] + \
          [is_word(w) for w in frequent_words] + \
          [prev_tag(t) for t in frequent_tags] + \
          [previous_2_tags(*tp) for tp in frequent_pairs]
@@ -105,11 +114,11 @@ def extract_features(corpus_file, feature_file):
         with open(feature_file,'wt', encoding='utf8') as o:
             c = 0
             for line_in in i:
-                feature_generator = extract_all_sentence_features([tuple(w.rsplit("/",1)) for w in line_in.split()], registered_features_l)
+                feature_generator = generate_lines_with_tags([tuple(w.rsplit("/",1)) for w in line_in.split()], registered_features_l)
                 o.writelines(feature_generator)
                 c += 1
-                if c==1000: #!!!!
-                    break
+                if c % 1000 ==0:
+                    print(f"processed {c} lines of input.")
     return 0
 
 
@@ -117,5 +126,18 @@ def extract_features(corpus_file, feature_file):
 
 
 if __name__ == '__main__':
-    extract_features('C:\\Shahar\\BarIlan\\NLP-courses\\89680-NLP\\assignment1\\data\\ass1-tagger-train',
-     'C:\\Shahar\\BarIlan\\NLP-courses\\89680-NLP\\assignment1\\data\\ass1-tagger-train-out')
+    argv = sys.argv
+    if len(argv)==1:
+        print("Extract features running with default files")
+        input_file = config.defaultFiles.tagged_input
+        output_file = config.defaultFiles.memm_feature_out
+    elif len(sys.argv !=3 ):
+        print(f"usage: {sys.argv[0]} path_to_tagged_input_file path_to_feature_output_file")
+        print("exiting.")
+        exit()
+    else:
+        input_file = argv[1]
+        output_file = argv[2]
+    print(f"tagged input: {input_file}\n output:{output_file}")
+
+    extract_features(input_file, output_file)

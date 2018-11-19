@@ -44,21 +44,6 @@ def triplets_to_tagged_line(tagged_triplets):
     return tagged_line
 
 def main(argv, decoder):
-    if len(argv)==1:
-        print("Using default file names")
-        untagged_file = config.defaultFiles.untagged_test
-        model_file = config.defaultFiles.memm_model_file
-        feature_map_file = config.defaultFiles.memm_feature_map
-        tagged_out_file = config.defaultFiles.memm_greedy_tagged_output
-    elif len(sys.argv) != 5 :
-        print(f"usage: {sys.argv[0]} feature_file model_file\nexiting.")
-        exit()
-    else:
-        untagged_file = sys.argv[1]
-        model_file = sys.argv[2]
-        feature_map_file = sys.argv[3]
-        tagged_out_file = sys.argv[4]
-    
     decoder = decoder.lower()
     if decoder == 'greedy':
         decoder_func = generate_greedily_tagged_triplets
@@ -67,6 +52,22 @@ def main(argv, decoder):
     else:
         print(f"decoder should be 'greedy' or 'viterbi', not {decoder}")
         return
+    if len(argv)==1:
+        print("Using default file names")
+        untagged_file = config.defaultFiles.untagged_test
+        model_file = config.defaultFiles.memm_model_file
+        feature_map_file = config.defaultFiles.memm_feature_map
+        tagged_out_file = config.defaultFiles.memm_greedy_tagged_output if decoder == 'greedy' else config.defaultFiles.memm_viterbi_tagged_output
+    elif len(sys.argv) != 5 :
+        print(f"usage: {sys.argv[0]} input_file model_file feature_map_file out_file\nexiting.")
+        exit()
+    else:
+        untagged_file = sys.argv[1]
+        model_file = sys.argv[2]
+        feature_map_file = sys.argv[3]
+        tagged_out_file = sys.argv[4]
+    
+
     
     tag_dict, feature_dict = mu.load_map_file(feature_map_file)
     model = pickle.load(open(model_file,'rb'))
@@ -79,10 +80,10 @@ def main(argv, decoder):
     with open(tagged_out_file,'wt',encoding='utf8') as o:
         with open(untagged_file,'rt',encoding='utf8') as i:
             for line in i:
-                c += 1
-                tagged_triplets = decoder(line, model, registered_features, feature_dict, tag_dict)   
+                tagged_triplets = decoder_func(line, model, registered_features, feature_dict, tag_dict)   
                 o.write(triplets_to_tagged_line(tagged_triplets)+'\n')
-                if c % 1000 == 0:
+                c += 1
+                if c % 1 == 0:
                     print(f'wrote {c} lines.')
     print('Done.')
 

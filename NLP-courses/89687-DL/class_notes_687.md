@@ -268,3 +268,70 @@ Depending on the task, we may choose to keep the E's fixed, or allow them to cha
 
 ### Gradient based training
 
+----
+Nov. 19 2018
+Lec. 6 Variable length Sequences
+
+### feature embeddings
+
+When the feature vector contains "binary" or "one-hot" type inputs, we would like to replace them lower-dimension vectors with real values. For example, I can take the phrase "the dog" and concatenate vectors for "the", for "dog" and for DT (the tag of the prev word). What I need is a table that maps words and tags to these vector signatures. I can train such mappings myself, or use others' results.
+
+#### concat vs. sum
+concatenating allows me to maintain the relative position. each feature might have a different dimension. By contrast, if I sum, I lose the order and I need them to all be the same dimension. but now I can sum as many words as I want in the same size vector. If I do something it didn't see in training, e.g. sum 7 words where in training it only saw 3, it won't be a good result necessarily.
+
+#### CBOW
+![cbow_formula](images/cbow_formula.png)
+
+it works well for example in document classification. A Weighted version with weights $a_i$ is also used.
+
+cbow challenges: 
+- can you find if a single word was summed into a give cbow reperesentation of n words?
+This was tested experimentally. The training problem was to create such vectors and give words in and not in the vector as examples. up to 30 words in the sum, it works pretty well.
+
+- next problem: can we tell which word appeared earlier in the sentence? I can do that without the sum. e.g. accuracy 68%. but given the sum it improves to 70%. I gained 2% from the context provided by the sum.
+
+- can i learn the length of the sentence? how?
+"average cannot predict length". wrong. because the norm _decreases_. When summing ranodm vectors I approach some average. it is even recommended to normalize by $\sqrt k$ instead of $k$ to prevent this phenomenon. [[why sqrt?]]
+
+
+#### cbow usage
+I can label texts (e.g. find out their language). two methods suggested: without nonlinear layers and with. in the short classifier, i have to have a vector the size of the classificaiton problems. in the multilayer i have more freedom.
+
+when I use unigrams, i get poor performance, i can improve a little with the multilayer, but the adjacency information was lost.
+
+remember ngrams are important. "terrible food" in a restaurant review, it doesn't matter where in the document it appeard, it is very important that they appeared adajacent. 
+
+So we're stuck - we can't create a vector of bigrams it has $n^2$ dimensions. but we need this infomration
+
+in hybrid models we use both concatenations and sums. e.g. concat the recent context (last 5 words) and sum all the words before that.
+
+### convolution nets for sequence
+see vision slides
+slide 27. Each word is represented by D dimensions, here 4, actually 100.
+- dot-product adjacent words.
+I assume it knows to look for a particular pair. most pairs will have low score, some will be high. we have our own vector of size 8 with which we calc the dot prod.
+
+the point is that it is sensitive to pairs without needing to build per-pair representations. Then we can sum the representations. this is "pooling". the final pooling is fed into an MLP, and I can train the wholse system concurrently. Another important aspect is that this can work on variable length.
+
+slide 58 skipped
+
+whe doing max pooling, note that the max should be siginficant. one of them has got to be highest, but is it real?
+
+strides - skipping some of the overlapping triplets
+
+#### Dilated convolutions
+increase the stride and use hierarchy.
+
+### hashing trick
+good to know. hash. e.g. from huge representation 10^9^ to 10^5^
+
+hashing vs. convnets
+- hashing faster (hash then table) 
+- convnet works well on similar words even if not seen in training. it can generalize from "cute dog" and "nice cat" to "nice dog" and "cute cat". The hashing is disjoint, so no such transfer is available.
+
+
+
+
+
+
+

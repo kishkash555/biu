@@ -87,38 +87,46 @@ def viterbi_hmm(sentence, train_data):
 def viterbi_memm(sentence_str, states, get_triplet_scores):
     # transition from start, start
     start = config.start
-    start_ind = [i for i, s in enumerate(states) if s==start][0]
+    states = [start] + states
     T = len(states)
+    start_ind = 0
     bp_list = []
     padded_sentence = ['']*2 + sentence_str.split() + ['']*2
     n_words = len(padded_sentence) - 4
-    V_prev = -np.inf * np.ones((T,T))
-    V_prev[start_ind,start_ind]=0
+    V_prev = np.inf * np.ones((T,T))
+    V_prev[start_ind, start_ind] = 0
     V_list =[]
     for w in range(n_words):
+        print(w)
         current_triplet = [[padded_sentence[k],''] for k in range(w,w+5)]
-        probas = -np.ones((T,T))
-        V_current = -np.ones((T,T))
+        probas = np.inf * np.ones((T,T))
+        V_current = np.inf * np.ones((T,T))
         bp_current = -np.ones((T,T),np.int)
         for i in range(T):
             current_triplet[1][1] = states[i]
             for tp in range(T):
                 current_triplet[0][1] = states[tp]
-                probas[tp,:] = get_triplet_scores(current_triplet)
+                probas[tp,1:] = get_triplet_scores(current_triplet)
+                if w <= 1:
+                    break
             for j in range(T):
                 v_vec = probas[:,j] + V_prev[:,i]
                 best_score_location = np.argmin(v_vec)
                 V_current[i,j] = v_vec[best_score_location]
                 bp_current[i,j] = best_score_location
+            if w == 0:
+                break
         V_prev = V_current
         V_list.append(V_current)
         bp_list.append(bp_current)
+
     best_v_coord = np.unravel_index(np.argmin(V_current),(T,T))
     y = [best_v_coord[1], best_v_coord[0]]
-    for i in range(len(bp_list)-1,-1,-1):
+    for i in range(len(bp_list)-1,1,-1):
         y.append(bp_list[i][y[-1],y[-2]])
     y.reverse()
     ret = [states[i] for i in y]
+    print("sentence done.")
     return ret
 
         

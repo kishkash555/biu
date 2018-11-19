@@ -5,9 +5,9 @@ import config
 import sys
 
 def generate_triplets_from_tagged_sentence(tagged_sentence):
-    padded_sentence = [('', config.start)] *2 + tagged_sentence
-    for i in range(2,len(padded_sentence)):
-        yield padded_sentence[i-2:i+1]
+    padded_sentence = [('', config.start)] *2 + tagged_sentence + [('', config.stop)] *2
+    for i in range(2,len(padded_sentence)-2):
+        yield padded_sentence[i-2:i+3]
 
 def triplet_to_feature_name_value_pairs(tagged_triplet, registered_features_l):
     for fe in registered_features_l:
@@ -25,37 +25,63 @@ curr_word = lambda triplet: triplet[2][0]
 def feature_str(feature_name, value):
     return [feature_name + "=" + str(value)] if value !=0 else []
 
-def is_word(word):
-    def fe(triplet, *argc):
-        return "is_word_"+word, 1 if curr_word(triplet).lower()==word else 0
-    return fe
-
 def match_regex(compiled_exp, feature_name):
     def is_match(triplet, *argc):
         return feature_name, 1 if compiled_exp.fullmatch(curr_word(triplet).lower()) else 0
     return is_match
 
-def prev_tag(prev_tag):
-    def is_prev_tag(triplet, *argc):
-        return "prev_tag_"+prev_tag, 1 if triplet[1][1]==prev_tag else 0
-    return is_prev_tag
+# def prev_tag(prev_tag):
+#     def is_prev_tag(triplet, *argc):
+#         return "prev_tag_"+prev_tag, 1 if triplet[1][1]==prev_tag else 0
+#     return is_prev_tag
+def prev_tag(triplet, *argc):
+    return 'prev_tag_' + triplet[1][1], 1
 
-def previous_2_tags(tag1,tag2):
-    def are_last_2(triplet, *argc):
-        return (f'last_2_tags_{tag1}_{tag2}', 1 if triplet[0][1]==tag1 and triplet[1][1]==tag2 else 0)
-    return are_last_2
+# def previous_2_tags(tag1,tag2):
+#     def are_last_2(triplet, *argc):
+#         return (f'last_2_tags_{tag1}_{tag2}', 1 if triplet[0][1]==tag1 and triplet[1][1]==tag2 else 0)
+#     return are_last_2
+def previous_2_tags(triplet, *argc):
+    return 'last_2_tags_' + triplet[0][1] + '_' + triplet[1][1], 1
 
 
 def isnumber(word,*argc):
     try:
-        float(word[-1][0])
+        float(curr_word(word))
         ret = 1
     except ValueError:
         ret = 0
     return "is_number",ret
 
 def iscapitalized(word, *argc):
-    return 'is_capitalized', 1 if word[2][0][0] in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' and word[1][0] != "*" else 0
+    return 'is_capitalized', (1 if word[2][0][0] in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' and word[1][0] != "*" else 0)
+
+def vocab_predicates(vocab, ind=2):
+    def is_word(triplet, *argc):
+        word = triplet[ind][0].lower() 
+        feature_name = "is_word_"+ (str(ind-2) if ind != 2 else '') + '_' + word
+        word_is_number = isnumber(triplet)[1]==1
+        if not word_is_number and (word in vocab or len(vocab)==0): 
+            return feature_name, 1
+        return feature_name, 0
+
+    def get_prefix(triplet, *argc):
+        cword = curr_word(triplet)
+        word_is_number = isnumber(triplet)[1]==1 
+        if word_is_number or cword in vocab or len(cword)<5:
+            return 'prefix_', 0
+        return 'prefix_'+cword[:4].lower(), 1
+    
+    def get_suffix(triplet, *argc):
+        cword = curr_word(triplet) 
+        word_is_number = isnumber(triplet)[1]==1 
+        if word_is_number or cword in vocab or len(cword)<5:
+            return 'suffix_', 0
+        return 'suffix_'+cword[-4:].lower(), 1
+
+    return is_word, get_prefix, get_suffix
+
+
 
 known_words = set("the be to of and a in that have has had n't I it for not on with he as you do at this but his by from they we say her she or an will my one all\
     would there their what so up out if about who get which go me when make can like time no just him know take people into year your good some\
@@ -74,7 +100,10 @@ known_regexs = [
     ("am|are|is|was|were|will|be|been",'be_conj'),
     ("have|has|had",'have_conj'),
     ('.{4,}ing','ing'),
-    ('.{3,}ship','ship')
+    ('.{3,}ship','ship'),
+    ('.{3,}ful','ful'),
+    ('.{3,}fully','fully'),
+    ('.+\-.*','hyphen'),
     ]
 
 regexs = [match_regex(re.compile(ex), fn) for ex, fn in known_regexs]
@@ -92,23 +121,29 @@ def process_input_for_frequent_words(corpus_file, frequencies):
             tag_counts.update(tags)
             tag_pair_counts.update(zip(tags[:-1],tags[1:]))
     ex_words = [w[0] for w in word_counts.most_common(frequencies.max_word_list_length) if w[1] >= frequencies.min_word_frequency and w[0] not in known_words]
-    tag_list_max_length = int(frequencies.min_tag_frequency * sum(tag_counts.values()))
-    tag_pair_list_max_length = int(frequencies.min_tag_pair_frequency * sum(tag_pair_counts.values()))
-    ex_tags = [t[0] for t in tag_counts.most_common(tag_list_max_length)]
-    ex_pairs = [tp[0] for tp in tag_pair_counts.most_common(tag_pair_list_max_length)] + [(config.start, t) for t in ex_tags]
+    #tag_list_max_length = int(frequencies.min_tag_frequency * sum(tag_counts.values()))
+    #tag_pair_list_max_length = int(frequencies.min_tag_pair_frequency * sum(tag_pair_counts.values()))
+    #ex_tags = [t[0] for t in tag_counts.most_common(tag_list_max_length)]
+    #ex_pairs = [tp[0] for tp in tag_pair_counts.most_common(tag_pair_list_max_length)] + [(config.start, t) for t in ex_tags]
     print('extracted words: {}'.format(' '.join(ex_words)))
-    print('extracted tags: {}'.format(' '.join(ex_tags)))
-    print('ex_pairs: {}'.format(' '.join(map(str,ex_pairs))))
-    return set(ex_words), set(ex_tags), set(ex_pairs)
+    # print('extracted tags: {}'.format(' '.join(ex_tags)))
+    # print('ex_pairs: {}'.format(' '.join(map(str,ex_pairs))))
+    return set(ex_words)
 
 
 def extract_features(corpus_file, feature_file):
-    frequent_words, frequent_tags, frequent_pairs = process_input_for_frequent_words(corpus_file, config.frequncies)
-    registered_features_l = registered_features +\
-         [is_word(w) for w in known_words] + \
-         [is_word(w) for w in frequent_words] + \
-         [prev_tag(t) for t in frequent_tags] + \
-         [previous_2_tags(*tp) for tp in frequent_pairs]
+    frequent_words = process_input_for_frequent_words(corpus_file, config.frequncies)
+    vocab_words = frequent_words.union(known_words)
+    is_word0, get_prefix, get_suffix = vocab_predicates(vocab_words)
+    is_word_p, _, _ = vocab_predicates(vocab_words, 1)
+    is_word_pp, _, _ = vocab_predicates(vocab_words, 0)
+
+    is_word_n, _, _ = vocab_predicates(vocab_words, 3)
+    is_word_nn, _, _ = vocab_predicates(vocab_words, 4)
+    
+    registered_features_l = registered_features + \
+         [get_prefix, get_suffix, prev_tag, previous_2_tags] +\
+         [is_word0, is_word_p, is_word_pp, is_word_n, is_word_nn]
 
     with open(corpus_file,'rt',encoding='utf8') as i:
         with open(feature_file,'wt', encoding='utf8') as o:

@@ -3,7 +3,7 @@ import config
 import extractFeatures as ef
 import re
 from collections import Counter, namedtuple, defaultdict, OrderedDict
-
+import viterbi
 
 training_data = namedtuple('training_data',['pos_items','pos_counter','pos_counter1','pos_counter2','word_counts'])
 
@@ -29,7 +29,7 @@ def read_input(input_file_name,subset=None):
     word_pos_pairs = list()
     with open(input_file_name,'rt',encoding='utf8') as a:
         for line in a:
-            word_pos_pairs.append([("",start), ("",start)] + [tuple(w.rsplit("/",1)) for w in line.split()])  #rsplit("/",1): split on the first slash from the right
+            word_pos_pairs.append([("***",start), ("***",start)] + [tuple(w.rsplit("/",1)) for w in line.split()])  #rsplit("/",1): split on the first slash from the right
     # single counters
     # print("string length: {} words:{} ".format(len(file_as_string),len(word_pos_pairs)))
     if subset and len(subset)>0:
@@ -42,7 +42,7 @@ def read_input(input_file_name,subset=None):
     for s in word_pos_pairs:
         pos_items_counts.update([pos for _, pos in s[1:]]) # skip the first 2 "starts"
     
-    pos_items = OrderedDict([(config.start,0)] + [(pos_count[0], i+1) for i, pos_count in enumerate(pos_items_counts.most_common())])
+    pos_items = OrderedDict([(pos_count[0], i) for i, pos_count in enumerate(pos_items_counts.most_common())])
     pos_counter = np.array([c for _,c in pos_items_counts.most_common()])
     
     # pair counter
@@ -71,13 +71,14 @@ def read_input(input_file_name,subset=None):
         w, p = w_p
         word_counts[w][pos_items[p]] = c
     
-    total_counts = sorted([vec.sum() for vec in word_counts.values()])
-    threshold = total_counts[int(len(total_counts)/4)+1]
+    #total_counts = sorted([vec.sum() for vec in word_counts.values()])
+    #threshold = total_counts[int(len(total_counts)/4)+1]
+    threshold = 6
     unk_counts = np.zeros(len(pos_items),np.int)
     for cnt in word_counts.values():
-        if cnt.sum() < threshold:
+        if cnt.sum() <= threshold:
             unk_counts += cnt
-    word_pos_counter['^unk'] = unk_counts
+    word_counts['^unk'] = unk_counts
 
     return training_data(pos_items, pos_counter, pos_counter1, pos_counter2, word_counts)
 
@@ -127,13 +128,18 @@ def getLogQ(triplet, train_data):
 
 def getLogEs(word, train_data):
     if word.lower() in train_data.word_counts:
-        return -np.log(train_data.word_counts[word.lower()]) + np.log(train_data.pos_counter)
+        a1 = -np.log(train_data.word_counts[word.lower()])
+        a2 = np.log(train_data.pos_counter)
+        ret = a1 + a2 
+        if np.any(train_data.pos_counter==0):
+            print(f"zero in position {(train_data.pos_counter==0).dot(arange(train_data.pos_counter.shape))}")
+        return ret
     
     T = train_data.pos_counter.shape
     regex_matched = ['unk'] + match_against_registered_regexs(word) 
     result_array = np.zeros(T,np.int)
     for regex_name in regex_matched:
-        result_array += [train_data.word_counts['^'+regex_name]] 
+        result_array += train_data.word_counts['^'+regex_name] 
     result_array = result_array / len(regex_matched)
     return -np.log(result_array) + np.log(train_data.pos_counter)
 
@@ -158,7 +164,7 @@ def e_mle_output(train_data):
     tags = list(train_data.pos_items.keys()) 
     T = len(tags)
     for word, count_vec in train_data.word_counts.items():
-        for i in range(1,T): 
+        for i in range(0,T): 
             if count_vec[i]>0:
                 yield f'{word} {tags[i]}\t{count_vec[i]}'
 
@@ -200,7 +206,7 @@ def read_e_mle_input(lines, pos_items):
         count = int(count)
         word_counts[word][pos_items[tag]] = count
         pos_counter[pos_items[tag]] += count
-    pos_counter[pos_items[config.start]] = 1 # avoid having a zero entry in pos_counter
+    # pos_counter[pos_items[config.start]] = 1 # avoid having a zero entry in pos_counter
     return word_counts, pos_counter
 
 def load_train_data_from_mle_files(q_mle_file, e_mle_file):
@@ -212,8 +218,7 @@ def load_train_data_from_mle_files(q_mle_file, e_mle_file):
     
     train_data = training_data(pos_items, pos_counter, pos_counter1, pos_counter2, word_counts)
     return train_data
-
-
+    
 
 def greedy_hmm_tagger(sentence_str, train_data):
     sentence = sentence_str.split()
@@ -227,3 +232,4 @@ def greedy_hmm_tagger(sentence_str, train_data):
         tag = tags[best_index]
         recent_2_tags = [recent_2_tags[1] , tag]
         yield word, tag
+

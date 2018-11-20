@@ -50,7 +50,7 @@ def main(argv, decoder):
     if decoder == 'greedy':
         decoder_func = generate_greedily_tagged_triplets
     elif decoder == 'viterbi':
-        decoder_func = viterbi_tagged_triplets
+        decoder_func = viterbi_prune
     else:
         print(f"decoder should be 'greedy' or 'viterbi', not {decoder}")
         return
@@ -59,7 +59,6 @@ def main(argv, decoder):
         untagged_file = config.defaultFiles.untagged_test
         model_file = config.defaultFiles.memm_model_file
         feature_map_file = config.defaultFiles.memm_feature_map
-        # tagged_out_file = '../data/ass1-test-viterbi-out'
         tagged_out_file = config.defaultFiles.memm_greedy_tagged_output if decoder == 'greedy' else config.defaultFiles.memm_viterbi_tagged_output
     elif len(sys.argv) != 5 :
         print(f"usage: {sys.argv[0]} input_file model_file feature_map_file out_file\nexiting.")

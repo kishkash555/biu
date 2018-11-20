@@ -129,4 +129,70 @@ def viterbi_memm(sentence_str, states, get_triplet_scores):
     print("sentence done.")
     return ret
 
+from collections import OrderedDict, defaultdict
+
+def viterbi_prune(sentence_str, states, get_triplet_scores):
+    start = config.start
+    states = [start] + states
+    T = len(states)
+    start_ind = 0
+    prune_keep_count = config.viterbi_prune_keep_count
+    bp_list = []
+    padded_sentence = ['']*2 + sentence_str.split() + ['']*2
+    n_words = len(padded_sentence) - 4
+    V_prev = OrderedDict()
+    V_prev[(start_ind,start_ind)] = 0
+    i_to_tp_prev = defaultdict(set)
+    j_to_tp = defaultdict(set)
+    i_to_tp_prev[start_ind].add(start_ind)
+    for w in range(n_words):
+        current_triplet = [[padded_sentence[k],''] for k in range(w,w+5)]
+        probas = OrderedDict()
+        V_current = OrderedDict()
+        # i_to_tp_current = defaultdict(set)
+        bp_current = OrderedDict()
+        for tp, i in V_prev.keys():
+            current_triplet[0][1] = states[tp]
+            current_triplet[1][1] = states[i]
+            scores = get_triplet_scores(current_triplet)
+            for j in range(T-1):
+                probas[(tp,j+1)] = scores[0,j]
+                j_to_tp[j+1].add(tp)
+        
+        for i in i_to_tp_prev:
+            for j in j_to_tp:
+                active_coord = i_to_tp_prev[i].intersection(j_to_tp[j])
+                curr_min = np.inf
+                for coord in active_coord:
+                    curr = probas[(coord,j)] + V_prev[(coord,i)]
+                    if  curr < curr_min:
+                        curr_min = curr
+                        curr_argmin = coord
+                bp_current[(i,j)] = curr_argmin
+                V_current[(i,j)] = curr_min
+                # i_to_tp_current[j].add(i)
+        # now for some pruning: we keep only a few "most promising" entries in V and dump the rest
+        v_spanned_sorted = sorted(V_current.items(), key = lambda x: x[1])
+
+        V_prev = OrderedDict(v_spanned_sorted[:prune_keep_count])
+        i_to_tp_prev = defaultdict(set)
+        for i, j in V_prev.keys():
+            i_to_tp_prev[j].add(i)
+
+        bp_list.append(bp_current)
+
+    curr_min = np.inf
+    for coord, val in V_current.items():
+        if val < curr_min:
+            curr_min = val
+            min_coord = coord
+    y = [min_coord[1],min_coord[0]]
+    for i in range(len(bp_list)-1, 1, -1):
+        y.append(bp_list[i][(y[-1],y[-2])])
+
+    y.reverse()
+    ret = [states[i] for i in y]
+    # print("sentence done.")
+    return ret
+
         

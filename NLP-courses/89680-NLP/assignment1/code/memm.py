@@ -6,7 +6,7 @@ from collections import OrderedDict
 import scipy.sparse as sp
 import pickle
 import memm_utils as mu
-from viterbi import viterbi_memm
+from viterbi import viterbi_memm, viterbi_prune
 
 def get_proba(triplet, model, registered_features, feature_dict):
     feature_vec = triplet_to_feature_vec(triplet, registered_features, feature_dict)
@@ -36,8 +36,10 @@ def triplet_to_feature_vec(triplet, registered_features, feature_dict):
 def viterbi_tagged_triplets(sentence_str, model, registered_features, feature_dict, tag_dict):
     def scoring_func(triplet):
         return get_proba(triplet, model, registered_features, feature_dict)
-    y = viterbi_memm(sentence_str, [tag_dict[i] for i in range(len(tag_dict))], scoring_func)
-    return zip(sentence_str.split(),y)
+    y = viterbi_prune(sentence_str, [tag_dict[i] for i in range(len(tag_dict))], scoring_func)
+    ret =  list(zip(sentence_str.split(),y))
+    #print(['/'.join(t) for t in ret])
+    return ret
 
 def triplets_to_tagged_line(tagged_triplets):
     tagged_line = ' '.join(["/".join(t) for t in tagged_triplets])
@@ -57,6 +59,7 @@ def main(argv, decoder):
         untagged_file = config.defaultFiles.untagged_test
         model_file = config.defaultFiles.memm_model_file
         feature_map_file = config.defaultFiles.memm_feature_map
+        # tagged_out_file = '../data/ass1-test-viterbi-out'
         tagged_out_file = config.defaultFiles.memm_greedy_tagged_output if decoder == 'greedy' else config.defaultFiles.memm_viterbi_tagged_output
     elif len(sys.argv) != 5 :
         print(f"usage: {sys.argv[0]} input_file model_file feature_map_file out_file\nexiting.")
@@ -83,7 +86,7 @@ def main(argv, decoder):
                 tagged_triplets = decoder_func(line, model, registered_features, feature_dict, tag_dict)   
                 o.write(triplets_to_tagged_line(tagged_triplets)+'\n')
                 c += 1
-                if c % 1 == 0:
+                if c % 100 == 0:
                     print(f'wrote {c} lines.')
     print('Done.')
 

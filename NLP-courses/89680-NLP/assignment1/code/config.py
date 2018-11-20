@@ -10,6 +10,8 @@ period = "."
 start = "*"
 stop = "@"
 
+viterbi_prune_keep_count = 9
+
 class frequncies:
     min_word_frequency = 6
     max_word_list_length = 1500

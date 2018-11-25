@@ -3,6 +3,7 @@ import dynet as dy
 from collections import Counter, OrderedDict
 from os import path
 import numpy as np
+import pickle
 
 
 ## y = softmax(U(tanh(Ex+b))+b')
@@ -46,8 +47,10 @@ def train_network(x, m, E, b, U, bp, train_data):
         total_loss += loss.value()
         loss.backward()
         trainer.update()
-        if seen_instances % 100 == 0:
-            print("average loss is:",total_loss / seen_instances)
+        if seen_instances % 1000 == 0:
+            print("average loss after {} iterations: {}. current loss: {}".format(seen_instances, total_loss / seen_instances, loss.value()))
+            with open("ex1_embed_mat.pickle",'wb') as f:
+                pickle.dump(E.value(),f)
             print("E is: {}".format(E.value()))
     return 
 

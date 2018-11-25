@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python2
 import dynet as dy
 from collections import Counter, OrderedDict
 from os import path
@@ -6,37 +6,42 @@ import numpy as np
 
 
 ## y = softmax(U(tanh(Ex+b))+b')
-def build_ex1_network(nwords,ntags):
-
+def build_ex1_network(nwords, ntags):
     # create a parameter collection and add the parameters.
     print("adding parameters")
     m = dy.ParameterCollection()
-    E = m.add_parameters((50,nwords))
-    b = m.add_parameters((50))
-    U = m.add_parameters((ntags,50))
+    E = m.add_lookup_parameters((nwords,50))
+    b = m.add_parameters((250))
+    U = m.add_parameters((ntags,250))
     bp = m.add_parameters((ntags))
     dy.renew_cg()
+    x = dy.vecInput(250)
+    #output = dy.softmax( U * (dy.tanh(x + b)) + bp) 
+    return x, m, E, b, U, bp
 
-    x = dy.vecInput(nwords)
-    output = dy.softmax( U * (dy.tanh(E * x + b)) + bp) 
-    return x, m, E, output
-
-def train_network(x, m, E, network_output, train_data):
+def train_network(x, m, E, b, U, bp, train_data):
     first_x, first_y = next(train_data)
     print("first x {} first y {}".format(first_x, first_y))
     x.set(first_x)
     y = dy.vecInput(first_y.shape[0])
     y.set(first_y)
-    loss = dy.binary_log_loss(network_output, y)
-
+    
     # train the network
     trainer = dy.SimpleSGDTrainer(m)
-
     total_loss = 0
     seen_instances = 0
     for train_x, train_y in train_data:
-        x.set(train_x)
+        a = train_x
+        e0 = E[a[0]]
+        e1 = E[a[1]]
+        e2 = E[a[2]]
+        e3 = E[a[3]]
+        e4 = E[a[4]]
+        e05 = dy.concatenate([e0, e1, e2, e3, e4])
+        output = dy.softmax( U * (dy.tanh(e05 + b)) + bp)
         y.set(train_y)
+        loss = dy.binary_log_loss(output, y)
+
         seen_instances += 1
         total_loss += loss.value()
         loss.backward()
@@ -94,9 +99,32 @@ def one_hot(k, n):
     return ret
 
 def generate_train_data(tagged_sentences, word_dict, tag_dict):
+    """
+    generates an x one-hot vector and a y one-hot vector 
+    based on the current word and its tag 
+    """
     for tagged_sentence in tagged_sentences:
         for word_oh, tag_oh in tagged_sentence_to_train_data(tagged_sentence, word_dict, tag_dict):
             yield word_oh, tag_oh
+
+
+def generate_train_tuples(tagged_sentences, word_dict, tag_dict):
+    """
+    generate a 5-tuple of indices
+    and a y one-hot vector
+    based on the current word + 2 words of context from each side
+    """
+    for tagged_sentence in tagged_sentences:
+        train_x_tuple = []
+        train_y_tuple = []
+        for word, tag in tagged_sentence:
+            train_x_tuple.append(word_dict[word])
+            train_y_tuple.append(tag)
+            if len(train_x_tuple) == 5:
+                yield train_x_tuple, one_hot(tag_dict[train_y_tuple[2]],len(tag_dict))
+                # print("tagged sentence: {}.\ntrain_x:{}\ttag:{}".format(tagged_sentence, train_x_tuple, tag_dict[train_y_tuple[2]]))
+                train_x_tuple = train_x_tuple[1:]
+
 
 
 def tagged_sentence_to_train_data(tagged_sentence,word_dict, tag_dict):
@@ -115,18 +143,20 @@ def tagged_sentence_to_train_data(tagged_sentence,word_dict, tag_dict):
 
 if __name__ == "__main__":
     input_file = path.join('..','pos','train')
-    with open(input_file,'rt',encoding='utf8') as i:
+    with open(input_file,'rt') as i:
         word_dict, tag_dict = scan_train_for_vocab(i)
     word_dict['**START**'] = len(word_dict)
     word_dict['**STOP**'] = len(word_dict)
     tag_dict[''] = len(tag_dict)
     
-    x, m, E, output = build_ex1_network(len(word_dict), len(tag_dict))
+    x, m, E, b, u, bp = build_ex1_network(len(word_dict), len(tag_dict))
 
-    with open(input_file,'rt',encoding='utf8') as i:
-        train_data_iter = generate_train_data(generate_tagged_sentences(i), word_dict, tag_dict)
+    with open(input_file,'rt') as i:
+        train_data_iter = generate_train_tuples(generate_tagged_sentences(i), word_dict, tag_dict)
 
-        train_network(x, m, E, output, train_data_iter)
+        # for j in range(5):
+        #    train_data_iter.next()
+        train_network(x, m, E, b, u, bp, train_data_iter)
   
   
         # for tagged_word in sentence:

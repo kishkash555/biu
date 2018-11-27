@@ -331,7 +331,35 @@ hashing vs. convnets
 
 
 
+---
 
+26 Nov. 2018
+
+### Recurrent Neural Networks
+Treat the whole sequence. a pivotal topic that we will deal with along the next classes.
+
+previously we discussed constant-size input, or n-gram techniques. 
+* concatenate
+* CBOW
+* windows
+* Convnets (summing/maxing windows etc.)
+
+all except CBOW are local. the first doesn't necessarily genearlize on location (if you move in the position you will get different output)
+#### RNN intro
+if I look at stocks etc. I can take 20 stocks and simply feed their daily prices. with discrete data I will use embeddings. 
+There are different variants (implementations) but today we will discuss the interface without the impl. details.
+
+what does the RNN look like mathematically?
+$RNN(S_0, x_{1:n}) = s_n, y_n$
+
+we care about the Y's. $s_n$ is an internal state. sometimes Y is s or a subset of $s$'s entries. more generally it is some (constant) function of s.
+
+I have as many outputs as inputs
+
+if my input is of constant length k, I can expand my diagram to explicitly show each stage. now its easier to see how parameters are shared between "layers" 
+
+#### example on the board
+$R(S_{i-1},X_i) = \tanh(W\times s)$
 
 
 

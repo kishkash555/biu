@@ -1,5 +1,9 @@
-import math
+from heapq import heappush, heappop
+from collections import namedtuple
+
 MOVES = 'UDLR'
+MAX_ALLOWED_MOVES = 100
+
 class board:
     def __init__(self, N, init_board_config):
         self.N = N
@@ -88,27 +92,91 @@ def IDS_solver(brd):
     """
     IDS algorithm highlights: perform DFS but stop at a depth
     """
+    print("*** RUNNING IDS SOLVER ***")
+
     levels = 1
     found_solution = False
-    while not found_solution and levels < 100:
-        found_solution, moves = dfs_search(brd, levels, '')
+    while not found_solution and levels < MAX_ALLOWED_MOVES:
+        found_solution, board_moves, move_count = dfs_search(brd, levels, '', 0)
         levels += 1
         print(levels)
-    return found_solution, moves
+    return found_solution, board_moves, move_count
 
-def dfs_search(brd, limit, moves_so_far):
-    if len(moves_so_far) == limit:
-        return False, moves_so_far
+def dfs_search(brd, limit, board_moves, move_count):
+    if len(board_moves) == limit:
+        return False, board_moves, move_count 
     valid_moves = [mv for mv in MOVES if brd.is_valid_move(mv)]
     for mv in valid_moves:
         new_brd =  brd.copy()
         new_brd.make_move(mv)
+        move_count += 1
         if new_brd.is_solved():
-            return True, moves_so_far + mv
-        found_solution, moves = dfs_search(new_brd, limit, moves_so_far + mv)
+            return True, board_moves + mv, move_count
+        found_solution, moves, move_count = dfs_search(new_brd, limit, board_moves + mv, move_count)
         if found_solution:
-            return found_solution, moves
-    return False, moves_so_far
+            return found_solution, moves, move_count
+    return False, board_moves, move_count
+
+def BFS_solver(brd):
+    """
+    BFS algorithm highlights: process the nodes in FIFO order
+    """
+    print("*** RUNNING BFS SOLVER ***")
+    open_list = [mv for mv in MOVES if brd.is_valid_move(mv)]
+    found_solution = False
+    move_count = 0
+    while len(open_list) and not found_solution:
+        curr_move = open_list.pop(0)
+        move_count += 1
+        new_brd = brd.copy()
+        for mv in curr_move: 
+            new_brd.make_move(mv)
+        if new_brd.is_solved():
+            found_solution = True
+        new_moves = [curr_move + mv for mv in MOVES if new_brd.is_valid_move(mv)]
+        open_list += new_moves
+    return found_solution, curr_move, move_count
+
+def A_STAR_solver(brd):
+    """
+    A* algorithm highlights:
+    1. processes the lowest- cost nodes first
+    2. cost is based on actual price so far and heuristic
+    """
+    queue_ele = namedtuple('queue_ele',['f', 'entry_number', 'moves_so_far'])
+    found_solution = False
+    pop_count = 0
+    open_list = []
+    entry_count = 0
+    for mv in MOVES:
+        if not brd.is_valid_move(mv):
+            continue
+        new_brd = brd.copy()
+        new_brd.make_move(mv)
+        h = new_brd.manhattan()
+        qe = queue_ele(h,entry_count,mv)
+        heappush(open_list, qe)
+        entry_count += 1
+
+    while not found_solution and len(qe.moves_so_far) < MAX_ALLOWED_MOVES:
+        qe = heappop(open_list)
+        pop_count += 1
+        curr_brd = brd.copy()
+        for mv in qe.moves_so_far:
+            curr_brd.make_move(mv)
+        if curr_brd.is_solved():
+            found_solution = True
+        else:
+            next_moves = [mv for mv in MOVES if curr_brd.is_valid_move(mv)]
+            for mv in next_moves:
+                new_brd = curr_brd.copy()
+                new_brd.make_move(mv)
+                h = new_brd.manhattan()
+                heappush(open_list,queue_ele(len(qe.moves_so_far) + h, entry_count, qe.moves_so_far + mv))
+                entry_count +=1 
+
+    return found_solution, qe.moves_so_far, pop_count
+
 
 if __name__ == "__main__":
     #b1 = board(3, map(int,"4,5,7,1,2,0,9,3,8,6".split(",")))
@@ -117,9 +185,10 @@ if __name__ == "__main__":
     print(b1.is_solved())
     for mv in 'RRDLUR':
         b1.make_move(mv)
-    found, moves =IDS_solver(b1)
+    found, moves, move_count = A_STAR_solver(b1)
     print(found)
     print(moves)
+    print(move_count)
     print(str(b1))
     for mv in moves:
         b1.make_move(mv)

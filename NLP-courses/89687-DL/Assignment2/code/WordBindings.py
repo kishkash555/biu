@@ -1,5 +1,5 @@
 #!/usr/bin/python2
-#import dynet as dy
+import dynet as dy
 import datetime
 from collections import Counter, OrderedDict
 from os import path
@@ -14,8 +14,9 @@ INITIAL_LEARN_RATE = 0.15 # can be changed by argv[1]
 HIDDEN = 400  # can be changed by argv[2]
 SET_RANDOM_SEED = True # can be changed by argv[3]
 MIN_ACC = 0.89
-INPUT_DIR = 'pos'
+INPUT_DIR = 'pos' # can be changed by argv[3]
 
+DICTS_FILE = 'dicts.pickle'
 doc = \
 """
 Checklist of main points implemented:
@@ -164,10 +165,11 @@ if __name__ == "__main__":
     if len(argv)>4 and argv[4] != "--":
         INPUT_DIR = argv[4]
     if SET_RANDOM_SEED:
-        import dynet_config
-        dynet_config.set(random_seed = 1234)
+        dyparams =  dy.DynetParams()
+        dyparams.set_random_seed(1234)
+        dyparams.init()
         np.random.seed(54321)
-    import dynet as dy
+
     print("input:{}\nlearning rate: {}\nhidden layer size: {}\nrandom: {}".format(INPUT_DIR,INITIAL_LEARN_RATE,HIDDEN,SET_RANDOM_SEED))
     telemetry_file.write("{} {} {} {}\n".format(argv[0],INITIAL_LEARN_RATE,HIDDEN,int(SET_RANDOM_SEED)))
     telemetry_file.write("iterations\taccuracy\tavg_loss\tsecs_per_1000\n")
@@ -182,8 +184,8 @@ if __name__ == "__main__":
     tag_dict[''] = len(tag_dict)
     
     # save the dictionaries
-    with open('dicts_'+randstring+'.pickle','wb') as f:
-        pickle.dump(f, { 'word_dict': word_dict, 'tag_dict': tag_dict})
+    with open(DICTS_FILE,'wb') as f:
+        pickle.dump( { 'word_dict': word_dict, 'tag_dict': tag_dict}, f)
 
     params = create_network_params(len(word_dict), len(tag_dict))
 

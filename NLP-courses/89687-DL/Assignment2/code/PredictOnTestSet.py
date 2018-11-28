@@ -4,11 +4,15 @@ import sys
 import WordBindings as wb
 import pickle
 import numpy as np
+from os import path
 
-FILE_NAME = 'params_713357'
+PARAMS_FILE = 'params_713357'
+INPUT_DIR = 'pos'
+PREDICTIONS_FILE = '_predict'
+
 def load_model(mode_file_name):
 	m = dy.ParameterCollection()
-	return dy.load(mode_file_name, m)
+	return [m] + list(dy.load(mode_file_name, m))
 
 
 def predict_on_tuple(x_tuple, params, tags_array):
@@ -17,12 +21,12 @@ def predict_on_tuple(x_tuple, params, tags_array):
     return tags_array[coded_tag]
 
 
-def test_stream_to_trainlike_stream(test_file):
+def test_stream_to_trainlike_stream(test_file,dummy_tag):
     for line in test_file:
         if len(line) <= 1:
             yield line
         else:
-            yield line.strip()+" 0\n"
+            yield line.strip() + " " + dummy_tag + "\n"
 
 # def test_stream_to_coded_sentence(test_file, word_dict, tag_dict):
 #     sentence = [('**START**', '')]*2
@@ -44,27 +48,44 @@ def coded_sentence_to_prediction_tuples(coded_sentence):
 
 def test_stream_to_tagged_stream(test_file, word_dict, tag_dict):
     tags_array = list(tag_dict.keys())
-    trainlike = list(test_stream_to_trainlike_stream(test_file))
+    trainlike = list(test_stream_to_trainlike_stream(test_file, tags_array[0]))
     sentence_tuples = wb.generate_train_5tuples(wb.train_stream_to_sentence_tuples(trainlike), word_dict, tag_dict, 0)
+    trainlike_row = iter(trainlike)
     for x_tuple, _ in sentence_tuples:
         prediction = predict_on_tuple(x_tuple, params, tags_array)
         current_row = next(trainlike_row)
         if len(current_row) <= 1:
-            yield "\n"
+            yield ""
             current_row = next(trainlike_row)
-        else:
-            word = current_row.split()[0]
-            ret = word + " " + prediction
-            print(ret)
-            yield(ret)
-        
+        word = current_row.split()[0]
+        ret = word + " " + prediction
+        yield(ret)
 
+def load_dicts(dicts_file):   
+    with open(dicts_file, 'rb') as f:     
+        obj = pickle.load(f)
+    word_dict = obj["word_dict"]
+    tag_dict = obj["tag_dict"]
+    return word_dict, tag_dict
+
+    
 if __name__ == "__main__":
     argv = sys.argv
-    if len(argv)>1 and argv[1] != "--":
-        fname = argv[1]
-    else:
-        fname = FILE_NAME
-    
-    params = load_model(fname)
-    
+    if len(argv) > 1 and argv[1] != "--":
+        PARAMS_FILE = argv[1]
+    if len(argv) > 2 and argv[2] != "--":
+        wb.DICTS_FILE = argv[2]
+    if len(argv) > 3 and argv[3] != "--":
+        INPUT_DIR = argv[3]
+
+    params = load_model(PARAMS_FILE)
+    word_dict, tag_dict = load_dicts(wb.DICTS_FILE)
+
+    inp = open(path.join('..',INPUT_DIR,'test'),'rt')
+    # out file will be created in current directory
+    out = open(INPUT_DIR+PREDICTIONS_FILE,'wt') # this is simple string concatenation.
+    for row in test_stream_to_tagged_stream(inp, word_dict, tag_dict):
+        out.write(row+'\n')
+    inp.close()
+    out.close()
+

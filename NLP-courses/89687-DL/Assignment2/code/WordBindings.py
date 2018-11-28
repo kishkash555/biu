@@ -1,38 +1,64 @@
 #!/usr/bin/python2
-import dynet as dy
+#import dynet as dy
+import datetime
 from collections import Counter, OrderedDict
 from os import path
 import numpy as np
 import pickle
-
+import sys
+import time
 
 EMB = 50
 INPUT = EMB*5
-HIDDEN = 400
+INITIAL_LEARN_RATE = 0.15 # can be changed by argv[1]
+HIDDEN = 400  # can be changed by argv[2]
+SET_RANDOM_SEED = True # can be changed by argv[3]
+MIN_ACC = 0.89
+INPUT_DIR = 'pos'
+
+doc = \
+"""
+Checklist of main points implemented:
+    1. build the expression dy.softmax(U * (dy.tanh(W*x + b)) + bp) with x constructed for each train example from an embedding matrix.
+    2. train the network. Things to note during training:
+        2a. measure accuracy on dev every 20,000 iterations. record the accuracy progression to a "telemetry" file
+        2b. remove 'O' from dev set (create bias in accuracy measure)
+        2c. shuffle the input order randomly
+        2d. reprocess the training examples (up to 10 times if the user doesn't hit ^C earlier)
+        2e. save the network parameters to a file if results are good on dev set
+    3. get the following inputs from the command line:
+        3a. initial learning rate
+        3b. size of hidden layer
+        3c. wheter to use a fixed random see
+        3d. the source directory for the "train" and "dev" files
+    4. every word that is in the bottom decile in terms of frequency will be also learned as **UNK**
+    5. every word encountered during tagging that is not in the trained vocabulary gets replaced with **UNK**
+"""
+
 
 def create_network_params(nwords, ntags):
     # create a parameter collection and add the parameters.
     print("adding parameters")
     m = dy.ParameterCollection()
-    E = m.add_lookup_parameters((nwords,EMB))
-    b = m.add_parameters(HIDDEN)
-    U = m.add_parameters((ntags, HIDDEN))
-    W = m.add_parameters((HIDDEN, INPUT))
-    bp = m.add_parameters(ntags)
+    E = m.add_lookup_parameters((nwords,EMB), name='E')
+    b = m.add_parameters(HIDDEN, name='b')
+    U = m.add_parameters((ntags, HIDDEN), name='U')
+    W = m.add_parameters((HIDDEN, INPUT), name='W')
+    bp = m.add_parameters(ntags, name='bp')
     dy.renew_cg()
-    # x = dy.vecInput(250)
     return m, E, b, U, W, bp
 
 def build_network(params, x_ordinals):
-    m, E, b, U, W, bp = params
+    _, E, b, U, W, bp = params
     x = dy.concatenate([E[ord] for ord in x_ordinals])
     output = dy.softmax(U * (dy.tanh(W*x + b)) + bp)
     return output
 
 def train_network(params, ntags, train_data, dev_set):
-    # m, E, b, U, W, bp = params
+    global telemetry_file, randstring
+    prev_acc = 0
     m = params[0]
-    
+    t0 = time.clock()
     # train the network
     trainer = dy.SimpleSGDTrainer(m)
     total_loss = 0
@@ -48,12 +74,13 @@ def train_network(params, ntags, train_data, dev_set):
         trainer.update()
         
         if seen_instances % 20000 == 0:
-            print("average loss after {} iterations: {}. current loss: {}".format(seen_instances, total_loss / seen_instances, loss.value()))
+            # measure elapsed seconds
+            secs = time.clock() - t0
+            t0 = time.clock()
             good = case = 0
-            max_dev_instances = 50*1000
+            max_dev_instances = 70*1000
             dev_instances = 0
             for x_tuple, dev_y in dev_set:
-                #dy.renew_cg()
                 output =  build_network(params, x_tuple)
                 if np.argmax(output.npvalue()) == dev_y:
                     good +=1
@@ -61,7 +88,13 @@ def train_network(params, ntags, train_data, dev_set):
                 dev_instances += 1
                 if dev_instances >= max_dev_instances:
                     break
-            print("accuracy after {} iterations: {}".format(seen_instances, float(good)/case))
+            acc = float(good)/case
+            print("iterations: {}. accuracy: {} avg loss: {} secs per 1000:{}".format(seen_instances, acc, total_loss / seen_instances, secs/20))
+            if acc > MIN_ACC and acc > prev_acc:
+                print("saving.")
+                dy.save("params_"+randstring,list(params)[1:])
+                prev_acc = acc
+            telemetry_file.write("{}\t{}\t{}\t{}\n".format(seen_instances, acc, total_loss / seen_instances, secs/20))
     return 
 
 
@@ -80,6 +113,7 @@ def scan_train_for_vocab(train_data):
     tag_dict = OrderedDict((a,i) for i, a in enumerate(tag_list))
     return word_dict, tag_dict
 
+
 def train_stream_to_sentence_tuples(input_file):
     sentence = [('**START**', '')]*2
     for line in input_file:
@@ -90,21 +124,6 @@ def train_stream_to_sentence_tuples(input_file):
             sentence += [('**STOP**', '')]*2
             yield sentence
             sentence = [('**START**', '')]*2
-
-
-def one_hot(k, n):
-    ret = np.zeros(n)
-    ret[k]=1.
-    return ret
-
-def generate_train_data(tagged_sentences, word_dict, tag_dict):
-    """
-    generates an x one-hot vector and a y one-hot vector 
-    based on the current word and its tag 
-    """
-    for tagged_sentence in tagged_sentences:
-        for word_oh, tag_oh in tagged_sentence_to_train_data(tagged_sentence, word_dict, tag_dict):
-            yield word_oh, tag_oh
 
 
 def generate_train_5tuples(tagged_sentence_stream, word_dict, tag_dict, unk_threshold):
@@ -130,24 +149,31 @@ def generate_train_5tuples(tagged_sentence_stream, word_dict, tag_dict, unk_thre
                 
 
 
-
-def tagged_sentence_to_train_data(tagged_sentence, word_dict, tag_dict):
-    """
-    for now, does not implement embeddings
-    """
-    nwords = len(word_dict)
-    ntags = len(tag_dict)
-    
-    for word, tag in tagged_sentence[2:-2]:
-        word_oh = one_hot(word_dict[word],nwords)
-        tag_oh = one_hot(tag_dict[tag],ntags)
-        #print("word_oh: {} tag_oh: {}".format(type(word_oh), type(tag_oh)))
-        yield word_oh, tag_oh
-
-
 if __name__ == "__main__":
-    input_file = path.join('..','pos','train')
-    dev_file = path.join('..','pos','dev')
+    global telemetry_file, randstring
+    argv = sys.argv
+    randstring = str(datetime.datetime.now().microsecond)
+    telemetry_file= open('telem'+randstring+'.txt','wt')
+
+    if len(argv)>1 and argv[1] != "--":
+        INITIAL_LEARN_RATE = float(argv[1])
+    if len(argv)>2 and argv[2] != "--":
+        HIDDEN = int(argv[2]) 
+    if len(argv)>3 and argv[3] != "--":
+        SET_RANDOM_SEED = bool(int(argv[3]))
+    if len(argv)>4 and argv[4] != "--":
+        INPUT_DIR = argv[4]
+    if SET_RANDOM_SEED:
+        import dynet_config
+        dynet_config.set(random_seed = 1234)
+        np.random.seed(54321)
+    import dynet as dy
+    print("input:{}\nlearning rate: {}\nhidden layer size: {}\nrandom: {}".format(INPUT_DIR,INITIAL_LEARN_RATE,HIDDEN,SET_RANDOM_SEED))
+    telemetry_file.write("{} {} {} {}\n".format(argv[0],INITIAL_LEARN_RATE,HIDDEN,int(SET_RANDOM_SEED)))
+    telemetry_file.write("iterations\taccuracy\tavg_loss\tsecs_per_1000\n")
+
+    input_file = path.join('..',INPUT_DIR,'train')
+    dev_file = path.join('..',INPUT_DIR,'dev')
     with open(input_file,'rt') as i:
         word_dict, tag_dict = scan_train_for_vocab(i)
     word_dict['**START**'] = len(word_dict)
@@ -155,13 +181,20 @@ if __name__ == "__main__":
     word_dict['**UNK**'] = len(word_dict)
     tag_dict[''] = len(tag_dict)
     
+    # save the dictionaries
+    with open('dicts_'+randstring+'.pickle','wb') as f:
+        pickle.dump(f, { 'word_dict': word_dict, 'tag_dict': tag_dict})
 
     params = create_network_params(len(word_dict), len(tag_dict))
 
     with open(dev_file, 'rt') as d:
         dev_set = list(generate_train_5tuples(train_stream_to_sentence_tuples(d), word_dict, tag_dict, 0))
 
-
+    if 'O' in tag_dict:
+        dev_set_len = len(dev_set)
+        dev_set = [tup for tup in dev_set if tup[1] != tag_dict['O']]
+        print("Removing 'O' from dev set. size before: {} size after: {}".format(dev_set_len, len(dev_set)))
+        
     # print(list(generate_train_tuples(dev_set[:10],word_dict, tag_dict)))
     # print(tag_dict)
     unk_threshold = int(len(word_dict)/10) + 1
@@ -169,7 +202,11 @@ if __name__ == "__main__":
     with open(input_file,'rt') as i:
         train_data = list(generate_train_5tuples(train_stream_to_sentence_tuples(i), word_dict, tag_dict, unk_threshold))
 
-    print(train_data[:5])
-    train_network(params, ntags, train_data, dev_set)
-  
-            
+    try:
+        for i in range(10):
+            np.random.shuffle(train_data)
+            print(train_data[:5])
+            train_network(params, ntags, train_data, dev_set)
+    finally:
+        print("INTERRUPTED. closing file")
+        telemetry_file.close() 

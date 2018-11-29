@@ -1,5 +1,5 @@
 #!/usr/bin/python2
-import dynet as dy
+
 import datetime
 from collections import Counter, OrderedDict
 from os import path
@@ -13,9 +13,12 @@ INPUT = EMB*5
 INITIAL_LEARN_RATE = 0.15 # can be changed by argv[1]
 HIDDEN = 400  # can be changed by argv[2]
 SET_RANDOM_SEED = True # can be changed by argv[3]
-MIN_ACC = 0.89
-INPUT_DIR = 'pos' # can be changed by argv[3]
+global MIN_ACC 
+MIN_ACC = 0.80
+INPUT_DIR = 'pos' # can be changed by argv[4]
+REG_LAMBDA = 0.02 # can be changed by argv[5]
 
+USE_EXT_EMBEDDINGS = False # can be changed by argv[6]
 DICTS_FILE = 'dicts.pickle'
 doc = \
 """
@@ -37,11 +40,14 @@ Checklist of main points implemented:
 """
 
 
-def create_network_params(nwords, ntags):
+def create_network_params(nwords, ntags, external_E = None):
     # create a parameter collection and add the parameters.
     print("adding parameters")
     m = dy.ParameterCollection()
-    E = m.add_lookup_parameters((nwords,EMB), name='E')
+    if external_E:
+        E = m.add_lookup_parameters((external_E.shape[1], external_E.shape[0]), name='E', init=external_E)
+    else:
+        E = m.add_lookup_parameters((nwords,EMB), name='E')
     b = m.add_parameters(HIDDEN, name='b')
     U = m.add_parameters((ntags, HIDDEN), name='U')
     W = m.add_parameters((HIDDEN, INPUT), name='W')
@@ -56,7 +62,7 @@ def build_network(params, x_ordinals):
     return output
 
 def train_network(params, ntags, train_data, dev_set):
-    global telemetry_file, randstring
+    global telemetry_file, randstring, MIN_ACC
     prev_acc = 0
     m = params[0]
     t0 = time.clock()
@@ -64,11 +70,14 @@ def train_network(params, ntags, train_data, dev_set):
     trainer = dy.SimpleSGDTrainer(m)
     total_loss = 0
     seen_instances = 0
+    train_good = 0
     for train_x, train_y in train_data:
         dy.renew_cg()
         output = build_network(params, train_x)
-        loss = -dy.log(output[train_y])
-
+        # l2 regularization did not look promising at all, so it's commented out
+        loss = -dy.log(output[train_y])  + REG_LAMBDA * sum([dy.l2_norm(p) for p in params[2:]])
+        if train_y == np.argmax(output.npvalue()):
+            train_good +=1
         seen_instances += 1
         total_loss += loss.value()
         loss.backward()
@@ -90,13 +99,15 @@ def train_network(params, ntags, train_data, dev_set):
                 if dev_instances >= max_dev_instances:
                     break
             acc = float(good)/case
-            print("iterations: {}. accuracy: {} avg loss: {} secs per 1000:{}".format(seen_instances, acc, total_loss / seen_instances, secs/20))
+            print("iterations: {}. train_accuracy: {} accuracy: {} avg loss: {} secs per 1000:{}".format(seen_instances, float(train_good)/20000, acc, total_loss / (seen_instances+1), secs/20))
+            train_good = 0
             if acc > MIN_ACC and acc > prev_acc:
                 print("saving.")
                 dy.save("params_"+randstring,list(params)[1:])
                 prev_acc = acc
-            telemetry_file.write("{}\t{}\t{}\t{}\n".format(seen_instances, acc, total_loss / seen_instances, secs/20))
-    return 
+            
+            telemetry_file.write("{}\t{}\t{}\t{}\n".format(seen_instances, acc, total_loss / (seen_instances+1), secs/20))
+    MIN_ACC = max(prev_acc, MIN_ACC) 
 
 
 def scan_train_for_vocab(train_data):
@@ -164,14 +175,26 @@ if __name__ == "__main__":
         SET_RANDOM_SEED = bool(int(argv[3]))
     if len(argv)>4 and argv[4] != "--":
         INPUT_DIR = argv[4]
+    if len(argv)>5 and argv[5] != "--":
+        REG_LAMBDA = float(argv[5])
+    if len(argv)>6 and argv[6] != "--":
+        USE_EXT_EMBEDDINGS = bool(int(argv[3]))
+    
+    
     if SET_RANDOM_SEED:
         dyparams =  dy.DynetParams()
         dyparams.set_random_seed(1234)
         dyparams.init()
         np.random.seed(54321)
+    
+    import dynet as dy
+    
+    if USE_EXT_EMBEDDINGS:
+        with open('ex1_embed_mat50.pickle','rb') as a:
+            E_pretrained = pickle.load(a)
 
-    print("input:{}\nlearning rate: {}\nhidden layer size: {}\nrandom: {}".format(INPUT_DIR,INITIAL_LEARN_RATE,HIDDEN,SET_RANDOM_SEED))
-    telemetry_file.write("{} {} {} {}\n".format(argv[0],INITIAL_LEARN_RATE,HIDDEN,int(SET_RANDOM_SEED)))
+    print("input: {}\nlearning rate: {}\nhidden layer size: {}\nrandom: {}, lambda: {}".format(INPUT_DIR,INITIAL_LEARN_RATE,HIDDEN,SET_RANDOM_SEED,REG_LAMBDA))
+    telemetry_file.write("{} {} {} {} {} {}\n".format(argv[0],INITIAL_LEARN_RATE,HIDDEN,int(SET_RANDOM_SEED),INPUT_DIR, REG_LAMBDA))
     telemetry_file.write("iterations\taccuracy\tavg_loss\tsecs_per_1000\n")
 
     input_file = path.join('..',INPUT_DIR,'train')
@@ -184,7 +207,7 @@ if __name__ == "__main__":
     tag_dict[''] = len(tag_dict)
     
     # save the dictionaries
-    with open(DICTS_FILE,'wb') as f:
+    with open(DICTS_FILE + '.' + INPUT_DIR ,'wb') as f:
         pickle.dump( { 'word_dict': word_dict, 'tag_dict': tag_dict}, f)
 
     params = create_network_params(len(word_dict), len(tag_dict))
@@ -212,3 +235,5 @@ if __name__ == "__main__":
     finally:
         print("INTERRUPTED. closing file")
         telemetry_file.close() 
+
+import dynet as dy

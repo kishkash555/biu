@@ -6,8 +6,8 @@ import pickle
 import numpy as np
 from os import path
 
-PARAMS_FILE = 'params_713357'
-INPUT_DIR = 'pos'
+PARAMS_FILE = 'params_663458'
+INPUT_DIR = 'ner'
 PREDICTIONS_FILE = '_predict'
 
 def load_model(mode_file_name):
@@ -79,7 +79,7 @@ if __name__ == "__main__":
         INPUT_DIR = argv[3]
 
     params = load_model(PARAMS_FILE)
-    word_dict, tag_dict = load_dicts(wb.DICTS_FILE)
+    word_dict, tag_dict = load_dicts(wb.DICTS_FILE + '.' + INPUT_DIR )
 
     inp = open(path.join('..',INPUT_DIR,'test'),'rt')
     # out file will be created in current directory

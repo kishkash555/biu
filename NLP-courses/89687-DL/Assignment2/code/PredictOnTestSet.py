@@ -4,10 +4,11 @@ import sys
 import WordBindings as wb
 import pickle
 import numpy as np
+import mlp
 from os import path
 
-PARAMS_FILE = 'params_663458'
-INPUT_DIR = 'ner'
+PARAMS_FILE = 'params_255228'
+INPUT_DIR = 'pos'
 PREDICTIONS_FILE = '_predict'
 
 def load_model(mode_file_name):
@@ -16,7 +17,7 @@ def load_model(mode_file_name):
 
 
 def predict_on_tuple(x_tuple, params, tags_array):
-    output =  wb.build_network(params, x_tuple)
+    output =  mlp.build_network(params, x_tuple)
     coded_tag = np.argmax(output.npvalue()) 
     return tags_array[coded_tag]
 
@@ -49,7 +50,7 @@ def coded_sentence_to_prediction_tuples(coded_sentence):
 def test_stream_to_tagged_stream(test_file, word_dict, tag_dict):
     tags_array = list(tag_dict.keys())
     trainlike = list(test_stream_to_trainlike_stream(test_file, tags_array[0]))
-    sentence_tuples = wb.generate_train_5tuples(wb.train_stream_to_sentence_tuples(trainlike), word_dict, tag_dict, 0)
+    sentence_tuples = wb.generate_train_5tuples(wb.train_stream_to_sentence_tuples(trainlike), word_dict, tag_dict, set())
     trainlike_row = iter(trainlike)
     for x_tuple, _ in sentence_tuples:
         prediction = predict_on_tuple(x_tuple, params, tags_array)

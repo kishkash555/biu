@@ -7,19 +7,15 @@ import numpy as np
 import pickle
 import sys
 import time
+import mlp
+import _dynet as dy
 
-EMB = 50
-INPUT = EMB*5
-INITIAL_LEARN_RATE = 0.15 # can be changed by argv[1]
-HIDDEN = 400  # can be changed by argv[2]
-SET_RANDOM_SEED = True # can be changed by argv[3]
-global MIN_ACC 
-MIN_ACC = 0.80
 INPUT_DIR = 'pos' # can be changed by argv[4]
-REG_LAMBDA = 0.02 # can be changed by argv[5]
 
 USE_EXT_EMBEDDINGS = False # can be changed by argv[6]
-DICTS_FILE = 'dicts.pickle'
+EMBED_PREFIX_AND_SUFFIX = False # can be changed by argv[7]
+SET_RANDOM_SEED = True
+DICTS_FILE = 'dicts_pickle'
 doc = \
 """
 Checklist of main points implemented:
@@ -40,75 +36,33 @@ Checklist of main points implemented:
 """
 
 
-def create_network_params(nwords, ntags, external_E = None):
-    # create a parameter collection and add the parameters.
-    print("adding parameters")
-    m = dy.ParameterCollection()
-    if external_E:
-        E = m.add_lookup_parameters((external_E.shape[1], external_E.shape[0]), name='E', init=external_E)
-    else:
-        E = m.add_lookup_parameters((nwords,EMB), name='E')
-    b = m.add_parameters(HIDDEN, name='b')
-    U = m.add_parameters((ntags, HIDDEN), name='U')
-    W = m.add_parameters((HIDDEN, INPUT), name='W')
-    bp = m.add_parameters(ntags, name='bp')
-    dy.renew_cg()
-    return m, E, b, U, W, bp
+def create_word_and_tag_dict(train_file, embedding_vocab, rare_word_threshold):
+    """
+    construct dictionary of known words with their location.
+    due to usage of OrderedDict two-way conversion is possible:
+    - word_dict[word] = location 
+    - list(word_dict.keys())[location]==word 
+    """
+    ext_word_dict = OrderedDict([(mlp.UNK if a=='UUUNKKK' else a,i) for i, a in enumerate(embedding_vocab)])
+    
+    train_word_counter, tag_dict = scan_train_for_vocab(train_file)
+    rare_word_set = set()
+    
+    i = len(ext_word_dict)
+    for word, count in train_word_counter.most_common():
+        if word not in ext_word_dict:
+            ext_word_dict[word] = i
+            i += 1
+        if count <= rare_word_threshold:
+            rare_word_set.add(word)
 
-def build_network(params, x_ordinals):
-    _, E, b, U, W, bp = params
-    x = dy.concatenate([E[ord] for ord in x_ordinals])
-    output = dy.softmax(U * (dy.tanh(W*x + b)) + bp)
-    return output
-
-def train_network(params, ntags, train_data, dev_set):
-    global telemetry_file, randstring, MIN_ACC
-    prev_acc = 0
-    m = params[0]
-    t0 = time.clock()
-    # train the network
-    trainer = dy.SimpleSGDTrainer(m)
-    total_loss = 0
-    seen_instances = 0
-    train_good = 0
-    for train_x, train_y in train_data:
-        dy.renew_cg()
-        output = build_network(params, train_x)
-        # l2 regularization did not look promising at all, so it's commented out
-        loss = -dy.log(output[train_y])  + REG_LAMBDA * sum([dy.l2_norm(p) for p in params[2:]])
-        if train_y == np.argmax(output.npvalue()):
-            train_good +=1
-        seen_instances += 1
-        total_loss += loss.value()
-        loss.backward()
-        trainer.update()
-        
-        if seen_instances % 20000 == 0:
-            # measure elapsed seconds
-            secs = time.clock() - t0
-            t0 = time.clock()
-            good = case = 0
-            max_dev_instances = 70*1000
-            dev_instances = 0
-            for x_tuple, dev_y in dev_set:
-                output =  build_network(params, x_tuple)
-                if np.argmax(output.npvalue()) == dev_y:
-                    good +=1
-                case +=1
-                dev_instances += 1
-                if dev_instances >= max_dev_instances:
-                    break
-            acc = float(good)/case
-            print("iterations: {}. train_accuracy: {} accuracy: {} avg loss: {} secs per 1000:{}".format(seen_instances, float(train_good)/20000, acc, total_loss / (seen_instances+1), secs/20))
-            train_good = 0
-            if acc > MIN_ACC and acc > prev_acc:
-                print("saving.")
-                dy.save("params_"+randstring,list(params)[1:])
-                prev_acc = acc
-            
-            telemetry_file.write("{}\t{}\t{}\t{}\n".format(seen_instances, acc, total_loss / (seen_instances+1), secs/20))
-    MIN_ACC = max(prev_acc, MIN_ACC) 
-
+    ext_word_dict[mlp.START] = i 
+    ext_word_dict[mlp.STOP] = i + 1
+    if mlp.UNK not in ext_word_dict:
+        ext_word_dict[mlp.UNK] = i + 2
+    
+    tag_dict[''] = len(tag_dict)
+    return ext_word_dict, tag_dict, rare_word_set
 
 def scan_train_for_vocab(train_data):
     words = Counter()
@@ -119,26 +73,33 @@ def scan_train_for_vocab(train_data):
             words[word] += 1
             tags[tag] += 1
         
-    word_list = [a for a, _ in words.most_common()]
     tag_list = [a for a, _ in tags.most_common()]
-    word_dict = OrderedDict((a,i) for i, a in enumerate(word_list))
     tag_dict = OrderedDict((a,i) for i, a in enumerate(tag_list))
-    return word_dict, tag_dict
+    return words, tag_dict
 
 
 def train_stream_to_sentence_tuples(input_file):
-    sentence = [('**START**', '')]*2
+    sentence = [(mlp.START, '')] * 2
     for line in input_file:
         if len(line)>1:
             word, tag = line.split()
             sentence.append((word,tag))
         elif len(sentence) > 2:
-            sentence += [('**STOP**', '')]*2
+            sentence += [(mlp.STOP, '')] * 2
             yield sentence
-            sentence = [('**START**', '')]*2
+            sentence = [(mlp.START, '')] * 2
 
+def generate_train_5tuples_with_prefix_suffix(tagged_sentences, word_dict, tag_dict, rare_word_set): 
+    stream1 = generate_train_5tuples(tagged_sentences, word_dict, tag_dict, rare_word_set)
+    stream2 = generate_train_5tuples(convert_tagged_sentence_to_prefixes(tagged_sentences), word_dict, tag_dict, set())
+    stream3 = generate_train_5tuples(convert_tagged_sentence_to_suffixes(tagged_sentences), word_dict, tag_dict, set())
+    for a, b, c in zip(stream1, stream2, stream3):
+        y =  {"fullwords": a, "prefix": b, "suffix": c}
+        print(y)
+        yield y
+    
 
-def generate_train_5tuples(tagged_sentence_stream, word_dict, tag_dict, unk_threshold):
+def generate_train_5tuples(tagged_sentence_stream, word_dict, tag_dict, rare_word_set):
     """
     generate a 5-tuple of indices
     and a y one-hot vector
@@ -150,16 +111,35 @@ def generate_train_5tuples(tagged_sentence_stream, word_dict, tag_dict, unk_thre
         for word, tag in tagged_sentence:
             if word in word_dict:
                 train_x_tuple.append(word_dict[word])
-            else: 
-                train_x_tuple.append(word_dict['**UNK**'])
+            elif word.lower() in word_dict: 
+                train_x_tuple.append(word_dict[word.lower()])
+            else:
+                train_x_tuple.append(word_dict[mlp.UNK])
             train_y_tuple.append(tag)
             if len(train_x_tuple) == 5:
                 yield list(train_x_tuple), tag_dict[train_y_tuple[2]]
-                
+                if word in rare_word_set:
+                    train_x_tuple[2] = word_dict[mlp.UNK]
+                    yield list(train_x_tuple), tag_dict[train_y_tuple[2]]
+                   
                 train_x_tuple.pop(0)
                 train_y_tuple.pop(0)
-                
 
+word_pre =  lambda(word): word[:3 ] if len(word) >= mlp.MIN_LENGTH_FOR_PRE_SUF and word not in { mlp.UNK, mlp.START, mlp.STOP} else ''
+word_suff = lambda(word): word[-3:] if len(word) >= mlp.MIN_LENGTH_FOR_PRE_SUF and word not in { mlp.UNK, mlp.START, mlp.STOP} else ''
+
+def convert_tagged_sentence_to_prefixes(tagged_sentences):
+    for tagged_sentence in tagged_sentences:
+        prefix_sentence = [( mlp.PREFIX_MARK + word_pre(word), tag) for word, tag in tagged_sentence]
+        yield prefix_sentence
+
+def convert_tagged_sentence_to_suffixes(tagged_sentences):
+    for tagged_sentence in tagged_sentences:
+        suffix_sentence = [( word_suff(word) + mlp.SUFFIX_MARK, tag) for word, tag in tagged_sentence]
+        yield suffix_sentence
+        
+
+    
 
 if __name__ == "__main__":
     global telemetry_file, randstring
@@ -168,72 +148,96 @@ if __name__ == "__main__":
     telemetry_file= open('telem'+randstring+'.txt','wt')
 
     if len(argv)>1 and argv[1] != "--":
-        INITIAL_LEARN_RATE = float(argv[1])
+        try:
+            mlp.INITIAL_LEARN_RATE = float(argv[1])
+        except:
+            print(['usage: {} [PARAM1|[-- PARAM2|[-- ... [PARAM6]]]\nPARAM NAMES AND DEFAULTS:\n'
+            '\tPARAM1: INITIAL LEARNING RATE [{}]\n'
+            '\tPARAM2: HIDDEN LAYER SIZE [{}]\n'
+            '\tPARAM3: PRESET RANDOM SEED 1=True 0=False [{}]\n'
+            '\tPARAM4: INPUT DIR [{}]\n'
+            '\tPARAM5: not in use\n'
+            #'\tPARAM5: REG LAMBDA [{}]\n'
+            '\tPARAM6: USE EXTERNAL EMBEDDINGS 1=True 0=False.\n\t\tLooks for ../wordVectors.txt and ../vocab.txt [{}]\n'
+            '\tPARAM7: EMBED PREFIX AND SUFFIX 1=True 0=Fasle. [{}]'
+            ][0].format(argv[0],mlp.INITIAL_LEARN_RATE, mlp.HIDDEN, SET_RANDOM_SEED, INPUT_DIR, USE_EXT_EMBEDDINGS, EMBED_PREFIX_AND_SUFFIX))
+            raise ValueError()
     if len(argv)>2 and argv[2] != "--":
-        HIDDEN = int(argv[2]) 
+        mlp.HIDDEN = int(argv[2]) 
     if len(argv)>3 and argv[3] != "--":
         SET_RANDOM_SEED = bool(int(argv[3]))
     if len(argv)>4 and argv[4] != "--":
         INPUT_DIR = argv[4]
-    if len(argv)>5 and argv[5] != "--":
-        REG_LAMBDA = float(argv[5])
+        if INPUT_DIR == 'pos':
+            mlp.MIN_ACC = 0.95
+    if len(argv)>5 and argv[5] != "--": # not in use
+        mlp.REG_LAMBDA = float(argv[5])
     if len(argv)>6 and argv[6] != "--":
-        USE_EXT_EMBEDDINGS = bool(int(argv[3]))
-    
-    
+        USE_EXT_EMBEDDINGS = bool(int(argv[6]))
+    if len(argv)>7 and argv[7] != "--":
+        EMBED_PREFIX_AND_SUFFIX = bool(int(argv[7]))
+    dyparams =  dy.DynetParams()
     if SET_RANDOM_SEED:
-        dyparams =  dy.DynetParams()
         dyparams.set_random_seed(1234)
-        dyparams.init()
         np.random.seed(54321)
+    dyparams.init()
+        
     
-    import dynet as dy
-    
-    if USE_EXT_EMBEDDINGS:
-        with open('ex1_embed_mat50.pickle','rb') as a:
-            E_pretrained = pickle.load(a)
-
-    print("input: {}\nlearning rate: {}\nhidden layer size: {}\nrandom: {}, lambda: {}".format(INPUT_DIR,INITIAL_LEARN_RATE,HIDDEN,SET_RANDOM_SEED,REG_LAMBDA))
-    telemetry_file.write("{} {} {} {} {} {}\n".format(argv[0],INITIAL_LEARN_RATE,HIDDEN,int(SET_RANDOM_SEED),INPUT_DIR, REG_LAMBDA))
+    print("input: {}\nlearning rate: {}\nhidden layer size: {}\nrandom: {}, lambda: {}"\
+        .format(INPUT_DIR, mlp.INITIAL_LEARN_RATE, mlp.HIDDEN, SET_RANDOM_SEED, mlp.REG_LAMBDA))
+    telemetry_file.write("{} {} {} {} {} {} {} {}\n".format(argv[0], mlp.INITIAL_LEARN_RATE, mlp.HIDDEN, int(SET_RANDOM_SEED), INPUT_DIR, mlp.REG_LAMBDA, USE_EXT_EMBEDDINGS, EMBED_PREFIX_AND_SUFFIX))
     telemetry_file.write("iterations\taccuracy\tavg_loss\tsecs_per_1000\n")
 
     input_file = path.join('..',INPUT_DIR,'train')
     dev_file = path.join('..',INPUT_DIR,'dev')
+
+    
+    if USE_EXT_EMBEDDINGS:
+        provided_emb_matrix = np.fromfile('../wordVectors.txt', sep=' ').reshape(100232, 50)
+        with open('../vocab.txt','rt') as row:
+           provided_emb_vocab = [w.strip() for w in row]
+        print('some 5 words: {}\nfirst 3 values of first 5 vectors: {}'.format(provided_emb_vocab[100:105], provided_emb_matrix[:5,:3]))
+    else:
+        provided_emb_matrix = np.array([],float)
+        provided_emb_vocab = []
+    
     with open(input_file,'rt') as i:
-        word_dict, tag_dict = scan_train_for_vocab(i)
-    word_dict['**START**'] = len(word_dict)
-    word_dict['**STOP**'] = len(word_dict)
-    word_dict['**UNK**'] = len(word_dict)
-    tag_dict[''] = len(tag_dict)
+        word_dict, tag_dict, rare_word_set = create_word_and_tag_dict(i, provided_emb_vocab, 16)
+
     
     # save the dictionaries
     with open(DICTS_FILE + '.' + INPUT_DIR ,'wb') as f:
         pickle.dump( { 'word_dict': word_dict, 'tag_dict': tag_dict}, f)
 
-    params = create_network_params(len(word_dict), len(tag_dict))
+    params = mlp.create_network_params(len(word_dict), len(tag_dict))
 
+    # dev set: loading
     with open(dev_file, 'rt') as d:
-        dev_set = list(generate_train_5tuples(train_stream_to_sentence_tuples(d), word_dict, tag_dict, 0))
-
+        dev_set = list(generate_train_5tuples(train_stream_to_sentence_tuples(d), word_dict, tag_dict, set()))
+    # dev set: clearing 'O' tag (not counted towards accuracy)
     if 'O' in tag_dict:
         dev_set_len = len(dev_set)
         dev_set = [tup for tup in dev_set if tup[1] != tag_dict['O']]
         print("Removing 'O' from dev set. size before: {} size after: {}".format(dev_set_len, len(dev_set)))
         
-    # print(list(generate_train_tuples(dev_set[:10],word_dict, tag_dict)))
-    # print(tag_dict)
-    unk_threshold = int(len(word_dict)/10) + 1
     ntags = len(tag_dict)
     with open(input_file,'rt') as i:
-        train_data = list(generate_train_5tuples(train_stream_to_sentence_tuples(i), word_dict, tag_dict, unk_threshold))
-
+        input_sentences = list(train_stream_to_sentence_tuples(i))
+    
     try:
         for i in range(10):
-            np.random.shuffle(train_data)
-            print(train_data[:5])
-            train_network(params, ntags, train_data, dev_set)
+            np.random.shuffle(input_sentences)
+            #print(input_sentences[:5])
+            
+            if EMBED_PREFIX_AND_SUFFIX:
+                train_data = generate_train_5tuples_with_prefix_suffix(input_sentences, word_dict, tag_dict, rare_word_set)
+            else:
+                train_data = generate_train_5tuples(input_sentences, word_dict, tag_dict, rare_word_set)
+                print(next(train_data))
+            mlp.train_network(params, ntags, train_data, dev_set,telemetry_file, randstring)
+    except KeyboardInterrupt:
+        print("INTERRUPTED.")
     finally:
-        print("INTERRUPTED. closing file")
+        print("closing file")
         telemetry_file.close() 
 
-import dynet as dy

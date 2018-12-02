@@ -9,7 +9,7 @@ def main(argv):
         qmle_file = config.defaultFiles.qmle
         emle_file = config.defaultFiles.emle
     elif len(argv) != 4:
-        print(f"usage: {argv[0]} path_to_tagged_input_file qmle_output_file emle_output_file")
+        print(f'usage: {argv[0]} path_to_tagged_input_file qmle_output_file emle_output_file')
         print("exiting.")
         exit()
     else:

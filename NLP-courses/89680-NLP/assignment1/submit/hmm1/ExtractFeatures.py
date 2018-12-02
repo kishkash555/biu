@@ -104,6 +104,10 @@ known_regexs = [
     ('.{3,}ful','ful'),
     ('.{3,}fully','fully'),
     ('.+\-.*','hyphen'),
+    ('[0-9]+', 'digits_only'),
+    ('.*[0-9].*', 'has_digits'),
+    ('[a-z]{,4}', 'short_word'),
+    ('[a-z]{8,}', 'long_words')
     ]
 
 regexs = [match_regex(re.compile(ex), fn) for ex, fn in known_regexs]
@@ -160,7 +164,7 @@ if __name__ == '__main__':
         print("Extract features running with default files")
         input_file = config.defaultFiles.tagged_input
         output_file = config.defaultFiles.memm_feature_out
-    elif len(sys.argv !=3 ):
+    elif len(sys.argv) !=3:
         print(f"usage: {sys.argv[0]} path_to_tagged_input_file path_to_feature_output_file")
         print("exiting.")
         exit()

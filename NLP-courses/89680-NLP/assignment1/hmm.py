@@ -154,7 +154,10 @@ def getLogEs(word, train_data):
 registered_regexs = [(re.compile(rx),name) for rx, name in ef.known_regexs]  
 
 def match_against_registered_regexs(word):
-    return [name for rx, name in registered_regexs if rx.fullmatch(word.lower())]
+    ret = [name for rx, name in registered_regexs if rx.fullmatch(word.lower())]
+    if word.lower() != word.upper():
+        ret.append('capitalized')
+    return ret
 
 def q_mle_output(train_data):
     tags = list(train_data.pos_items.keys())  

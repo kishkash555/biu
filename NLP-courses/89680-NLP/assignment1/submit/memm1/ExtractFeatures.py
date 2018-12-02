@@ -1,7 +1,6 @@
 import re
 from collections import Counter
 import config
-#import memm_utils
 import sys
 
 def generate_triplets_from_tagged_sentence(tagged_sentence):
@@ -160,7 +159,7 @@ if __name__ == '__main__':
         print("Extract features running with default files")
         input_file = config.defaultFiles.tagged_input
         output_file = config.defaultFiles.memm_feature_out
-    elif len(sys.argv !=3 ):
+    elif len(sys.argv) !=3:
         print(f"usage: {sys.argv[0]} path_to_tagged_input_file path_to_feature_output_file")
         print("exiting.")
         exit()

@@ -1,6 +1,6 @@
 import numpy as np
 import config
-import extractFeatures as ef
+import ExtractFeatures as ef
 import re
 from collections import Counter, namedtuple, defaultdict, OrderedDict
 import viterbi

@@ -1,12 +1,13 @@
 """Generate sentences
 
 Usage: 
-    generate.py <file> [--tree -n<num>]
+    generate.py <file> [[--tree -n<num>]|--parse=<sentence>]
 
 Options:
     <file>  name of grammar file
     --tree  output the rule tree with the sentence
     -n <num>  number of sentences to generate
+    --parse <sentence>  check if the sentence can be parsed using the current grammar
 """
 
 from docopt import docopt
@@ -76,49 +77,67 @@ class PCFG(object):
                  return (symbol,r)
         return (symbol,r)
 
-    # def parse(self, words):
-    #     if type(words)==str:
-    #         words = words.split(" ")
-    #     if len(words)==1 and words[0]=="ROOT":
-    #         return True
-    #     for k, v in self._rules.iteritems():
-    #         lhs = k.split()
-    #         rhs = v[0]
-    #         start, ln = find_match(words, rhs, 0)
-    #         ret = False
-    #         while not ret and start >=0:
-    #             next_sent = words[0:start] + lhs + words[start+ln:]
-    #             ret = self.parse(next_sent) 
-    #             start, ln = find_match(words, rhs, start+1)
-    #     return False
+    def parse(self, words):
+        if type(words)==str:
+            words = words.split(" ")
+        if len(words)==1 and words[0]=="ROOT":
+            return True
+        for k, v in self._rules.iteritems():
+            lhs = k.split()
+            for rhs,_ in v:
+                start = -1
+                start, ln = self.find_match(words, rhs, start)
+                while start >=0 :
+                    next_sent = words[0:start] + lhs + words[start+ln:]
+                    #print(next_sent)
+                    if self.parse(next_sent):
+                        return True
+                    start, ln = self.find_match(words, rhs, start+1)
+                
+        return False
+
+    def find_match(self, words, rhs, start_pos):
+        if start_pos == -1: start_pos = 0
+        for i in range(start_pos,len(words)):
+            m = 0 
+            while m < len(rhs) and words[i+m] == rhs[m]: m+=1
+            if m == len(rhs):
+                return i , m
+        return -1, 0
+
 def simplify(expr):
     if type(expr)==str: return expr
     simplified = tuple(simplify(x) for x in expr[1][0])
     return (expr[0], simplified)
 
-def pretty_tree(expr, level):
+def pretty_tree(expr, indent):
     """
     print the tree represented by expr elegantly
     """
-    indent = " "*4
     if type(expr)==str:
         return expr
-        # return "{}({} {})\n".format(indent*level,expr[0],expr[1][0])
-    ret="({} {})".format(expr[0], ("\n"+indent*level).join([pretty_tree(e, level+1) for e in expr[1]]))
+    indent += len(expr[0])+2
+    ret="({} {})".format(expr[0], ("\n"+" "*indent).join([pretty_tree(e, indent) for e in expr[1]]))
     return ret
 
 if __name__ == '__main__':
     arguments = docopt(__doc__)
-    try:
-        reps = int(arguments['-n'])
-    except:
-        reps = 1
-    
     pcfg = PCFG.from_file(arguments['<file>'])
-    gen_func = pcfg.random_sent_t if '--tree' in arguments else pcfg.random_sent
-    for r in range(reps):
-        print
-        print gen_func()
+    print arguments
+    if '--parse' in arguments and arguments['--parse']:
+        sent = arguments['--parse']
+        print pcfg.parse(sent)
+        
+    else:
+        try:
+            reps = int(arguments['-n'])
+        except:
+            reps = 1
+        
+        gen_func = pcfg.random_sent_t if arguments['--tree'] else pcfg.random_sent
+        for r in range(reps):
+            print
+            print gen_func()
 
 
    

@@ -35,8 +35,10 @@ Checklist of main points implemented:
     5. every word encountered during tagging that is not in the trained vocabulary gets replaced with **UNK**
 """
 
+def is_a_number(word):
+    return len(set(word) - set('-+,.0123456789'))==0
 
-def create_word_and_tag_dict(train_file, embedding_vocab, rare_word_threshold):
+def create_word_and_tag_dict(train_file, embedding_vocab, rare_word_threshold, add_prefix_suffix):
     """
     construct dictionary of known words with their location.
     due to usage of OrderedDict two-way conversion is possible:
@@ -50,18 +52,30 @@ def create_word_and_tag_dict(train_file, embedding_vocab, rare_word_threshold):
     
     i = len(ext_word_dict)
     for word, count in train_word_counter.most_common():
-        if word not in ext_word_dict:
+        if word not in ext_word_dict and not is_a_number(word):
             ext_word_dict[word] = i
             i += 1
-        if count <= rare_word_threshold:
+            if add_prefix_suffix:
+                pre = mlp.PREFIX_MARK + word_pre(word)
+                suf = word_suff(word) + mlp.SUFFIX_MARK
+                if pre not in ext_word_dict:
+                    ext_word_dict[pre] = i
+                    #print("adding {} for word {}".format(word_pre(word),word))
+                    i += 1
+                if suf not in ext_word_dict:
+                    ext_word_dict[suf] = i
+                    i += 1
+                
+        if count <= rare_word_threshold and not is_a_number(word):
             rare_word_set.add(word)
 
     ext_word_dict[mlp.START] = i 
     ext_word_dict[mlp.STOP] = i + 1
+    ext_word_dict[mlp.NUMBER] = i + 2
     if mlp.UNK not in ext_word_dict:
-        ext_word_dict[mlp.UNK] = i + 2
-    
+        ext_word_dict[mlp.UNK] = i + 3
     tag_dict[''] = len(tag_dict)
+    print("size ext_word_dict {}".format(len(ext_word_dict)))
     return ext_word_dict, tag_dict, rare_word_set
 
 def scan_train_for_vocab(train_data):
@@ -94,9 +108,9 @@ def generate_train_5tuples_with_prefix_suffix(tagged_sentences, word_dict, tag_d
     stream2 = generate_train_5tuples(convert_tagged_sentence_to_prefixes(tagged_sentences), word_dict, tag_dict, set())
     stream3 = generate_train_5tuples(convert_tagged_sentence_to_suffixes(tagged_sentences), word_dict, tag_dict, set())
     for a, b, c in zip(stream1, stream2, stream3):
-        y =  {"fullwords": a, "prefix": b, "suffix": c}
-        print(y)
-        yield y
+        x =  {"fullwords": a[0], "prefix": b[0], "suffix": c[0]}
+        #print(x)
+        yield x, a[1] 
     
 
 def generate_train_5tuples(tagged_sentence_stream, word_dict, tag_dict, rare_word_set):
@@ -109,10 +123,14 @@ def generate_train_5tuples(tagged_sentence_stream, word_dict, tag_dict, rare_wor
         train_x_tuple = []
         train_y_tuple = []
         for word, tag in tagged_sentence:
-            if word in word_dict:
+            if is_a_number(word): # a number
+                train_x_tuple.append(word_dict[mlp.NUMBER])
+            elif word in word_dict:
                 train_x_tuple.append(word_dict[word])
             elif word.lower() in word_dict: 
                 train_x_tuple.append(word_dict[word.lower()])
+            elif '-' in word and word.split('-')[-1] in word_dict:
+                train_x_tuple.append(word_dict[word.split('-')[-1]])
             else:
                 train_x_tuple.append(word_dict[mlp.UNK])
             train_y_tuple.append(tag)
@@ -125,12 +143,13 @@ def generate_train_5tuples(tagged_sentence_stream, word_dict, tag_dict, rare_wor
                 train_x_tuple.pop(0)
                 train_y_tuple.pop(0)
 
-word_pre =  lambda(word): word[:3 ] if len(word) >= mlp.MIN_LENGTH_FOR_PRE_SUF and word not in { mlp.UNK, mlp.START, mlp.STOP} else ''
-word_suff = lambda(word): word[-3:] if len(word) >= mlp.MIN_LENGTH_FOR_PRE_SUF and word not in { mlp.UNK, mlp.START, mlp.STOP} else ''
+word_pre =  lambda(word): word[:3 ] if len(word) >= mlp.MIN_LENGTH_FOR_PRE_SUF and word not in { mlp.UNK, mlp.START, mlp.STOP, mlp.NUMBER} else ''
+word_suff = lambda(word): word[-3:] if len(word) >= mlp.MIN_LENGTH_FOR_PRE_SUF and word not in { mlp.UNK, mlp.START, mlp.STOP, mlp.NUMBER} else ''
 
 def convert_tagged_sentence_to_prefixes(tagged_sentences):
     for tagged_sentence in tagged_sentences:
         prefix_sentence = [( mlp.PREFIX_MARK + word_pre(word), tag) for word, tag in tagged_sentence]
+        prefix_sentence
         yield prefix_sentence
 
 def convert_tagged_sentence_to_suffixes(tagged_sentences):
@@ -168,8 +187,8 @@ if __name__ == "__main__":
         SET_RANDOM_SEED = bool(int(argv[3]))
     if len(argv)>4 and argv[4] != "--":
         INPUT_DIR = argv[4]
-        if INPUT_DIR == 'pos':
-            mlp.MIN_ACC = 0.95
+    if INPUT_DIR == 'pos':
+        mlp.MIN_ACC = 0.94
     if len(argv)>5 and argv[5] != "--": # not in use
         mlp.REG_LAMBDA = float(argv[5])
     if len(argv)>6 and argv[6] != "--":
@@ -183,8 +202,8 @@ if __name__ == "__main__":
     dyparams.init()
         
     
-    print("input: {}\nlearning rate: {}\nhidden layer size: {}\nrandom: {}, lambda: {}"\
-        .format(INPUT_DIR, mlp.INITIAL_LEARN_RATE, mlp.HIDDEN, SET_RANDOM_SEED, mlp.REG_LAMBDA))
+    print("input: {}\nlearning rate: {}\nhidden layer size: {}\nrandom: {}, INPUT_DIR: {}\nExt embediings: {}, prefix suffix: {}"\
+        .format(INPUT_DIR, mlp.INITIAL_LEARN_RATE, mlp.HIDDEN, SET_RANDOM_SEED, INPUT_DIR, USE_EXT_EMBEDDINGS, EMBED_PREFIX_AND_SUFFIX))
     telemetry_file.write("{} {} {} {} {} {} {} {}\n".format(argv[0], mlp.INITIAL_LEARN_RATE, mlp.HIDDEN, int(SET_RANDOM_SEED), INPUT_DIR, mlp.REG_LAMBDA, USE_EXT_EMBEDDINGS, EMBED_PREFIX_AND_SUFFIX))
     telemetry_file.write("iterations\taccuracy\tavg_loss\tsecs_per_1000\n")
 
@@ -202,9 +221,13 @@ if __name__ == "__main__":
         provided_emb_vocab = []
     
     with open(input_file,'rt') as i:
-        word_dict, tag_dict, rare_word_set = create_word_and_tag_dict(i, provided_emb_vocab, 16)
+        word_dict, tag_dict, rare_word_set = create_word_and_tag_dict(i, provided_emb_vocab, 1, EMBED_PREFIX_AND_SUFFIX)
 
-    
+    rare_word_set = list(rare_word_set)
+    np.random.shuffle(rare_word_set)
+    rare_word_set = set(rare_word_set[:4000])
+    print("rare words count: {} of {}".format(len(rare_word_set), len(word_dict)))
+    print("rare word examples: {}".format(" ".join(list(rare_word_set)[::50])))
     # save the dictionaries
     with open(DICTS_FILE + '.' + INPUT_DIR ,'wb') as f:
         pickle.dump( { 'word_dict': word_dict, 'tag_dict': tag_dict}, f)

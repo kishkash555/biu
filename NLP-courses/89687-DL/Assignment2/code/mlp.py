@@ -15,6 +15,8 @@ MIN_ACC = 0.80
 UNK = '**UNK**'
 START = '**START**'
 STOP = '**STOP**'
+NUMBER = '**NUM**'
+
 
 PREFIX_MARK = '^^'
 SUFFIX_MARK = '$$'
@@ -25,6 +27,7 @@ def create_network_params(nwords, ntags, external_E = None):
     print("adding parameters")
     m = dy.ParameterCollection()
     
+    print("nwords: {}".format(nwords))
     E = m.add_lookup_parameters((nwords,EMB), name='E')
     if external_E and sum(external_E.shape) > 0:
         assert external_E.shape[1] == EMB
@@ -42,7 +45,7 @@ def create_network_params(nwords, ntags, external_E = None):
 def build_network(params, x_data):
     _, E, b, U, W, bp = params
     if type(x_data) == dict:
-        print("DICT")
+        # print("DICT")
         prefix_ordinals = x_data['prefix']
         suffix_ordinals = x_data['suffix']
         x_ordinals = x_data['fullwords']

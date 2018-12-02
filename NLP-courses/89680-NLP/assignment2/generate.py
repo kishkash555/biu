@@ -100,15 +100,15 @@ class PCFG(object):
         if start_pos == -1: start_pos = 0
         for i in range(start_pos,len(words)):
             m = 0 
-            while m < len(rhs) and words[i+m] == rhs[m]: m+=1
+            while m < len(rhs) and i+m < len(words) and words[i+m] == rhs[m]: m+=1
             if m == len(rhs):
                 return i , m
         return -1, 0
 
-def simplify(expr):
-    if type(expr)==str: return expr
-    simplified = tuple(simplify(x) for x in expr[1][0])
-    return (expr[0], simplified)
+# def simplify(expr):
+#     if type(expr)==str: return expr
+#     simplified = tuple(simplify(x) for x in expr[1][0])
+#     return (expr[0], simplified)
 
 def pretty_tree(expr, indent):
     """

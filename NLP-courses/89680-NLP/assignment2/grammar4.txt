@@ -23,6 +23,16 @@
 1	ROOT	S !
 1	ROOT	is it true that S ?     # mixing terminals and nonterminals is ok.
 
+## part 4
+1	ROOT	WH Be SB ?
+1	ROOT	Be SB ?
+
+1	Be	did
+1	Be	does
+1	Be	will
+
+
+1	SB	NP VB
 # The basic grammar rules.  Here's what the abbreviations stand for:
 #    S  = sentence
 #    NP = noun phrase
@@ -33,8 +43,23 @@
 #    Adj = adjective
 #	Conj= conjunction
 
+## part 4
+1	WH	where
+1	WH	when
+1	WH	what
+1	WH	why
+1	WH	how
+
+
+
+
 10	S	NP VP
 1	S	it Passive NP that S # NEW
+# part 4
+1	VB	TVP_B
+#1	VB	IVP_B
+1	TVP_B	Vb
+
 10	VP	TVP # Transitive verb phrase
 10	VP	IVP # intranstive verb phrase
 1	VP	thought that NP VP # NEW
@@ -71,11 +96,20 @@
 1	Transitive_direct	understood
 1	Transitive_direct	pickled
 
+1	Vb	eat
+1	Vb	want
+1	Vb	kiss
+1	Vb	understand
+1	Vb	pickle
+
+
 1	Transitive_indirect	worked
 
 1	Intranstive	sighed	#New
 
 1	Passive	perplexed	#New
+# part 4
+1	Passive_base	perplex
 
 1	Present_progressive_transitive_direct eating
 

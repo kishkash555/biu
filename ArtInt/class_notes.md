@@ -88,7 +88,40 @@ IDA* using threshold  - example
 - if you were'nt told about duplicate pruning, you may implement the algorithm without closed list and it will go into looops.
 
 
+----
+Nov. 22
+
+### Perfect Information Games
+Either a max- game or a min -
+
+Leaf represents the final state - Win, lose, tie.
+
+The game is formulated as a "max player" (trying to maximize own gain) and "min player) (minimizing other's)
+
+pseudo-code (slide 6): recursive with alternation between the value maximizers and minimizer
+
+#### $\alpha-\beta$ pruning
+saves exploration where a branch is clearly good for the other, but bad for the current player.
+We say that $\alpha$ equals 3 (the best value of the max-playrer)
 
 
+example on the board (to be uploaded)
 
+----
+Nov. 29
+STRIPS algo
+First Order Logic
+תורת הפסוקים
+predicates
+First Order Logic
 
+![strips](strips_algo.png)
+
+clear(A)
+on(B,A)
+
+---- 
+Dec. 6 review practice session
+the $\alpha-\beta$ pruning algo for minmax
+- $\alpha$: Max's best value. min: will trim if $v < \alpha$
+- $\beta$: Min's best value. max: will trim if $v > \beta$

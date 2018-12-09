@@ -1,13 +1,12 @@
 #!/usr/bin/python2
 import dynet as dy
 import sys
-import WordBindings as wb
+import tagger1 as wb
 import pickle
 import numpy as np
-import mlp
 from os import path
 
-PARAMS_FILE = 'params_267946'
+PARAMS_FILE = 'params_663458'
 INPUT_DIR = 'ner'
 PREDICTIONS_FILE = '_predict'
 
@@ -17,7 +16,7 @@ def load_model(mode_file_name):
 
 
 def predict_on_tuple(x_tuple, params, tags_array):
-    output =  mlp.build_network(params, x_tuple)
+    output =  wb.build_network(params, x_tuple)
     coded_tag = np.argmax(output.npvalue()) 
     return tags_array[coded_tag]
 
@@ -50,7 +49,7 @@ def coded_sentence_to_prediction_tuples(coded_sentence):
 def test_stream_to_tagged_stream(test_file, word_dict, tag_dict):
     tags_array = list(tag_dict.keys())
     trainlike = list(test_stream_to_trainlike_stream(test_file, tags_array[0]))
-    sentence_tuples = wb.generate_train_5tuples(wb.train_stream_to_sentence_tuples(trainlike), word_dict, tag_dict, set())
+    sentence_tuples = wb.generate_train_5tuples(wb.train_stream_to_sentence_tuples(trainlike), word_dict, tag_dict, 0)
     trainlike_row = iter(trainlike)
     for x_tuple, _ in sentence_tuples:
         prediction = predict_on_tuple(x_tuple, params, tags_array)
@@ -80,7 +79,7 @@ if __name__ == "__main__":
         INPUT_DIR = argv[3]
 
     params = load_model(PARAMS_FILE)
-    word_dict, tag_dict = load_dicts(wb.DICTS_FILE + '.' + INPUT_DIR )
+    word_dict, tag_dict = load_dicts(wb.DICTS_FILE)
 
     inp = open(path.join('..',INPUT_DIR,'test'),'rt')
     # out file will be created in current directory

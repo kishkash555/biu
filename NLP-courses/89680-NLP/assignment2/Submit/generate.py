@@ -1,13 +1,12 @@
 """Generate sentences
 
 Usage: 
-    generate.py <file> [[--tree -n<num>]|--parse=<sentence>]
+    generate.py <file> [-t -n<num>]
 
 Options:
     <file>  name of grammar file
-    --tree  output the rule tree with the sentence
+    -t  output the rule tree with the sentence
     -n <num>  number of sentences to generate
-    --parse <sentence>  check if the sentence can be parsed using the current grammar
 """
 
 from docopt import docopt
@@ -92,8 +91,7 @@ class PCFG(object):
                     #print(next_sent)
                     if self.parse(next_sent):
                         return True
-                    start, ln = self.find_match(words, rhs, start+1)
-                
+                    start, ln = self.find_match(words, rhs, start+1)             
         return False
 
     def find_match(self, words, rhs, start_pos):
@@ -105,10 +103,6 @@ class PCFG(object):
                 return i , m
         return -1, 0
 
-# def simplify(expr):
-#     if type(expr)==str: return expr
-#     simplified = tuple(simplify(x) for x in expr[1][0])
-#     return (expr[0], simplified)
 
 def pretty_tree(expr, indent):
     """
@@ -124,20 +118,15 @@ if __name__ == '__main__':
     arguments = docopt(__doc__)
     pcfg = PCFG.from_file(arguments['<file>'])
     print arguments
-    if '--parse' in arguments and arguments['--parse']:
-        sent = arguments['--parse']
-        print pcfg.parse(sent)
-        
-    else:
-        try:
-            reps = int(arguments['-n'])
-        except:
-            reps = 1
-        
-        gen_func = pcfg.random_sent_t if arguments['--tree'] else pcfg.random_sent
-        for r in range(reps):
-            print
-            print gen_func()
+    try:
+        reps = int(arguments['-n'])
+    except:
+        reps = 1
+    
+    gen_func = pcfg.random_sent_t if arguments['-t'] else pcfg.random_sent
+    for r in range(reps):
+        print
+        print gen_func()
 
 
    

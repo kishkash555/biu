@@ -1,3 +1,5 @@
+#!/usr/bin/python
+import sys
 """
 automatically generate positive and negative examples for training an LSTM
 
@@ -5,7 +7,7 @@ Positive: [1-9]+a+[1-9]+b+[1-9]+c+[1-9]+d+[1-9]+
 """
 
 min_repeat = 1
-max_repeat = 50
+max_repeat = 5
 n_letter_segments = 4
 n_digit_segments = 5
 positive = []
@@ -32,9 +34,19 @@ def negative_sequence():
     return random_sequence("acbd")
 
 if __name__ == "__main__":
-    for j in range(10):
-        print(positive_sequence())
+    argv = sys.argv
+    try:
+        n_positive = int(argv[1])
+    except:
+        n_positive = 10
+    try:
+        n_negative = int(argv[2])
+    except:
+        n_negative = 10
+    
+    for j in range(n_positive):
+        print("1\t"+positive_sequence())
 
-    print("neg")
-    for j in range(10):
-        print(negative_sequence())
+    for j in range(n_negative):
+        print("0\t"+negative_sequence())
+

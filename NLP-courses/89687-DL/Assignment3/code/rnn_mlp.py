@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 use_EOS = False
 
-vocab = list("123456789abcd")
+vocab = list("0123456789abcd")
 if use_EOS:
     vocab += ["<EOS>"]
 
@@ -28,7 +28,7 @@ get_param_dim = {
     }  
 
 
-def do_one_sentence(lstm, params, sentence, train_y, print_loss = False):
+def do_one_sentence(lstm, params, sentence, train_y):
     """
     this code was copied from https://dynet.readthedocs.io/en/latest/tutorials_notebooks/RNNs.html#Character-level-LSTM and slightly modified
     """
@@ -82,7 +82,7 @@ def train(lstm, params, train_data, dev_data, epochs):
             #print("after do one sent")
             loss.backward()
             trainer.update()
-            if i % 20 == 0:
+            if i % 200 == 0:
                 dev_loss, dev_acc = check_loss(lstm, params, dev_data, ep>1)
                 print("loss: {:.4f}\tacc: {:.2f}".format(dev_loss, dev_acc))
             i += 1
@@ -92,7 +92,7 @@ def check_loss(lstm, params, dev_data, report_loss=False):
     good = 0
     cases = 0
     for dev_y, sentence in dev_data:
-        curr_loss, y_hat_vec = do_one_sentence(lstm, params, sentence, dev_y, True)
+        curr_loss, y_hat_vec = do_one_sentence(lstm, params, sentence, dev_y)
         curr_loss = curr_loss.value()
         y_hat = np.argmax(y_hat_vec)
         loss += curr_loss
@@ -143,8 +143,8 @@ def load_train(fname):
 if __name__ == "__main__":
     pc = dy.ParameterCollection()
     lstm = dy.LSTMBuilder(NUM_LAYERS, INPUT_DIM, LSTM_HIDDEN_DIM, pc)
-    train_data = load_train("train1")
+    train_data = load_train("mult_train")
     #print(train_data[:5])
-    dev_data = load_train("dev1")
+    dev_data = load_train("mult_dev")
     params = add_params(pc)
-    train(lstm, params, train_data, dev_data, 3)
+    train(lstm, params, train_data, dev_data, 15)

@@ -28,7 +28,7 @@ get_param_dim = {
     }  
 
 
-def do_one_sentence(lstm, params, sentence, train_y):
+def do_one_sentence(lstm, params, sentence, train_y, print_loss = False):
     """
     this code was copied from https://dynet.readthedocs.io/en/latest/tutorials_notebooks/RNNs.html#Character-level-LSTM and slightly modified
     """
@@ -61,15 +61,9 @@ def do_one_sentence(lstm, params, sentence, train_y):
     # run the entire lstm (feeding one embedding vector at each stage). 
     # only the final output is needed
     y = s.transduce(xs)[-1]
-    # print(train_y)
     output = dy.softmax(U * (dy.tanh(W*y + b1)) + b0)
-    #output =y # !!!!!
-    #print("train_y: {}. output: {}".format(train_y, dy.pick(output.npvalue(),train_y)))
-    loss = -dy.log(dy.pick(dy.softmax(output),train_y))
-    # if np.isnan(loss.value()):
-    #     print("nan loss")
-    # else:
-        # print("-")
+    loss = -dy.log(dy.pick(output,train_y))
+    
     y_hat = output.npvalue()
     return loss, y_hat
 
@@ -77,10 +71,11 @@ def do_one_sentence(lstm, params, sentence, train_y):
 # train, and generate every 5 samples
 def train(lstm, params, train_data, dev_data, epochs):
     trainer = dy.SimpleSGDTrainer(pc)
-    for _ in range(epochs):
+    for ep in range(epochs):
+        i = 0
+        print("EPOCH {}".format(ep))
         np.random.shuffle(train_data)
         #print("train_data {}".format(train_data[0]))
-        i = 0
         for train_y, sentence in train_data:
             #print("sentence\n{}\ntrain_y{}".format(sentence, train_y))
             loss, _ = do_one_sentence(lstm, params, sentence, train_y)
@@ -88,33 +83,23 @@ def train(lstm, params, train_data, dev_data, epochs):
             loss.backward()
             trainer.update()
             if i % 20 == 0:
-               
-                _, y_hat = do_one_sentence(lstm, params, sentence, train_y)
-                #print("sentence: {} y_hat: {} y: {}".format(sentence, y_hat, train_y))
-                dev_y, dev_sent = random.choice(dev_data)
-                _, y_hat = do_one_sentence(lstm, params, dev_sent, dev_y)
-                #print("dev sentence: {} y_hat: {} y: {}".format(dev_sent, y_hat, dev_y))
-                dev_loss, dev_acc = check_loss(lstm, params, dev_data)
-                print("%.10f" % dev_loss + "\t" + "%.2f" % dev_acc)
-                emb = params["lookup"].npvalue()
-                emb_col_norms = np.sqrt((emb * emb).sum(axis=0))
-                emb = emb / emb_col_norms[np.newaxis,:] 
-                emb_a = emb[:,9]
-                emb_1 = emb[:,0]
-                #print(emb.T.dot(emb_a))
-                #print(emb.T.dot(emb_1))
+                dev_loss, dev_acc = check_loss(lstm, params, dev_data, ep>1)
+                print("loss: {:.4f}\tacc: {:.2f}".format(dev_loss, dev_acc))
             i += 1
 
-def check_loss(lstm, params, dev_data):
-    loss = 0 
+def check_loss(lstm, params, dev_data, report_loss=False):
+    loss = 0. 
     good = 0
+    cases = 0
     for dev_y, sentence in dev_data:
-        curr_loss, y_hat = do_one_sentence(lstm, params, sentence, dev_y)
-        y_hat = np.argmax(y_hat)
-        loss += curr_loss.value()
+        curr_loss, y_hat_vec = do_one_sentence(lstm, params, sentence, dev_y, True)
+        curr_loss = curr_loss.value()
+        y_hat = np.argmax(y_hat_vec)
+        loss += curr_loss
+        cases += 1
         if y_hat == dev_y:
             good += 1
-    return loss/len(dev_data), float(good)/len(dev_data) 
+    return loss/cases, float(good)/len(dev_data) 
 
 
 def add_params(pc):

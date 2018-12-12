@@ -1,3 +1,12 @@
+"""Train various network types for tagging task
+Usage:
+    bilstmTrain.py <repr>
+
+Options:
+    <repr>  the representation of the input, one of a,b,c,d
+"""
+
+
 
 import numpy as np
 import dynet as dy
@@ -5,12 +14,23 @@ from collections import Counter, OrderedDict
 from numpy import random
 from os import path
 import datetime
+import network_structure as networks
+from docopt import docopt
+
+
+"""Train various network types for tagging task
+Usage:
+    bilstmTrain.py <repr> <trainFile> <modelFile>
+
+Options:
+    <repr>  the representation of the input, one of a,b,c,d
+    <trainFile>  the name of the input train data file
+    <modelFile>  the name of the output model file
+"""
+
 UNK = '**UNK**'
 INPUT_DIR = 'ner'
 
-EMBEDDING_SIZE = 128
-LSTM_HIDDEN_DIM = 50
-LINEAR_DIM = 50
 ACC_FILE = "best_accuracies.txt"
 def read(fname):
     sent = []
@@ -37,7 +57,7 @@ def scan_train_for_vocab(train_data):
     return word_dict, tag_dict
 
 
-def load_and_start():
+def load_and_start(network_class):
     input_path = path.abspath(path.join('..',INPUT_DIR))
     train_file = path.join(input_path,'train')
     dev_file = path.join(input_path, 'dev')
@@ -53,9 +73,10 @@ def load_and_start():
     train_codes = encoder.simpleEncode(train_data)
     print(train_codes[:3])
     dev_codes = encoder.simpleEncode(dev_data) 
-    model, params = init_network(len(word_dict))
-    train_network(train_codes, dev_codes, model, params)
+    network = network_class(len(word_dict))
+    train_network(train_codes, dev_codes, network)
     
+
 class simpleCorpusEncoder:
     def __init__(self, word_dict, tag_dict):
         self.word_dict = word_dict
@@ -70,67 +91,25 @@ class simpleCorpusEncoder:
             return self.word_dict[word]
         return self.word_dict[UNK]
 
-def init_network(nwords):
-    model = dy.Model()
-    params = {
-        "E": model.add_lookup_parameters((nwords, EMBEDDING_SIZE)),
- #       "E_chars": model.add_lookup_parameters((nchars, EMBEDDING_SIZE)),
-        "builders": [
-            dy.LSTMBuilder(1, EMBEDDING_SIZE, LSTM_HIDDEN_DIM, model)
-            for _ in range(2)
-            ] + [
-            dy.LSTMBuilder(1, LSTM_HIDDEN_DIM*2, LSTM_HIDDEN_DIM, model)
-            for _ in range(2)    
-            ],
-        "W": model.add_parameters((LINEAR_DIM, LSTM_HIDDEN_DIM * 2 )),
-        "v": model.add_parameters(LINEAR_DIM)
-    }
 
-    return model, params
 
-def single_training_pass(word_tag_pairs, params):
-    tags_hat = evaluate_network(word_tag_pairs, params)
+def single_training_pass(word_tag_pairs, network):
+    tags_hat = network.evaluate_network(word_tag_pairs)
     errs = [dy.pickneglogsoftmax(t_h, t[1]) for t_h, t in zip(tags_hat, word_tag_pairs)]
     return dy.esum(errs)
 
-def evaluate_network(word_tag_pairs, params):
-    dy.renew_cg()
-    builders = params["builders"]
-    E = params["E"]
-    W = params["W"]
-    v = params["v"]
 
-    lstms = [b.initial_state() for b in builders]
-
-    try:
-        wembs = [E[w] for w, t in word_tag_pairs]
-    except: 
-        print(word_tag_pairs)
-        raise
-    # wembs = [dy.noise(we, 0.1) for we in wembs]
-
-    # running the first level for getting b
-    fw_lstm1 = lstms[0].transduce(wembs)
-    bw_lstm1 = reversed(lstms[1].transduce(reversed(wembs)))
-
-    inputs_to_2nd_layer = [dy.concatenate([f,b]) for f,b in zip(fw_lstm1,bw_lstm1)]
-    
-    fw_lstm2 = lstms[2].transduce(inputs_to_2nd_layer)
-    bw_lstm2 = reversed(lstms[3].transduce(reversed(inputs_to_2nd_layer)))
-
-    y = [dy.concatenate([f,b]) for f,b in zip(fw_lstm2,bw_lstm2)]
-    tags_hat = [W * t + v for t in y]
-    return tags_hat
-
-def tag_sent(words, model, params):
-    tags_hat = evaluate_network(words, params)
+def tag_sent(words, model, network):
+    tags_hat = network.evaluate_network(words)
     chosen = [np.argmax(t_h.npvalue()) for t_h in tags_hat]
     return zip(words,chosen)
 
 EPOCHS = 5
-def train_network(train_data, dev_data, model, params):
-    global prev_acc, run_id
+def train_network(train_data, dev_data, network):
+    global prev_acc, prev_acc_ex0, run_id
+    model = network.model
     prev_acc = prev_acc or 0.5
+    prev_acc_ex0 = prev_acc_ex0 or 0.5
     trainer = dy.SimpleSGDTrainer(model)  
     tagged = loss = 0
     for ep in range(EPOCHS):
@@ -142,56 +121,81 @@ def train_network(train_data, dev_data, model, params):
                 loss = 0
                 tagged = 0
             if i>1000 and i % 1000 == 0:
-                good = bad = 0.0
+                good_ex0 = good = bad = 0.0
                 for sent in dev_data:
                     #print sent
-                    tagged_sentence = tag_sent(sent, model, params)
+                    tagged_sentence = tag_sent(sent, model, network)
                     tags = [t for w, t in sent]
                     tags_hat = [t for w, t in tagged_sentence]
                     for th, t in zip(tags_hat, tags):
                         if th == t: 
-                            good +=1 
+                            good +=1
+                            if t > 0:
+                                good_ex0 +=1  
                         else: 
                             bad += 1
                 acc = good/(good+bad)
-                print("dev accuracy after {} cycles: {}".format(i, acc))
+                acc_ex0 = good_ex0/(good_ex0+bad)
+                print("dev accuracy after {} cycles: {}, {}".format(i, acc, acc_ex0))
                 if acc > prev_acc:
                     #print("saving")
                     model.save("{}_{}.dy".format(INPUT_DIR,run_id)) 
                     prev_acc = acc
+                if acc_ex0 > prev_acc_ex0:
+                    prev_acc_ex0 = acc_ex0
             
-            
-            sum_errs = single_training_pass(s, params)
+            sum_errs = single_training_pass(s, network)
             loss += sum_errs.scalar_value()
             tagged += len(s)
             sum_errs.backward()
             trainer.update() 
 
 if __name__ == "__main__":
-    global prev_acc, run_id
+    global prev_acc, prev_acc_ex0, run_id
+    
+    arguments = docopt(__doc__)
+    
+    if arguments["<repr>"] == "a":
+        network_class = networks.part3aNetwork
+    elif arguments["<repr>"] == "b":
+        network_class = networks.part3bNetwork
+    elif arguments["<repr>"] in {"c","d"}:
+        raise NotImplementedError("please wait for the next epoch")
+    else:
+        raise ValueError("please specify a,b,c, or d")
+
     run_id = str(datetime.datetime.now().microsecond)
     try:
-        with open(ACC_FILE,"rt") as a:
-            lines = a.readlines()
-            accs = [float(t.strip().split("\t")[3]) for t in lines]
-            prev_acc = max(accs)
-            print("prev acc: {}".format(prev_acc))
+        a = open(ACC_FILE,"rt") 
+        lines = a.readlines()
+        acc_file_found = True
     except:
         print("{} not found".format(ACC_FILE))
         prev_acc = 0.5
-        raise
+    
+    if acc_file_found:
+        accs = [float(t.strip().split("\t")[3]) for t in lines]
+        accs_ex0 = [float(t.strip().split("\t")[4]) for t in lines]
+
+        prev_acc = max(accs)
+        start_acc = prev_acc
+        prev_acc_ex0 = max(accs_ex0)
+        print("prev acc: {}".format(prev_acc))
+        a.close()
 
     try:
-        load_and_start()
+        load_and_start(network_class)
     except KeyboardInterrupt:
         print("\nInterrupted")
     finally:
-        with open(ACC_FILE,"at") as a:
-            a.write("\t".join([
-                INPUT_DIR,
-                str(run_id),
-                datetime.datetime.now().strftime("%Y-%m-%d %I:%M:%S"),
-                "{:.3}".format(prev_acc)
-                ]))
-            a.write("\n")
+        if prev_acc > start_acc:
+            with open(ACC_FILE,"at") as a:
+                a.write("\t".join([
+                    INPUT_DIR,
+                    str(run_id),
+                    datetime.datetime.now().strftime("%Y-%m-%d %I:%M:%S"),
+                    "{:.3}".format(prev_acc),
+                    "{:.3}".format(prev_acc_ex0)
+                    ]))
+                a.write("\n")
             

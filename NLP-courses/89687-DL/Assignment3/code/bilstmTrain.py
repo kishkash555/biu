@@ -1,7 +1,6 @@
 """Train various network types for tagging task
 Usage:
     bilstmTrain.py <repr> <trainFile> <modelFile> [--dev=<devfile>]
-    bilstmTrain.py <repr> --dir=<dirname>
 
 Options:
     <repr>  the representation of the input, one of a,b,c,d
@@ -40,6 +39,9 @@ UNK = '**UNK**'
 ENCODER_FILE = 'trainwords.pickle'
 ACC_FILE = "best_accuracies.txt"
 REPORT_FILE =  "report.json"
+PREFIX_LENGTH = 3
+SUFFIX_LENGTH = 3
+
 def read(fname):
     sent = []
     for line in open(fname):
@@ -89,11 +91,22 @@ class corpusEncoder:
     def __init__(self, word_dict, tag_dict):
         self.word_dict = word_dict
         self.tag_dict = tag_dict
+
         corpus_charset = set(''.join(word_dict.keys()))
         self.char_dict = OrderedDict([(c, i) for i,c in enumerate(corpus_charset)])
+        self.char_dict[UNK] = len(self.char_dict)
+        
         self.unk_words = set(word_dict.keys()[-1000:])
         self.unk_replace_prob = 0.2
     
+        corpus_prefix_set = set([w[:PREFIX_LENGTH] for w in word_dict.keys() if len(w)-PREFIX_LENGTH>=2])
+        corpus_suffix_set = set([w[-SUFFIX_LENGTH] for w in word_dict.keys() if len(w)-SUFFIX_LENGTH>=2])
+
+        self.prefix_dict = OrderedDict([(p, i) for i,p in enumerate(corpus_prefix_set)])
+        self.suffix_dict = OrderedDict([(s, i) for i,s in enumerate(corpus_suffix_set)])
+
+        self.pre_len, self.suf_len = PREFIX_LENGTH, SUFFIX_LENGTH
+
     def encode_corpus_words(self, corpus):
         ret = [self.encode_sentence_words(sent) for sent in corpus]
         return ret
@@ -107,13 +120,20 @@ class corpusEncoder:
         return ret
 
     def encode_sentence_chars(self, sentence):
-        ret = [[self.char_dict[c] for c in w] for w, _ in sentence]
+        ret = [[self.char_dict.get(c,self.char_dict[UNK]) for c in w] for w, _ in sentence]
         return ret
-        
+    
+    def encode_sentence_prefix_suffix(self, sentence):
+        pre = lambda w: w[:self.pre_len]
+        suf = lambda w: w[-self.suf_len:]
+        ret = [
+            (self.prefix_dict.get(pre(w), -1), self.suffix_dict.get(suf, -1))
+         for w, _ in sentence
+         ]
+        return ret
+
     def word_code(self, word):
-        if word in self.word_dict:
-            return self.word_dict[word]
-        return self.word_dict[UNK]
+        return self.word_dict.get(word,self.word_dict[UNK])
 
     def word_code_with_unks(self, word):
         if word in self.unk_words and np.random.random() < self.unk_replace_prob:
@@ -140,7 +160,7 @@ def decode_tagged_sent(sent, encoder):
 
 EPOCHS = 5
 def train_network(train_data, dev_data, encoder, network):
-    global prev_acc, prev_acc_ex0, run_id, task_id, report
+    global prev_acc, prev_acc_ex0, model_file, report
     model = network.model
     trainer = dy.SimpleSGDTrainer(model)  
 
@@ -188,7 +208,7 @@ def train_network(train_data, dev_data, encoder, network):
                 ti = t0
                 if acc > prev_acc:
                     print("saving")
-                    network.save("{}_{}.dy".format(task_id,run_id))
+                    network.save(model_file)
                     report[-1]["saved"] = 1
                     prev_acc = acc
                 if acc_ex0 > prev_acc_ex0:
@@ -203,7 +223,7 @@ def train_network(train_data, dev_data, encoder, network):
 
 
 if __name__ == "__main__":
-    global prev_acc, prev_acc_ex0, run_id, task_id, report
+    global prev_acc, prev_acc_ex0, run_id, task_id, model_file, report
 
     arguments = docopt(__doc__)
     print(arguments)
@@ -219,18 +239,19 @@ if __name__ == "__main__":
     except:
         print("{} not found".format(ACC_FILE))
         prev_acc = 0.5
-        
+        prev_acc_ex0 = 0.5
     train_file = arguments["<trainFile>"]
-    input_path = path.dirname(train_file)
     if path.isdir(train_file):
         train_file = path.join(train_file, 'train')
+    input_path = path.dirname(train_file)
+    model_file = arguments["<modelFile>"]
     dev_basename = path.basename(arguments.get("--dev") or '') or 'dev' 
     dev_path = path.dirname(arguments.get("--dev") or train_file)
     dev_file = path.join(dev_path, dev_basename)
+    task_id = path.split(input_path)[-1]
 
     if acc_file_found:
-        task_id = path.split(input_path)[-1]
-
+        
         lines = [line.strip().split("\t") for line in lines]
         lines = [line for line in lines if line[0]==task_id and line[5]==Repr ]
         accs = [float(t[3]) for t in lines ]
@@ -241,35 +262,38 @@ if __name__ == "__main__":
         prev_acc_ex0 = max(accs_ex0+[0.5])
         print("prev acc: {}".format(prev_acc))
         a.close()
-        
+  
+    
+    load_and_start(network_class, train_file, dev_file)
     
     try:
-        load_and_start(network_class, train_file, dev_file)
+        pass
     except KeyboardInterrupt:
         print("\nInterrupted")
     except:
         raise
     finally:
-        report = [{
-            "run_id": run_id, 
-            "input_dir": task_id,
-            "when":  datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "best_acc": "{:.3}".format(prev_acc),
-            "best_acc_ex0": "{:.3}".format(prev_acc_ex0),
-            "network type": Repr,
-            } ] + report
-        with open(REPORT_FILE,"at") as a:
-            json.dump(report,a)
-            a.write('\n******\n')
-        if prev_acc > start_acc and acc_file_found:
-            with open(ACC_FILE,"at") as a:
-                a.write("\t".join([
-                    task_id,
-                    str(run_id),
-                    datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "{:.3}".format(prev_acc),
-                    "{:.3}".format(prev_acc_ex0),
-                    Repr,
-                    ]))
-                a.write("\n")
-            
+        if acc_file_found:
+            report = [{
+                "run_id": run_id, 
+                "input_dir": task_id,
+                "when":  datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "best_acc": "{:.3}".format(prev_acc),
+                "best_acc_ex0": "{:.3}".format(prev_acc_ex0),
+                "network type": Repr,
+                } ] + report
+            with open(REPORT_FILE,"at") as a:
+                json.dump(report,a)
+                a.write('\n******\n')
+            if prev_acc > start_acc:
+                with open(ACC_FILE,"at") as a:
+                    a.write("\t".join([
+                        task_id,
+                        str(run_id),
+                        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "{:.3}".format(prev_acc),
+                        "{:.3}".format(prev_acc_ex0),
+                        Repr,
+                        ]))
+                    a.write("\n")
+                

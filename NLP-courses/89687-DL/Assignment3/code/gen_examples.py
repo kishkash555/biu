@@ -36,6 +36,9 @@ class part1_syntax:
         return random_sequence("acbd")
 
 class number_sequence():
+    """
+
+    """
     @classmethod
     def positive_sequence(cls):
         ret = []
@@ -130,7 +133,34 @@ class multiples:
             else:
                 ret += "a"
         return ret
-        
+
+class even_sums:
+    @classmethod
+    def positive_sequence(cls):
+        ret = ""
+        for i in range(n_digit_segments):
+            length_digit_segment = randint(min_repeat, max_repeat-1, 1)[0]
+            random_digits = randint(1,10,length_digit_segment)
+            if random_digits.sum() % 2 == 0:
+                random_extra_digit = str(randint(1,5)*2)
+            else:
+                random_extra_digit = str(randint(1,5)*2-1)
+            ret += "".join(list(map(str,random_digits))) + random_extra_digit + "a"
+        return ret
+    
+    @classmethod
+    def negative_sequence(cls):
+        ret = ""
+        for i in range(n_digit_segments):
+            length_digit_segment = randint(min_repeat, max_repeat-1, 1)[0]
+            random_digits = randint(1,10,length_digit_segment)
+            if random_digits.sum() % 2 == 0:
+                random_extra_digit = str(randint(1,5)*2-1)
+            else:
+                random_extra_digit = str(randint(1,5)*2)
+            ret += "".join(list(map(str,random_digits))) + random_extra_digit + "a"
+        return ret
+
 if __name__ == "__main__":
     argv = sys.argv
     try:

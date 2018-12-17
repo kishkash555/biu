@@ -15,7 +15,7 @@ char2int = OrderedDict(zip(vocab,range(VOCAB_SIZE)))
 
 NUM_LAYERS = 1
 INPUT_DIM = 10
-LSTM_HIDDEN_DIM = 10
+LSTM_HIDDEN_DIM = 21
 MLP_HIDDEN_DIM = 15
 
 # z = Softmax(U*tanh(W*y+b1)+b0)
@@ -147,4 +147,4 @@ if __name__ == "__main__":
     #print(train_data[:5])
     dev_data = load_train("mult_dev")
     params = add_params(pc)
-    train(lstm, params, train_data, dev_data, 15)
+    train(lstm, params, train_data, dev_data, 500)

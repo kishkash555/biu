@@ -10,7 +10,7 @@ class part3aNetwork:
     def __init__(self, nwords=None, encoder=None):
         if not nwords and not encoder:
             return
-        self.common = commonNetwork(common_input_size)
+        self.common = commonNetwork(WORD_EMBEDDING_SIZE)
         self.model = self.common.model
         self.encoder = encoder
         if not nwords:
@@ -243,6 +243,17 @@ class part3cNetwork:
     def save(self, basefile):
         dy.save(basefile, self.params_iterable())
     
+    @classmethod
+    def load(cls, model, params, encoder):
+        self = cls()
+        self.p3a = part3aNetwork.load(model, params, encoder)
+        self.params = {}
+        self.params["E_pre"] = next(params)
+        self.params["E_suf"] = next(params)
+        self.encoder = self.p3a.encoder
+        return self
+
+
 class part3dNetwork:
     """
     constructs word embeddings (as in part 3a)
@@ -271,5 +282,24 @@ class part3dNetwork:
         concat_vec = [dy.concatenate([e, c]) for e,c in zip(word_embed_vectors, char_lstm_vectors)]        
         return self.common.evaluate_network_from_embs(concat_vec, False)
     
+    def params_iterable(self):
+        p3b_params = self.p3b.params_iterable()
+        for param in p3b_params:
+            yield param
+        yield self.params["E"]
+
     def save(self, basefile):
-        pass
+        dy.save(basefile, self.params_iterable())
+    
+    @classmethod
+    def load(cls, model, params, encoder):
+        self = cls()
+        self.p3b = part3bNetwork.load(model,params, encoder)
+        self.params = {
+            "E": next(params)
+        }
+        self.encoder = self.p3b.encoder
+        self.common = self.p3b.common
+    
+        return self
+ 

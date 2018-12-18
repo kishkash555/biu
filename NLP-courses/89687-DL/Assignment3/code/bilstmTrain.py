@@ -158,6 +158,24 @@ def decode_tagged_sent(sent, encoder):
     tags_decoded = [encoder.tag_dict.keys()[t] for _, t in sent]
     return [(s[0],t) for s, t in zip(sent, tags_decoded)]
 
+def test_a_classifier_on_dev(network, dev_data):
+    good_ex0 = good = bad = 0.0
+    encoder = network.encoder
+    for sent in dev_data:
+        tagged_sentence = tag_sent(sent, network)
+        tags = [t for w, t in encoder.encode_sentence_words(sent)]
+        tags_hat = [t for w, t in tagged_sentence]
+        for th, t in zip(tags_hat, tags):
+            if th == t: 
+                good +=1
+                if t > 0:
+                    good_ex0 +=1  
+            else: 
+                bad += 1
+    acc = good/(good+bad)
+    acc_ex0 = good_ex0/(good_ex0+bad)
+    return acc, acc_ex0
+
 EPOCHS = 5
 def train_network(train_data, dev_data, encoder, network):
     global prev_acc, prev_acc_ex0, model_file, report
@@ -177,22 +195,7 @@ def train_network(train_data, dev_data, encoder, network):
             i += 1
             if i % 500 == 0:
                 print("average loss last 500 cycles: {}".format(loss / tagged))
-                good_ex0 = good = bad = 0.0
-                for sent in dev_data:
-                    #print sent
-                    tagged_sentence = tag_sent(sent, network)
-                    # print(tagged_sentence)
-                    tags = [t for w, t in encoder.encode_sentence_words(sent)]
-                    tags_hat = [t for w, t in tagged_sentence]
-                    for th, t in zip(tags_hat, tags):
-                        if th == t: 
-                            good +=1
-                            if t > 0:
-                                good_ex0 +=1  
-                        else: 
-                            bad += 1
-                acc = good/(good+bad)
-                acc_ex0 = good_ex0/(good_ex0+bad)
+                acc, acc_ex0 = test_a_classifier_on_dev(network, dev_data) 
                 print("dev accuracy after {} cycles: {}, {}".format(i, acc, acc_ex0))
                 ti = time.clock() 
                 report.append(OrderedDict([
@@ -264,10 +267,9 @@ if __name__ == "__main__":
         a.close()
   
     
-    load_and_start(network_class, train_file, dev_file)
     
     try:
-        pass
+        load_and_start(network_class, train_file, dev_file)
     except KeyboardInterrupt:
         print("\nInterrupted")
     except:

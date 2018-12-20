@@ -4,6 +4,12 @@ import sys
 automatically generate positive and negative examples for training an LSTM
 
 Positive: [1-9]+a+[1-9]+b+[1-9]+c+[1-9]+d+[1-9]+
+Negative: [1-9]+a+[1-9]+c+[1-9]+b+[1-9]+d+[1-9]+
+
+Usage:
+    gen_examples.py <pos> <neg>
+<pos>  number of positive examples to generate
+<neg>  number of negative examples to generate
 """
 
 min_repeat = 2
@@ -161,6 +167,59 @@ class even_sums:
             ret += "".join(list(map(str,random_digits))) + random_extra_digit + "a"
         return ret
 
+class match_start:
+    @classmethod
+    def positive_sequence(cls):
+        ret = ""
+        length_digit_segment = randint(4,20)
+        random_digits = randint(1,10, length_digit_segment)
+        letter_segment = "a" *random_digits[0] + \
+            "b" * random_digits[1] + \
+            "c" * random_digits[2] + \
+            "d" * random_digits[3]
+        ret += "".join(list(map(str,random_digits))) + letter_segment
+        return ret
+    
+    @classmethod
+    def negative_sequence(cls):
+        ret = ""
+        length_digit_segment = randint(4,20)
+        random_digits = randint(1,10, length_digit_segment)
+        if random_digits[0] == random_digits[3] and random_digits[1]==random_digits[2]:
+            random_digits[3] = random_digits[3] % 8 + 1 # alter
+        letter_segment = "a" *random_digits[3] + \
+            "b" * random_digits[2] + \
+            "c" * random_digits[1] + \
+            "d" * random_digits[0]
+        ret += "".join(list(map(str,random_digits))) + letter_segment
+        return ret
+    
+class simple_counter:
+    @classmethod
+    def positive_sequence(cls):
+        ret = []
+        number_of_segments = randint(4,20)
+        random_digits = randint(1,10, number_of_segments)
+        for d in random_digits:
+            letters = randint(0,3,d)
+            letters_list = map(lambda l: "abcd"[l], list(letters))
+            ret += letters_list + [str(d)]
+        ret = "".join(ret)
+        return ret
+
+    @classmethod
+    def negative_sequence(cls):
+        ret = []
+        number_of_segments = randint(4,20)
+        random_digits = randint(1,10, number_of_segments)
+        for d in random_digits:
+            letters = randint(0,3,11-d)
+            letters_list = map(lambda l: "abcd"[l], list(letters))
+            ret += letters_list + [str(d)]
+        ret = "".join(ret)
+        return ret
+    
+
 if __name__ == "__main__":
     argv = sys.argv
     try:
@@ -176,7 +235,7 @@ if __name__ == "__main__":
     except: 
         max_repeat = 5
     
-    gen_class = multiples
+    gen_class = simple_counter
     for j in range(n_positive):
         print("1\t" + gen_class.positive_sequence())
 

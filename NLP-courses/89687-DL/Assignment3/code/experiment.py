@@ -1,7 +1,17 @@
+"""experimenting with the learning ability of an lstm
+Usage:
+    experiment.py <trainFile> <devFile>
+
+<trainFile>  Name of the file with data for training.
+<devFile>  Name of the file with data for accuracy check
+Train and dev File content: <label>\t<case>\n where label is 0 or 1 and <case> is a sequence of characters
+"""
+
 import dynet as dy
 import numpy as np
 import random
 from collections import OrderedDict
+from docopt import docopt
 
 use_EOS = False
 
@@ -143,7 +153,11 @@ def load_train(fname):
 if __name__ == "__main__":
     pc = dy.ParameterCollection()
     lstm = dy.LSTMBuilder(NUM_LAYERS, INPUT_DIM, LSTM_HIDDEN_DIM, pc)
-    train_data = load_train("mult_train")
+    arguments = docopt(__doc__)
+    dev_file = arguments["<devFile>"] or "dev"
+    train_file = arguments["<trainFile>"] or "train"
+    print("train_file: {}\ndev file: {}".format(train_file, dev_file))
+    train_data = load_train(train_file)
     #print(train_data[:5])
     dev_data = load_train("mult_dev")
     params = add_params(pc)

@@ -6,8 +6,7 @@ Options:
     <repr>  the representation of the input, one of a,b,c,d
     <trainFile>  the name of the training file. If the name resolves to a directory, the file name 'train' is assumed.
     <modelFile>  the name of the file to save the model.
-    --dev=<devfile>  the name of the dev file (for performance evaluation during training). assumed in same dir as train file.
-    --dir=<dirname>  the directory of the train file (named 'train'), dev file (named 'dev') and output model file (named 'trained_model') 
+    --dev=<devfile>  the name of the dev file (for performance evaluation during training). assumed in same dir as train file. 
 """
 
 
@@ -193,7 +192,7 @@ def train_network(train_data, dev_data, encoder, network):
         random.shuffle(train_data)
         for s in train_data:
             i += 1
-            if i % 500 == 0:
+            if i % 20000 == 0:
                 print("average loss last 500 cycles: {}".format(loss / tagged))
                 acc, acc_ex0 = test_a_classifier_on_dev(network, dev_data) 
                 print("dev accuracy after {} cycles: {}, {}".format(i, acc, acc_ex0))

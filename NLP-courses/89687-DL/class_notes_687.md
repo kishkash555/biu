@@ -362,4 +362,81 @@ if my input is of constant length k, I can expand my diagram to explicitly show 
 $R(S_{i-1},X_i) = \tanh(W\times s)$
 
 
+------
+Dec. 17, 2018
 
+Lec. 9 RNN continued
+
+Let's understand RNNs and their usefulness.
+
+the final exercise is LLI dataset, the task is to understand between sentence1 and sentence2 if one implies the other or they conflict. Take one article from the competition and implement, recreate their results.
+
+recapped RNN transducer principles.
+
+Characters: a few options - concatenate, run only on unknown words etc.
+
+for deep rnn, usually we try to keep the vector lengths the same between the layers.
+
+slide 41: I train the same representation. I may calculate the sum of loss, if I have both taggings for a sentence. I can train with different corpuses, calculating one loss for each sample.
+If the internal representation is very long, the entries might specialize in one task. if it's two short, they might step on each others' toes. the ideal is somewhere inbetween. 
+
+slide 59: learned with Bilstm 
+
+slide 71: jumped to Karen Livescu's slides. Pyramid bilstm with feedback on the intermediate levels. 
+
+Architecture principle: put the lower-level tasks, lower.
+
+Slide 116: A way to tag spans within sequences: take the BiRNNs of the span beginning and the BiRNN of the span end and concatenate.
+
+slide 144 how do I train for this problem? not all the details. I will initialize A randomly. I will take the real and the 
+one network will accept the sentence and the tags. this nwrk will predict the p. another network will...
+
+I will start the A with uniform
+
+----
+Dec. 24 - RNN
+
+CPU is faster but less parallelized.
+GPU works best with batches, or in large Mx mult where the task is broken down
+
+LSTM and RNN are harder to parallelize since the steps are sequentially dependent. Can parallelize different sequences.
+
+What's data parallel/ model parallel?
+
+CNN works on N-grams, 
+
+Copying to the GPU memory is slow, may be a bottleneck.
+
+slide 16: took a very general language model (books, wikipedia). LSTM with 3 large layers (thousands). smart dropout. a good language model trained on general data. took a lot of effort but now it's there.
+
+Now lets say i want to predict something specific like movie review sentiment. first stage is to adapt the general language to the sparse data. another technical imporvement - read the article yourselves.
+ another trick: gradual unfreezing - I will train one layer at a time.
+
+ How do I categorize a  paragraph? I get states h_1,...h_n. I arrange as one big matrix. 
+ they took the last vector and pooled the rest as max and average. Why would it work? if i know the next word i know other stuff. like sentiment. if i know if the next word is "good" or "bad". it would be nice to understand the success of this approach more deeply.
+
+ then they also concatenated forward and backward lstm.
+
+ This reduced 1-2 orders of magnitude in required train data. the benefit was *larger* with larger datasets.
+
+ When and why it will work (and not work)
+ 
+ slide 21 is not a bilstm because they are trained separately (one forward one backward) 
+
+ I can't do full deep bilstm. why? target leak. the NN will process the next word before trying to predict it.
+
+ slide 26: for each word, new lstm. we'll mask 10% of the words. still heavy. Google figured it out :)
+
+ read the papers
+
+ ### sequence to sequence (slide 29)
+
+ now incompatible lengths. we saw that a language model creates sequneces from nothing (pull words randomly after \<start>).
+
+ now slides of work with jessica.
+
+
+ back to lec10.pdf slide 45: Conditioning on an entire sequence.
+ I can condition on an entire sentence. if they are not in the same language this is translation.
+ This works surprisingly well (doesn't look promising offhand)
+ 

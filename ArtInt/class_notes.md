@@ -125,3 +125,7 @@ Dec. 6 review practice session
 the $\alpha-\beta$ pruning algo for minmax
 - $\alpha$: Max's best value. min: will trim if $v < \alpha$
 - $\beta$: Min's best value. max: will trim if $v > \beta$
+
+
+----
+Dec. 13 Machine Learning intro

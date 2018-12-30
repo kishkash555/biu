@@ -82,7 +82,7 @@ class abstract_network:
         y2 = np.array([0, vec_2[1]]) - origin[1]
         plt.plot(x1, y1, 'k-', linewidth = 1.2)
         plt.plot(x2, y2, 'k-', linewidth = 1)
-
+        plt.plot([0],[0],'k+')
 
 class single_layer(abstract_network):
     """
@@ -136,6 +136,7 @@ class train_data():
         plt.plot([x for x, cc in zip(self.points_x(),self.data_y) if cc == classes[1]],
             [x for x, cc in zip(self.points_y(),self.data_y) if cc == classes[1]],
             'b.')
+        plt.plot([0,0],[0,0],'k+' )
         plt.legend(['class '+str(c) for c in classes[:2]])
     
 
@@ -172,4 +173,10 @@ def create_train_data(z_centroids, o_centroids, noise, count):
     for i in range(o.shape[1]):
         train_data.append((o[:,i], 1))
     return train_data
+
+remove or rephrase
+----
+* When looking in the parameter space, we may reach a situation where changing a layer's W (or b) along a certain "direction" changes the loss function by very little (or not at all). This situation is not desirable since it makes gradient descent inconclusive and more prone to noise (e.g. being drived by a few sample points). Even in the abscence of noise, it may delay convergence. So to "stablizeIn order to make the dto avoid minima are undesirable because theyFurther During training, the derivative with respect to loss of $W$ of a particular layer, may become zero with respect to a scaling operation in a particular direction. This situation creates "ambiguity" or "multiple correct next steps" in the training process**. It will happen whenever all the sample points are far from the box's boundary in that direction, whether inside or outside it. In order to prevent this "ambiguity", it is sufficient to add a regularization term, with a small coefficient. Ideally, only the scaling component of the matrix will be regularize, since there is no reason to penalize rotation (unitary) components of the transformation.    
+
+\** More quantitavely, this is usually expressed by looking at the local attributes of the matrix of 2nd derivatives, the [Hessian](https://en.wikipedia.org/wiki/Hessian_matrix).
 """

@@ -1,7 +1,7 @@
 from collections import Counter
 from os import path
 
-TRAIN_FNAME = '../snli_1.0/snli_1.0_test.txt'
+TRAIN_FNAME = '../snli_all.txt'
 GLOVE_INPUT = '../glove.840B.300d.txt'
 GLOVE_OUTPUT = '../glove_filtered.txt'
 
@@ -28,6 +28,7 @@ def filter_glove(glove_lines, out_file, train_words):
 
 def extract_glove_word(line):
     word = line.split()[0]
+    if word == '<unk>': print 'unk found!'
     return word
 
 
@@ -46,7 +47,8 @@ def main(train_fname, glove_input_fname, glove_output_fname):
         num += 1
         augmented_output_fname = "{}{:02d}{}".format(root, num, ext)
 
-    print "writing to {}".format(augmented_output_fname)    
+    print "writing to {}".format(augmented_output_fname) 
+    word_count["<unk>"]=1   
     with open(augmented_output_fname,'wt') as out:
         with open(glove_input_fname, 'rt') as inp:
             filter_glove(inp, out, word_count)

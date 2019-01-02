@@ -1,37 +1,20 @@
 import _dynet as dy
 import numpy as np
-
-class glove_embeddings:
-    def __init__(self, glove_lines):
-        self.embeddings = self.parse_glove_lines(glove_lines)
-        self.vec_dim = next(dictionary.itervalues()).shape[0]
-        self.unk_vec = self.embeddings['<unk>']
-        self.word_to_ind = {i: word for i, word in enumerate(self.embeddings.keys())}
-
-    @classmethod
-    def parse_glove_lines(cls, glove_lines):
-        ret = {}
-        for line in lines:
-            word, data = line.strip().split(' ',1)
-            ret[word]= np.fromstring(data, sep=' ') 
-        return ret
-    
-    def get(self, word):
-        self.embeddings.get(word, self.unk_vec)
-    
-    def as_numpy_array(self):
-        return np.array(self.values())
-
-    def as_dynet_lookup(self,pc):
-        pc.add_lookup_parameters((len(self.embeddings,self.vec_dim)),  init = self.as_numpy_array())
+from random import shuffle
 
 
 class network:
     @classmethod
+    def __init__(self):
+        self.pc = None
+        
+    def last_case_class(self):
+        return self.last_case_class
+
     def load(self, fname):
         raise NotImplementedError()
 
-    def evaluate(self, *args):
+    def eval_loss(self, *args):
         raise NotImplementedError()
 
     def train_network(self, train_data, epochs = 3):
@@ -44,6 +27,7 @@ class network:
             shuffle(train_data)
             for x, y in train_data:
                 i = i + 1
+                print i
                 loss = self.eval_loss(x, y)
                 good = y == self.last_case_class()
                 mloss += loss.value()
@@ -65,7 +49,7 @@ class mlp_subnetwork():
         params = [(
                 pc.add_parameters((a,b), name = "W{:02d}".format(i)), 
                 pc.add_parameters(a, name = "b{:02d}".format(i))
-                ) for (i, a, b) in zip(range(len(layer_sizes)-1, layer_sizes[1:], layer_sizes[:-1]))
+                ) for (i, a, b) in zip(range(len(layer_sizes)-1), layer_sizes[1:], layer_sizes[:-1])
                     ]
         self.params = { 
             "W": [p[0] for p in params],
@@ -85,20 +69,28 @@ class mlp_subnetwork():
         return an expression that is the result of feeding the input through the entire 
         network, except the last activation
         """
-        self.check_input_size(x_np)
+        #self.check_input_size(x_np)
+        n_layers = self.n_layers
 
         if self.is_head:
-            dy.renew_cg()
+            pass
+            #dy.renew_cg()
 
+        # will be skipped for x_np that are already 
+        # _dynet.__tensorInputExpression or _dynet._vecInputExpression
         if type(x_np) == np.ndarray:
+            print "ndarray"
             x = dy.vecInput()
             x.set(x_np)
         elif type(x_np) == list:
-            x = dy.inputTensor(x_list, batched = True)
-
+            print "list"
+            x = dy.inputTensor(x_np, batched = True)
+        else:
+            x = x_np
         final_activation = self.output_activation if apply_final_activation else lambda x: x
         activation = self.hidden_activation
         for i, W, b in zip(range(n_layers), self.params["W"], self.params["b"]):
+            print "i", i
             if i == n_layers-1:
                     activation = final_activation
             x = activation(W*x + b)

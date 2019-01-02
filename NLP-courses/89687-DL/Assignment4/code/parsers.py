@@ -3,6 +3,8 @@ import csv
 from collections import namedtuple
 import re
 
+SNLI_UNDECIDED_LABEL = "-"
+
 class glove_embeddings:
     def __init__(self, glove_lines):
         self.embeddings = self.parse_glove_lines(glove_lines)
@@ -32,8 +34,10 @@ class glove_embeddings:
     def as_dynet_lookup(self,pc):
         return pc.add_lookup_parameters((len(self.embeddings),self.vec_dim),  init = self.as_numpy_array())
 
-def load_snli(fname, max_lines=0, is_separate_marks=True):
+def load_snli(fname, max_lines=0, is_separate_marks=True, remove_undecided = True):
     data = []
+    labels = {}
+    label_cnt = 0
     cnt = 1
     with open(fname,'rt') as a:
         lines = csv.reader(a, delimiter='\t')
@@ -42,11 +46,16 @@ def load_snli(fname, max_lines=0, is_separate_marks=True):
             row = row_nt(*line)
             if is_separate_marks:
                 row = separate_marks(row)
-            data.append(((row.sentence1, row.sentence2), row.gold_label))
+            if row.gold_label == SNLI_UNDECIDED_LABEL and remove_undecided:
+                continue
+            if row.gold_label not in labels:
+                labels[row.gold_label] = label_cnt
+                label_cnt += 1 
+            data.append(((row.sentence1, row.sentence2), labels[row.gold_label]))
             if cnt == max_lines:
                 break
             cnt += 1
-    return data
+    return data, labels
 
 def dump_snli(data, outfile):
     outfile.write('\t'.join(['gold_label','sentence1','sentence2'])+'\n')

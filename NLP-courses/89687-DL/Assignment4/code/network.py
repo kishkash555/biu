@@ -2,14 +2,18 @@ import _dynet as dy
 import numpy as np
 from random import shuffle
 
+def now_string():
+    import datetime as dt
+    tm = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return tm
+
+EVALUATE_LOSS_EVERY = 1000
 
 class network:
     @classmethod
     def __init__(self):
         self.pc = None
         
-    def last_case_class(self):
-        return self.last_case_class
 
     def load(self, fname):
         raise NotImplementedError()
@@ -26,16 +30,20 @@ class network:
         for e in range(epochs):
             shuffle(train_data)
             for x, y in train_data:
+                dy.renew_cg()
                 i = i + 1
-                print i
+                #print i
                 loss = self.eval_loss(x, y)
-                good = y == self.last_case_class()
+                good = y == self.last_case_class
                 mloss += loss.value()
                 goods += int(good)
                 loss.backward()
                 trainer.update()
-        print("average loss: {} acc: {}".format(mloss/i, goods/i))
-
+                if i % EVALUATE_LOSS_EVERY == 0:
+                    print("{} average loss after {} iterations: {} acc: {}".format(
+                        now_string(), i, mloss/EVALUATE_LOSS_EVERY, goods/EVALUATE_LOSS_EVERY))
+                    mloss = 0.
+                    goods = 0.
 
 class mlp_subnetwork():
     def __init__(self, pc, layer_sizes, hidden_activation, output_activation, is_head):
@@ -70,11 +78,10 @@ class mlp_subnetwork():
         network, except the last activation
         """
         #self.check_input_size(x_np)
-        n_layers = self.n_layers
+        n_stages = self.n_layers-1
 
         if self.is_head:
-            pass
-            #dy.renew_cg()
+            dy.renew_cg()
 
         # will be skipped for x_np that are already 
         # _dynet.__tensorInputExpression or _dynet._vecInputExpression
@@ -89,9 +96,10 @@ class mlp_subnetwork():
             x = x_np
         final_activation = self.output_activation if apply_final_activation else lambda x: x
         activation = self.hidden_activation
-        for i, W, b in zip(range(n_layers), self.params["W"], self.params["b"]):
-            print "i", i
-            if i == n_layers-1:
+        for i, W, b in zip(range(n_stages), self.params["W"], self.params["b"]):
+            #print "i", i
+            if i == n_stages-1:
+                    # print "final layer"
                     activation = final_activation
             x = activation(W*x + b)
         return x

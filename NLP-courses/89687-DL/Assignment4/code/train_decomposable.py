@@ -2,7 +2,7 @@
 import decomposable as dec
 import parsers
 import dynet
-GLOVE_FILE = '../glove_filtered_dev.txt'
+GLOVE_FILE = '../glove_filtered00.txt'
 SNLI_TRAIN = '../snli_1.0/snli_1.0_train_stripped.txt'
 SNLI_DEV = '../snli_1.0/snli_1.0_dev_stripped.txt'
 
@@ -10,7 +10,8 @@ if __name__ == "__main__":
     with open(GLOVE_FILE, 'rt') as a:
         glove = parsers.glove_embeddings(a)
 
-    train_data = parsers.load_snli(SNLI_TRAIN)
+    train_data, labels = parsers.load_snli(SNLI_TRAIN)
+    print labels
     dev_data = parsers.load_snli(SNLI_DEV)
     print "** done loading"
     my_net = dec.decomposable(glove)

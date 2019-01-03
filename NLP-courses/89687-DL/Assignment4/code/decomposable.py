@@ -105,3 +105,11 @@ class decomposable(net.network):
         v2 = dy.esum(v2_j)
         ret = self.aggregate.evaluate_network(dy.concatenate([v1,v2]),False)
         return ret
+
+    def params_iterable(self):
+        self_nets = [self.dimension_reducer, self.attend, self.compare, self.aggregate]
+        yield self.params["E"]
+        for net in self_nets:
+            for param in net.params_iterable():
+                yield param
+                

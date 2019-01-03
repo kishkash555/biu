@@ -7,10 +7,10 @@ def now_string():
     tm = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return tm
 
-EVALUATE_LOSS_EVERY = 100000
+EVALUATE_LOSS_EVERY = 50000
 UPDATE_EVERY = 4
 MIN_SAVE_ACC = 0.5
-START_SAVE_AFTER = 100000
+START_SAVE_AFTER = 50000
 SAVE_TO = '../save/network'
 
 class network:
@@ -56,8 +56,7 @@ class network:
                     loss = []
                     dy.renew_cg()
     
-                if i % EVALUATE_LOSS_EVERY == 0:
-                    print "evaluating loss on {}".format(len(dev_data or []))
+                if i % EVALUATE_LOSS_EVERY == 1000:
                     goods_dev = 0.
                     j = 0
                     for d in dev_data or []:
@@ -66,8 +65,6 @@ class network:
                         x, y = d
                         self.eval_loss(x, y)
                         goods_dev += 1 if y==self.last_case_class else 0
-                        if j % 1000 == 0:
-                            print j
                     dev_acc = goods_dev / len(dev_data or 'a') 
 
                     message = "{} average loss after {} iterations: {} acc: {}".format(

@@ -34,10 +34,10 @@ class glove_embeddings:
     def as_dynet_lookup(self,pc):
         return pc.add_lookup_parameters((len(self.embeddings),self.vec_dim),  init = self.as_numpy_array())
 
-def load_snli(fname, max_lines=0, is_separate_marks=True, remove_undecided = True):
+def load_snli(fname, max_lines=0, is_separate_marks=True, remove_undecided = True, labels = None):
     data = []
-    labels = {}
-    label_cnt = 0
+    labels = labels or {}
+    label_cnt = len(labels)
     cnt = 1
     with open(fname,'rt') as a:
         lines = csv.reader(a, delimiter='\t')

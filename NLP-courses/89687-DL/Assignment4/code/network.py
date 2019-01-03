@@ -1,13 +1,17 @@
 import _dynet as dy
 import numpy as np
-from random import shuffle
+from random import shuffle, randint
 
 def now_string():
     import datetime as dt
     tm = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return tm
 
-EVALUATE_LOSS_EVERY = 1000
+EVALUATE_LOSS_EVERY = 100000
+UPDATE_EVERY = 4
+MIN_SAVE_ACC = 0.5
+START_SAVE_AFTER = 100000
+SAVE_TO = '../save/network'
 
 class network:
     @classmethod
@@ -21,39 +25,70 @@ class network:
     def eval_loss(self, *args):
         raise NotImplementedError()
 
-    def train_network(self, train_data, epochs = 3):
+    def params_iterable(self, *args):
+        raise NotImplementedError()
+    
+    def save(self, basefile):
+        dy.save(basefile, self.params_iterable())
+
+    def train_network(self, train_data, epochs = 3, dev_data = None):
         trainer = dy.AdamTrainer(self.pc)
         i = 0
         mloss = 0.
         goods = 0.
-            
+        loss = []
+        dy.renew_cg()
+ 
+        max_dev_acc = MIN_SAVE_ACC
+        save_path = "{}{:04d}".format(SAVE_TO,randint(0,9999))
         for e in range(epochs):
             shuffle(train_data)
             for x, y in train_data:
-                dy.renew_cg()
                 i = i + 1
-                #print i
-                loss = self.eval_loss(x, y)
+                loss = loss + [self.eval_loss(x, y)]
                 good = y == self.last_case_class
-                mloss += loss.value()
                 goods += int(good)
-                loss.backward()
-                trainer.update()
+                if i % UPDATE_EVERY == 0:
+                    losses = dy.esum(loss)
+                    mloss += losses.value()
+                    losses.backward()
+                    trainer.update()
+                    loss = []
+                    dy.renew_cg()
+    
                 if i % EVALUATE_LOSS_EVERY == 0:
-                    print("{} average loss after {} iterations: {} acc: {}".format(
-                        now_string(), i, mloss/EVALUATE_LOSS_EVERY, goods/EVALUATE_LOSS_EVERY))
+                    print "evaluating loss on {}".format(len(dev_data or []))
+                    goods_dev = 0.
+                    j = 0
+                    for d in dev_data or []:
+                        dy.renew_cg()
+                        j+=1
+                        x, y = d
+                        self.eval_loss(x, y)
+                        goods_dev += 1 if y==self.last_case_class else 0
+                        if j % 1000 == 0:
+                            print j
+                    dev_acc = goods_dev / len(dev_data or 'a') 
+
+                    message = "{} average loss after {} iterations: {} acc: {}".format(
+                        now_string(), i, mloss/EVALUATE_LOSS_EVERY, goods/EVALUATE_LOSS_EVERY)
+                    dev_acc_str = " dev acc: {}".format(dev_acc) if dev_data else ""
+                    print(message + dev_acc_str)
                     mloss = 0.
                     goods = 0.
 
+                    if dev_acc > max_dev_acc and i > START_SAVE_AFTER:
+                        print("saving.")
+                        self.save(save_path)
+
 class mlp_subnetwork():
-    def __init__(self, pc, layer_sizes, hidden_activation, output_activation, is_head):
+    def __init__(self, pc, layer_sizes, hidden_activation, output_activation):
         self.pc = pc
         self.layer_sizes = layer_sizes
         self.n_layers = len(layer_sizes)
         self.input_size = layer_sizes[0]
         self.hidden_activation = hidden_activation
         self. output_activation = output_activation
-        self.is_head = is_head
         params = [(
                 pc.add_parameters((a,b), name = "W{:02d}".format(i)), 
                 pc.add_parameters(a, name = "b{:02d}".format(i))
@@ -63,7 +98,22 @@ class mlp_subnetwork():
             "W": [p[0] for p in params],
             "b": [p[1] for p in params]
         }
-
+    
+    @classmethod
+    def load(cls, model, params, pc, hidden_activation, output_activation):
+        i = 0
+        w = []
+        b = []
+        for param in params:
+            if i %2 ==0:
+                w.append(param)
+            else:
+                b.append(param)
+        self = cls(None, [], hidden_activation, output_activation)
+        self.params = {"W": w, "b": b}
+        self.pc = pc
+        self.layer_sizes = [x.dim[0] for x in w] + b[-1].dim()[0]
+        return self
 
     def check_input_size(self, x_list):
         for x_np in x_list:
@@ -71,6 +121,10 @@ class mlp_subnetwork():
             if  x_size != self.input_size:
                 raise ValueError("Expected input of size {} got {}".format(self.input_size, x_size))
         
+    def params_iterable(self):
+        for w,b in zip(self.params["W"], self.params["b"]):
+            yield w
+            yield b
 
     def evaluate_network(self, x_np, apply_final_activation=True):
         """
@@ -79,9 +133,6 @@ class mlp_subnetwork():
         """
         #self.check_input_size(x_np)
         n_stages = self.n_layers-1
-
-        if self.is_head:
-            dy.renew_cg()
 
         # will be skipped for x_np that are already 
         # _dynet.__tensorInputExpression or _dynet._vecInputExpression

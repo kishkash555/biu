@@ -60,7 +60,7 @@ def load_snli(fname, max_lines=0, is_separate_marks=True, remove_undecided = Tru
 def dump_snli(data, outfile):
     outfile.write('\t'.join(['gold_label','sentence1','sentence2'])+'\n')
     for row in data:
-        outfile.write('\t'.join([row[1], row[0][0], str(row[0][1])]))
+        outfile.write('\t'.join([str(row[1]), row[0][0], row[0][1]]))
         outfile.write('\n')
 
 search_exp = re.compile(r'\b(\w+)([\.,!;:])')

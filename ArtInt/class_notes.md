@@ -129,3 +129,10 @@ the $\alpha-\beta$ pruning algo for minmax
 
 ----
 Dec. 13 Machine Learning intro
+
+
+
+----
+Jan 3rd. Clustering
+
+

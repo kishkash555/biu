@@ -440,3 +440,51 @@ Now lets say i want to predict something specific like movie review sentiment. f
  I can condition on an entire sentence. if they are not in the same language this is translation.
  This works surprisingly well (doesn't look promising offhand)
  
+ -----
+ Dec. 31 2018
+ ### attention
+ a technique repeating in neural. which parts to focus on. not complex context but its expression is a little cumbersome.
+
+ we saw conditioned generation - another sequence, photo. 
+ 
+ translation: condition every word on previous and (external) sentence. hard to compress an entire sentence to a vector.
+ 
+ where did the $c$ come from? from another large network or just from somewhere.
+
+ The encoder and decoder train together and the encoder learns to produce a sentence that is good for the decoder.
+
+ auto encoder: compress and uncompress the sam sentence. The vector will contain all the information about the sentence. 
+
+ The main problem: hard to imagine a good compression of a sentence into a vector. The auto encoder doesn't reach 100% accuracy. both which words and their order.
+
+ The first successful translation worked liked this. they reversed the sentence it worked better. it reached performance of non-neural methods. what they do now which we will learn now performs much better
+
+**slide 10**: soft alignment was introduced in "..by jointly learning to align and translate"
+
+- the bilstm can be (optionally) pre-trained with elmo
+- the bilstm outputs are used, but the summing is different per *input location* in the decoder.
+
+the probability of the next work is conditioned on the sequence so far and the entire external sentence
+
+the attention is represented by a linear combination of the $c_i$'s.
+
+the alphas come from an MLP that works on $[s_j;c_1]$. What is this mlp supposed to learn? it sees the state and the c_n? it can weigh the ending. the position of the word in the sentence can be encoded into the 
+
+**slide 36** is the summary of everything
+
+**slide 38** summary 
+
+machine translation works like this. do I input word, word parts, pos, characters. more than one layer of lstm (bilstm). past 4 years, this keeps being the best model.
+if you work with sound waves, you can look into how CTC works.
+
+whi the bilstm? it allows the encoder to encode where I am in the sentence. it's a layer that transforms the x's in a way that helps improve this working all together.
+
+when the attention is expected to be monotonic i can help it with modifications to the loss. prefer certain forms.
+
+in auto-encoding problems, or anywhere where the focus is on the encoding, i won't help it. like skip-vectors(?) and auto-encoder. conversely when the task is predict i want attention.
+
+they took a few lines of attention and this rpelaced the RNN. the main principles/ tricks:
+- multi head attention: apply attention several times each time with different matrices. instead of one weighted some i have several. the attention replaces the Rnn. depend on the history in a different approach. there is no ordering but can learn ordering. 
+
+Transformer involves many more calculations but its much more parallelizable. if you have a lot of GPU firepower it can be trained quickly.
+

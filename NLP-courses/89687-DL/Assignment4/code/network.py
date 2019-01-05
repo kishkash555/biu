@@ -13,7 +13,7 @@ MIN_SAVE_ACC = 0.5
 START_SAVE_AFTER = 250000
 SAVE_TO = '../save/network'
 SAVE_REPORT_TO = '../save/report'
-DROPOUT_RATE = 0.25
+DROPOUT_RATE = 0.27
 class network:
     @classmethod
     def __init__(self):
@@ -33,7 +33,7 @@ class network:
         dy.save(basefile, self.params_iterable())
 
     def train_network(self, train_data, epochs = 3, dev_data = None):
-        trainer = dy.AdagradTrainer(self.pc,0.05)
+        trainer = dy.AdagradTrainer(self.pc,0.04)
         i = 0
         mloss = 0.
         goods = 0.
@@ -45,6 +45,7 @@ class network:
         save_path = "{}{:04d}".format(SAVE_TO,run_id)
         report_path = "{}{:04d}.txt".format(SAVE_REPORT_TO,run_id)
         rprt = open(report_path,'wt')
+        print report_path
         for e in range(epochs):
             shuffle(train_data)
             for x, y in train_data:

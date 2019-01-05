@@ -13,7 +13,7 @@ MIN_SAVE_ACC = 0.5
 START_SAVE_AFTER = 250000
 SAVE_TO = '../save/network'
 SAVE_REPORT_TO = '../save/report'
-DROPOUT_RATE = 0.2
+DROPOUT_RATE = 0.25
 class network:
     @classmethod
     def __init__(self):

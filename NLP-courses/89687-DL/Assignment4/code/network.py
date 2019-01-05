@@ -10,9 +10,10 @@ def now_string():
 EVALUATE_LOSS_EVERY = 50000
 UPDATE_EVERY = 4
 MIN_SAVE_ACC = 0.5
-START_SAVE_AFTER = 50000
+START_SAVE_AFTER = 250000
 SAVE_TO = '../save/network'
-
+SAVE_REPORT_TO = '../save/report'
+DROPOUT_RATE = 0.2
 class network:
     @classmethod
     def __init__(self):
@@ -32,7 +33,7 @@ class network:
         dy.save(basefile, self.params_iterable())
 
     def train_network(self, train_data, epochs = 3, dev_data = None):
-        trainer = dy.AdamTrainer(self.pc)
+        trainer = dy.AdagradTrainer(self.pc,0.05)
         i = 0
         mloss = 0.
         goods = 0.
@@ -40,12 +41,15 @@ class network:
         dy.renew_cg()
  
         max_dev_acc = MIN_SAVE_ACC
-        save_path = "{}{:04d}".format(SAVE_TO,randint(0,9999))
+        run_id = randint(0,9999)
+        save_path = "{}{:04d}".format(SAVE_TO,run_id)
+        report_path = "{}{:04d}.txt".format(SAVE_REPORT_TO,run_id)
+        rprt = open(report_path,'wt')
         for e in range(epochs):
             shuffle(train_data)
             for x, y in train_data:
                 i = i + 1
-                loss = loss + [self.eval_loss(x, y)]
+                loss = loss + [self.eval_loss(x, y, dropout=True)]
                 good = y == self.last_case_class
                 goods += int(good)
                 if i % UPDATE_EVERY == 0:
@@ -71,12 +75,16 @@ class network:
                         now_string(), i, mloss/EVALUATE_LOSS_EVERY, goods/EVALUATE_LOSS_EVERY)
                     dev_acc_str = " dev acc: {}".format(dev_acc) if dev_data else ""
                     print(message + dev_acc_str)
+                    rprt.write(message + dev_acc_str+'\n')
                     mloss = 0.
                     goods = 0.
 
                     if dev_acc > max_dev_acc and i > START_SAVE_AFTER:
+                        max_dev_acc = dev_acc
                         print("saving.")
+                        rprt.write("saving.\n")
                         self.save(save_path)
+                rprt.flush()
 
 class mlp_subnetwork():
     def __init__(self, pc, layer_sizes, hidden_activation, output_activation):
@@ -123,7 +131,7 @@ class mlp_subnetwork():
             yield w
             yield b
 
-    def evaluate_network(self, x_np, apply_final_activation=True):
+    def evaluate_network(self, x_np, apply_final_activation=True, dropout=False):
         """
         return an expression that is the result of feeding the input through the entire 
         network, except the last activation
@@ -150,6 +158,8 @@ class mlp_subnetwork():
                     # print "final layer"
                     activation = final_activation
             x = activation(W*x + b)
+            if dropout:
+                x = dy.dropout(x, DROPOUT_RATE)
         return x
     
 

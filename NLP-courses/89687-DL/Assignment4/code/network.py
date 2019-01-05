@@ -8,7 +8,7 @@ def now_string():
     return tm
 
 EVALUATE_LOSS_EVERY = 50000
-UPDATE_EVERY = 4
+UPDATE_EVERY = 10
 MIN_SAVE_ACC = 0.5
 START_SAVE_AFTER = 250000
 SAVE_TO = '../save/network'

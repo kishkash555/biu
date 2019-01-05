@@ -33,7 +33,7 @@ class network:
         dy.save(basefile, self.params_iterable())
 
     def train_network(self, train_data, epochs = 3, dev_data = None):
-        trainer = dy.CyclicalSGDTrainer(self.pc,0.05, 0.1, 50000)
+        trainer = dy.SimpleSGDTrainer(self.pc,0.05)
         i = 0
         mloss = 0.
         goods = 0.

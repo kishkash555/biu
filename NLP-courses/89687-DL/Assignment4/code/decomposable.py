@@ -2,34 +2,73 @@ import _dynet as dy
 import network as net
 import numpy as np
 
+DIMR_DEPTH = 1
+ATTEND_DEPTH = 2
+COMPARE_DEPTH = 2
+AGG_DEPTH = 2
+
 class decomposable(net.network):
-    def __init__(self, word_embeddings, embedding_dim=300, hidden_dim =200, classes_dim=3):
+    def __init__(self, word_embeddings, embedding_dim=None, hidden_dim=None, classes_dim=None, pc=None, trained_matrices=None):
+        embedding_dim = embedding_dim or 300
+        hidden_dim = hidden_dim or 200
+        classes_dim = classes_dim or 3
+
         self.embeddings = word_embeddings
-        
-        self.pc = dy.ParameterCollection()
         self.embedding_dim, self.hidden_dim, self.classes_dim = embedding_dim, hidden_dim, classes_dim
 
-        self.params = {"E":  word_embeddings.as_dynet_lookup(self.pc)}
-        self.dimension_reducer = self._create_dimension_reducer()
-        self.attend = self._create_attend()
-        self.compare = self._create_compare()
-        self.aggregate = self._create_aggregate()
+            
+        if pc and trained_matrices:
+            print "loading pretrained inputs"
+            self.pc=pc
+            first_attend_index = 1 + DIMR_DEPTH * 2 # the *2 accounts for the w and b in each layer
+            first_compare_index = first_attend_index + ATTEND_DEPTH * 2 
+            first_agg_index = first_compare_index + COMPARE_DEPTH * 2
+ 
         
-   
-    def _create_dimension_reducer(self):
-        red = net.mlp_subnetwork(self.pc, [self.embedding_dim, self.hidden_dim], lambda x: x, lambda x: x)
+            self.dimension_reducer = self._create_dimension_reducer(trained_matrices[1:first_attend_index])
+            self.attend = self._create_attend(trained_matrices[first_attend_index:first_compare_index])
+            self.compare = self._create_compare(trained_matrices[first_compare_index:first_agg_index])
+            self.aggregate = self._create_aggregate(trained_matrices[first_agg_index:])
+            self.params = {"E": trained_matrices[0]}
+        else:
+            self.pc = dy.ParameterCollection()
+            self.dimension_reducer = self._create_dimension_reducer()
+            self.attend = self._create_attend()
+            self.compare = self._create_compare()
+            self.aggregate = self._create_aggregate()
+    
+            self.params = {"E":  word_embeddings.as_dynet_lookup(self.pc)}
+        
+    def _create_dimension_reducer(self, params=None):
+        activation = lambda x: x
+        if params:
+            red = net.mlp_subnetwork.load(params, self.pc, activation, activation)
+        else:
+            red = net.mlp_subnetwork(self.pc, [self.embedding_dim, self.hidden_dim], activation, activation)
         return red
         
-    def _create_attend(self):
-        attend = net.mlp_subnetwork(self.pc, [self.hidden_dim, self.hidden_dim, self.hidden_dim], dy.rectify, dy.rectify)
+    def _create_attend(self, params=None):
+        activation = dy.rectify
+        if params:
+            attend = net.mlp_subnetwork.load(params, self.pc, activation, activation)
+        else:
+            attend = net.mlp_subnetwork(self.pc, [self.hidden_dim, self.hidden_dim, self.hidden_dim], activation, activation)
         return attend
 
-    def _create_compare(self):
-        compare = net.mlp_subnetwork(self.pc, [self.hidden_dim*2, self.hidden_dim, self.hidden_dim], dy.rectify, dy.rectify)
+    def _create_compare(self, params=None):
+        activation = dy.rectify
+        if params:
+            compare = net.mlp_subnetwork.load(params, self.pc, activation, activation)
+        else:
+            compare = net.mlp_subnetwork(self.pc, [self.hidden_dim*2, self.hidden_dim, self.hidden_dim], activation, activation)
         return compare
 
-    def _create_aggregate(self):
-        agg = net.mlp_subnetwork(self.pc, [self.hidden_dim*2, self.hidden_dim*2, self.classes_dim], dy.rectify, dy.pickneglogsoftmax)
+    def _create_aggregate(self, params=None):
+        hidden_activation = dy.rectify
+        if params:
+            agg = net.mlp_subnetwork.load(params, self.pc, hidden_activation, None)
+        else:
+            agg = net.mlp_subnetwork(self.pc, [self.hidden_dim*2, self.hidden_dim*2, self.classes_dim], hidden_activation, None)
         return agg
 
     def eval_loss(self, x, y, dropout=False):
@@ -112,3 +151,10 @@ class decomposable(net.network):
         for net in self_nets:
             for param in net.params_iterable():
                 yield param
+    
+    @classmethod
+    def load(cls, word_embeddings, base_file, embedding_dim=None, hidden_dim=None, classes_dim=None):
+        pc = dy.ParameterCollection()
+        matrices = dy.load(base_file, pc)
+        # matrices = matrices[1:] # for now, skip "E"
+        return cls(word_embeddings, embedding_dim, hidden_dim, classes_dim, pc, matrices)

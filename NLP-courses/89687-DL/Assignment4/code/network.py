@@ -45,6 +45,7 @@ class network:
         save_path = "{}{:04d}".format(SAVE_TO,run_id)
         report_path = "{}{:04d}.txt".format(SAVE_REPORT_TO,run_id)
         rprt = open(report_path,'wt')
+        print report_path
         for e in range(epochs):
             shuffle(train_data)
             for x, y in train_data:
@@ -89,23 +90,24 @@ class network:
 class mlp_subnetwork():
     def __init__(self, pc, layer_sizes, hidden_activation, output_activation):
         self.pc = pc
-        self.layer_sizes = layer_sizes
-        self.n_layers = len(layer_sizes)
-        self.input_size = layer_sizes[0]
         self.hidden_activation = hidden_activation
         self. output_activation = output_activation
-        params = [(
-                pc.add_parameters((a,b), name = "W{:02d}".format(i)), 
-                pc.add_parameters(a, name = "b{:02d}".format(i))
-                ) for (i, a, b) in zip(range(len(layer_sizes)-1), layer_sizes[1:], layer_sizes[:-1])
-                    ]
-        self.params = { 
-            "W": [p[0] for p in params],
-            "b": [p[1] for p in params]
-        }
+        if len(layer_sizes):
+            self.layer_sizes = layer_sizes
+            self.n_layers = len(layer_sizes)
+            self.input_size = layer_sizes[0]
+            params = [(
+                    pc.add_parameters((a,b), name = "W{:02d}".format(i)), 
+                    pc.add_parameters(a, name = "b{:02d}".format(i))
+                    ) for (i, a, b) in zip(range(len(layer_sizes)-1), layer_sizes[1:], layer_sizes[:-1])
+                        ]
+            self.params = { 
+                "W": [p[0] for p in params],
+                "b": [p[1] for p in params]
+            }
     
     @classmethod
-    def load(cls, model, params, pc, hidden_activation, output_activation):
+    def load(cls, params, pc, hidden_activation, output_activation):
         i = 0
         w = []
         b = []
@@ -114,10 +116,13 @@ class mlp_subnetwork():
                 w.append(param)
             else:
                 b.append(param)
+            i+=1
         self = cls(None, [], hidden_activation, output_activation)
         self.params = {"W": w, "b": b}
         self.pc = pc
-        self.layer_sizes = [x.dim[0] for x in w] + b[-1].dim()[0]
+        self.layer_sizes = [x.dim()[0][0] for x in w] + [b[-1].dim()[0][0]]
+        self.n_layers = len(self.layer_sizes)
+        print "layer sizes", self.layer_sizes
         return self
 
     def check_input_size(self, x_list):

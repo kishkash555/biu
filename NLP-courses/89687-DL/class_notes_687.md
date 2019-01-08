@@ -488,3 +488,24 @@ they took a few lines of attention and this rpelaced the RNN. the main principle
 
 Transformer involves many more calculations but its much more parallelizable. if you have a lot of GPU firepower it can be trained quickly.
 
+----
+Jan 7. 2019
+lec12.pdf
+
+stanford deep learning for NLP (or sequences). midterm. check out their exams.
+
+**slide 41**
+1. given an example, what is its probability (is it likely)
+1. given nothing, churn out a "good" (likely) example
+
+**slide 46** 
+a "langauge model" for pixels. start from first pixel and generate other probable pixels. flow "diagonally" to retain proximity in lstm of adjacent pixels.
+
+need to handle the RGB components.
+**slide 53** pixel CNN: sort of a Markovian assumption on the picture: only dependent on adjacent pixels. Improves parallelization in training (no effect in generation/prediction)
+
+skip vector autoencoders
+
+**slide 79** pairing an image to random noise doesn't make sense since no generalization will be produced. no idea what will happen with previously unseen noise.
+
+The generator - discriminator pair are hard to train. the upside is that discriminator gradients can be used in the generator! the training is delicate. the stopping condition is human censored.

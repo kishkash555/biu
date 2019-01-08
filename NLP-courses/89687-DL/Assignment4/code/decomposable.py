@@ -2,15 +2,15 @@ import _dynet as dy
 import network as net
 import numpy as np
 
-DIMR_DEPTH = 1
-ATTEND_DEPTH = 2
+DIMR_DEPTH = 0
+ATTEND_DEPTH = 3
 COMPARE_DEPTH = 2
 AGG_DEPTH = 2
 
 class decomposable(net.network):
     def __init__(self, word_embeddings, embedding_dim=None, hidden_dim=None, classes_dim=None, pc=None, trained_matrices=None):
         embedding_dim = embedding_dim or 300
-        hidden_dim = hidden_dim or 200
+        hidden_dim = hidden_dim or 300
         classes_dim = classes_dim or 3
 
         self.embeddings = word_embeddings
@@ -40,15 +40,10 @@ class decomposable(net.network):
             self.params = {"E":  word_embeddings.as_dynet_lookup(self.pc)}
         
     def _create_dimension_reducer(self, params=None):
-        activation = lambda x: x
-        if params:
-            red = net.mlp_subnetwork.load(params, self.pc, activation, activation)
-        else:
-            red = net.mlp_subnetwork(self.pc, [self.embedding_dim, self.hidden_dim], activation, activation)
-        return red
+        return None
         
     def _create_attend(self, params=None):
-        activation = dy.rectify
+        activation = dy.tanh
         if params:
             attend = net.mlp_subnetwork.load(params, self.pc, activation, activation)
         else:
@@ -79,13 +74,13 @@ class decomposable(net.network):
             self.params["E"],
             sent_a_ords, 
             update=False
-            )
+            )*0.05
        
         b_vecs = dy.lookup_batch(
             self.params["E"],
             [self.embeddings.get_ord(word) for word in sentence_b.split()], 
             update=False
-            )
+            )*0.05
 
         output = self._eval_network(a_vecs, b_vecs, y, dropout=False)
         self.last_case_class = np.argmax(output.npvalue())
@@ -102,7 +97,7 @@ class decomposable(net.network):
         return output
 
     def calc_reduce_dim(self,vecs):
-        return self.dimension_reducer.evaluate_network(vecs, False)
+        return vecs
 
     def calc_attend(self, a_vecs, b_vecs, dropout):
         l_a = a_vecs.dim()[1]

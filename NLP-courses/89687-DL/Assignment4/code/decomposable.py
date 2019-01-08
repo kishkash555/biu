@@ -51,7 +51,7 @@ class decomposable(net.network):
         return attend
 
     def _create_compare(self, params=None):
-        activation = dy.rectify
+        activation = dy.tanh
         if params:
             compare = net.mlp_subnetwork.load(params, self.pc, activation, activation)
         else:
@@ -74,13 +74,13 @@ class decomposable(net.network):
             self.params["E"],
             sent_a_ords, 
             update=False
-            )*0.05
+            )
        
         b_vecs = dy.lookup_batch(
             self.params["E"],
             [self.embeddings.get_ord(word) for word in sentence_b.split()], 
             update=False
-            )*0.05
+            )
 
         output = self._eval_network(a_vecs, b_vecs, y, dropout=False)
         self.last_case_class = np.argmax(output.npvalue())

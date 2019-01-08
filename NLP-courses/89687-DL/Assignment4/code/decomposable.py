@@ -10,7 +10,7 @@ AGG_DEPTH = 2
 class decomposable(net.network):
     def __init__(self, word_embeddings, embedding_dim=None, hidden_dim=None, classes_dim=None, pc=None, trained_matrices=None):
         embedding_dim = embedding_dim or 300
-        hidden_dim = hidden_dim or 300
+        hidden_dim = hidden_dim or 200
         classes_dim = classes_dim or 3
 
         self.embeddings = word_embeddings
@@ -40,8 +40,8 @@ class decomposable(net.network):
             self.params = {"E":  word_embeddings.as_dynet_lookup(self.pc)}
         
     def _create_dimension_reducer(self, params=None):
-        return None
-        
+        return mat(self.embedding_dim, self.hidden_dim)
+
     def _create_attend(self, params=None):
         activation = dy.tanh
         if params:
@@ -97,7 +97,7 @@ class decomposable(net.network):
         return output
 
     def calc_reduce_dim(self,vecs):
-        return vecs
+        return self.dimension_reducer.evaluate_network(vecs)
 
     def calc_attend(self, a_vecs, b_vecs, dropout):
         l_a = a_vecs.dim()[1]
@@ -153,3 +153,16 @@ class decomposable(net.network):
         matrices = dy.load(base_file, pc)
         # matrices = matrices[1:] # for now, skip "E"
         return cls(word_embeddings, embedding_dim, hidden_dim, classes_dim, pc, matrices)
+
+class mat:
+    def __init__(self, pc, input_dim, output_dim):
+        self.pc = pc
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.w = self.pc.add_parameters((self.output_dim, self.input_dim), init = 'uniform', scale=1) 
+    
+    def evaluate_network(self, x)
+        return self.w * x
+    
+    def params_iterable(self):
+        yield self.w

@@ -6,8 +6,8 @@ import re
 SNLI_UNDECIDED_LABEL = "-"
 
 class glove_embeddings:
-    def __init__(self, glove_lines):
-        self.embeddings = self.parse_glove_lines(glove_lines)
+    def __init__(self, glove_lines, apply_softmax=False):
+        self.embeddings = self.parse_glove_lines(glove_lines, apply_softmax)
         self.vec_dim = next(self.embeddings.itervalues()).shape[0]
         print self.embeddings.keys()[100:110]
         self.unk_vec = self.embeddings['<unk>']
@@ -15,11 +15,13 @@ class glove_embeddings:
         self.unk_ord = self.word_to_ind['<unk>']
 
     @classmethod
-    def parse_glove_lines(cls, glove_lines):
+    def parse_glove_lines(cls, glove_lines, apply_softmax=False):
         ret = {}
         for line in glove_lines:
             word, data = line.strip().split(' ',1)
             ret[word]= np.fromstring(data, sep=' ') 
+            if apply_softmax:
+                ret[word] = softmax(ret[word])
         return ret
     
     def get(self, word):
@@ -71,3 +73,7 @@ def separate_marks(row_nt):
         sentence2 = re.sub(search_exp, replace_exp, row_nt.sentence2)
         )
     
+def softmax(x):
+    """Compute softmax values for each sets of scores in x."""
+    e_x = np.exp(x - np.mean(x))
+    return e_x / e_x.sum()

@@ -74,13 +74,13 @@ class decomposable(net.network):
             self.params["E"],
             sent_a_ords, 
             update=False
-            )
+            )*0.05
        
         b_vecs = dy.lookup_batch(
             self.params["E"],
             [self.embeddings.get_ord(word) for word in sentence_b.split()], 
             update=False
-            )
+            )*0.05
 
         output = self._eval_network(a_vecs, b_vecs, y, dropout=False)
         self.last_case_class = np.argmax(output.npvalue())
@@ -164,5 +164,8 @@ class mat:
     def evaluate_network(self, x):
         return self.w * x
     
+    def evaluate_as_bilinear(self, x1, x2):
+        return x1*self.w*x2
+
     def params_iterable(self):
         yield self.w

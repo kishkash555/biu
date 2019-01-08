@@ -40,7 +40,7 @@ class decomposable(net.network):
             self.params = {"E":  word_embeddings.as_dynet_lookup(self.pc)}
         
     def _create_dimension_reducer(self, params=None):
-        return mat(self.embedding_dim, self.hidden_dim)
+        return mat(self.pc, self.embedding_dim, self.hidden_dim)
 
     def _create_attend(self, params=None):
         activation = dy.tanh
@@ -161,7 +161,7 @@ class mat:
         self.output_dim = output_dim
         self.w = self.pc.add_parameters((self.output_dim, self.input_dim), init = 'uniform', scale=1) 
     
-    def evaluate_network(self, x)
+    def evaluate_network(self, x):
         return self.w * x
     
     def params_iterable(self):

@@ -70,17 +70,17 @@ class decomposable(net.network):
         sentence_a, sentence_b = x
         
         sent_a_ords = [self.embeddings.get_ord(word) for word in sentence_a.split()]
-        a_vecs = dy.lookup_batch(
+        a_vecs = dy.abs(dy.lookup_batch(
             self.params["E"],
             sent_a_ords, 
             update=False
-            )*0.05
+            )*0.05)
        
-        b_vecs = dy.lookup_batch(
+        b_vecs = dy.abs(dy.lookup_batch(
             self.params["E"],
             [self.embeddings.get_ord(word) for word in sentence_b.split()], 
             update=False
-            )*0.05
+            )*0.05)
 
         output = self._eval_network(a_vecs, b_vecs, y, dropout=False)
         self.last_case_class = np.argmax(output.npvalue())

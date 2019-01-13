@@ -54,9 +54,11 @@ class decision_tree(classifier):
         classifier.__init__(self)
         self.tree = None
         self.classes = None
+        self.positive_class = None
 
     def fit(self,train_data):
         self.classes = sorted(set(map(lambda a: a[-1],train_data)))
+        self.positive_class = find_positive_class(self.classes)
         self.data_fields = train_data[0]._fields
         self.decision_variable = self.data_fields[-1]
         tree = {'root': {} }
@@ -70,7 +72,7 @@ class decision_tree(classifier):
             while True: # loop to go down tree
                 next_attr = next(iter(tree.keys()))[0]
                 if next_attr == self.decision_variable:
-                    chosen = self.get_class_from_leaves(tree,'') 
+                    chosen = self.get_class_from_leaves(tree) 
                     predictions.append(chosen)
                     break
                 else:
@@ -95,7 +97,6 @@ class decision_tree(classifier):
             self.split(tree[(split_on, k)], self.__filtered(current_train, {split_on: k}), used_list.union([split_on]))
 
     def create_tree_structure_report(self):
-        get_first_key= lambda d: next(iter(d.keys()))
         tree = self.tree['root']
         queue = [[k] for k in sorted(tree.keys(), reverse=True)]
         while len(queue):
@@ -105,12 +106,9 @@ class decision_tree(classifier):
             curr_tree = tree
             for k in curr_key:
                 curr_tree = curr_tree[k]
-            # attr_name, attr_value = get_first_key(curr_tree) 
-            # predicted_classes = self.get_classes_from_subtree(curr_tree)
-
-            next_attr_name = get_first_key(curr_tree)[0]
-            if next_attr_name == self.decision_variable: 
-                suffix = ':' + self.get_class_from_leaves(curr_tree,'')
+            predicted_classes = self.get_classes_from_subtree(curr_tree)
+            if len(predicted_classes)==1:
+                suffix = ':' + next(iter(predicted_classes))
                 go_down = False
             else:
                 suffix = ''
@@ -120,22 +118,26 @@ class decision_tree(classifier):
             if go_down:
                 queue += [curr_key+[k] for k in sorted(curr_tree.keys(), reverse=True)]
             
-    def get_class_from_leaves(self, tree, positive_class):
+    def get_class_from_leaves(self, tree):
         max_v = 0
         for k, v in tree.items():
-            if v > max_v or v==max_v and k[1] == positive_class:
+            if v > max_v or v==max_v and k[1] == self.positive_class:
                 predicted_class = k[1]
                 max_v = v
         return predicted_class
 
-    def get_classes_from_subtree(self, tree, positive_class):
+    def get_classes_from_subtree(self, tree):
+        get_first_key= lambda d: next(iter(d.keys()))
+    
+        if get_first_key(tree)[0] == self.decision_variable:
+            return set([self.get_class_from_leaves(tree)])
         predicted_classes = set()
         for subtree in tree.values():
             next_attr_name = get_first_key(subtree)[0]
             if next_attr_name == self.decision_variable: 
-                predicted_classes.add(self.get_class_from_leaves(subtree, positive_class))
+                predicted_classes.add(self.get_class_from_leaves(subtree))
             else:
-                predicted_classes.union(self.get_classes_from_subtree(subtree))
+                predicted_classes.update(self.get_classes_from_subtree(subtree))
         return predicted_classes
         
 

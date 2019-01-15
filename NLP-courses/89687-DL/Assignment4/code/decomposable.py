@@ -3,7 +3,7 @@ import network as net
 import numpy as np
 
 DIMR_DEPTH = 0
-ATTEND_DEPTH = 3
+ATTEND_DEPTH = 2
 COMPARE_DEPTH = 2
 AGG_DEPTH = 2
 
@@ -20,11 +20,15 @@ class decomposable(net.network):
         if pc and trained_matrices:
             print "loading pretrained inputs"
             self.pc=pc
-            first_attend_index = 1 + DIMR_DEPTH * 2 # the *2 accounts for the w and b in each layer
+            first_attend_index = 2 + DIMR_DEPTH * 2 # the *2 accounts for the w and b in each layer
             first_compare_index = first_attend_index + ATTEND_DEPTH * 2 
             first_agg_index = first_compare_index + COMPARE_DEPTH * 2
- 
-        
+
+            print "dimension reducer", range(1, first_attend_index)
+            print "attend", range(first_attend_index, first_compare_index)
+            print "compare", range(first_compare_index, first_agg_index)
+            print "aggregate", range(first_agg_index,len(trained_matrices))
+
             self.dimension_reducer = self._create_dimension_reducer(trained_matrices[1:first_attend_index])
             self.attend = self._create_attend(trained_matrices[first_attend_index:first_compare_index])
             self.compare = self._create_compare(trained_matrices[first_compare_index:first_agg_index])

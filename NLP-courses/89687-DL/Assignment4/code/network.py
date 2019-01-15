@@ -13,6 +13,8 @@ MIN_SAVE_ACC = 0.5
 START_SAVE_AFTER = 250000
 SAVE_TO = '../save/network'
 SAVE_REPORT_TO = '../save/report'
+SAVE_TAGGED_TEST_TO = '../save/tagged'
+
 DROPOUT_RATE = 0.25
 class network:
     @classmethod
@@ -32,7 +34,7 @@ class network:
     def save(self, basefile):
         dy.save(basefile, self.params_iterable())
 
-    def train_network(self, train_data, epochs = 3, dev_data = None):
+    def train_network(self, train_data, epochs = 3, dev_data = None, test_data = None):
         trainer = dy.SimpleSGDTrainer(self.pc,0.05)
         i = 0
         mloss = 0.
@@ -44,6 +46,7 @@ class network:
         run_id = randint(0,9999)
         save_path = "{}{:04d}".format(SAVE_TO,run_id)
         report_path = "{}{:04d}.txt".format(SAVE_REPORT_TO,run_id)
+        test_path = "{}{:04d}.txt".format(SAVE_TAGGED_TEST_TO,run_id)
         rprt = open(report_path,'wt')
         print report_path
         for e in range(epochs):
@@ -85,6 +88,25 @@ class network:
                         print("saving.")
                         rprt.write("saving.\n")
                         self.save(save_path)
+                        if test_data:
+                            outf = open(test_path,'wt')
+                            k = 0
+                            goods_test = 0.
+                            print("tagging test data.")
+                            for dd in test_data:
+                                dy.renew_cg()
+                                k += 1
+                                x, y = dd
+                                self.eval_loss(x,y)
+                                y_hat = self.last_case_class
+                                goods_test += 1 if y == y_hat else 0
+                                outf.write("{}{}{}\n".format(x, y, y_hat))
+                            outf.close()
+                            test_acc = goods_test / len(test_data)
+                            print("accurcy on test: {}".format(test_acc))
+
+
+
                 rprt.flush()
 
 class mlp_subnetwork():
@@ -120,7 +142,7 @@ class mlp_subnetwork():
         self = cls(None, [], hidden_activation, output_activation)
         self.params = {"W": w, "b": b}
         self.pc = pc
-        self.layer_sizes = [x.dim()[0][0] for x in w] + [b[-1].dim()[0][0]]
+        self.layer_sizes = [x.dim()[0][1] for x in w] + [b[-1].dim()[0][0]]
         self.n_layers = len(self.layer_sizes)
         print "layer sizes", self.layer_sizes
         return self

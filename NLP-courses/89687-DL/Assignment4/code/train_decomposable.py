@@ -8,6 +8,7 @@ from os import path
 GLOVE_FILE = '../glove_filtered00.txt'
 SNLI_TRAIN = '../snli_1.0/snli_1.0_train_stripped.txt'
 SNLI_DEV = '../snli_1.0/snli_1.0_dev_stripped.txt'
+SNLI_TEST = '../snli_1.0/snli_1.0_test_stripped.txt'
 
 import _dynet as dy
 
@@ -31,6 +32,7 @@ if __name__ == "__main__":
 
     train_data, labels = parsers.load_snli(SNLI_TRAIN, max_cases)
     dev_data, labels = parsers.load_snli(SNLI_DEV, labels=labels)
+    test_data, labels = parsers.load_snli(SNLI_TEST, labels=labels)
     print labels
     print dev_data[10]
     print "** done loading"
@@ -39,4 +41,4 @@ if __name__ == "__main__":
     else:
         my_net = dec.decomposable(glove)
     print "** done init"
-    my_net.train_network(train_data,50, dev_data)
+    my_net.train_network(train_data,50, dev_data, test_data)

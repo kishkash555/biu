@@ -80,7 +80,6 @@ class decision_tree(classifier):
                         tree = tree[(next_attr,test_case._asdict()[next_attr])]
                     except KeyError:
                         self.get_class_from_leaves(self.get_scores_from_subtree(tree))
-                        break
         return predictions
 
 
@@ -151,9 +150,8 @@ class decision_tree(classifier):
             return Counter(tree)
         if len(tree)==0 or type(tree)!=dict:
             return Counter()
-        print(list(tree.values()))
-        s = sum([self.get_scores_from_subtree(t) for t in tree.values()],Counter())
-        return s
+        print(tree)
+        return sum([self.get_scores_from_subtree(t) for t in tree.values()],Counter())
 
     @classmethod
     def __filter(cls, case, qualifier):

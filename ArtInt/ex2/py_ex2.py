@@ -23,7 +23,7 @@ def test_knn(train_data, test_data):
 def test_decision_tree(train_data, test_data, the_tree = None):
     dt = algos.decision_tree()
     dt.fit(train_data)
-    print(dt.tree)
+    # print(dt.tree)
     predictions = dt.predict(test_data)
     if type(the_tree) == list:
         the_tree.append(dt)

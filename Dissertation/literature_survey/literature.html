@@ -1,0 +1,406 @@
+<!DOCTYPE html><html><head>
+      <title>literature</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:///C:\Users\Shahar\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.3.11\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+      <style> 
+      /**
+ * prism.js Github theme based on GitHub's theme.
+ * @author Sam Clarke
+ */
+code[class*="language-"],
+pre[class*="language-"] {
+  color: #333;
+  background: none;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.4;
+
+  -moz-tab-size: 8;
+  -o-tab-size: 8;
+  tab-size: 8;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+  padding: .8em;
+  overflow: auto;
+  /* border: 1px solid #ddd; */
+  border-radius: 3px;
+  /* background: #fff; */
+  background: #f5f5f5;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+  padding: .1em;
+  border-radius: .3em;
+  white-space: normal;
+  background: #f5f5f5;
+}
+
+.token.comment,
+.token.blockquote {
+  color: #969896;
+}
+
+.token.cdata {
+  color: #183691;
+}
+
+.token.doctype,
+.token.punctuation,
+.token.variable,
+.token.macro.property {
+  color: #333;
+}
+
+.token.operator,
+.token.important,
+.token.keyword,
+.token.rule,
+.token.builtin {
+  color: #a71d5d;
+}
+
+.token.string,
+.token.url,
+.token.regex,
+.token.attr-value {
+  color: #183691;
+}
+
+.token.property,
+.token.number,
+.token.boolean,
+.token.entity,
+.token.atrule,
+.token.constant,
+.token.symbol,
+.token.command,
+.token.code {
+  color: #0086b3;
+}
+
+.token.tag,
+.token.selector,
+.token.prolog {
+  color: #63a35c;
+}
+
+.token.function,
+.token.namespace,
+.token.pseudo-element,
+.token.class,
+.token.class-name,
+.token.pseudo-class,
+.token.id,
+.token.url-reference .token.variable,
+.token.attr-name {
+  color: #795da3;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+.token.title,
+.token.title .token.punctuation {
+  font-weight: bold;
+  color: #1d3e81;
+}
+
+.token.list {
+  color: #ed6a43;
+}
+
+.token.inserted {
+  background-color: #eaffea;
+  color: #55a532;
+}
+
+.token.deleted {
+  background-color: #ffecec;
+  color: #bd2c00;
+}
+
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+
+/* JSON */
+.language-json .token.property {
+  color: #183691;
+}
+
+.language-markup .token.tag .token.punctuation {
+  color: #333;
+}
+
+/* CSS */
+code.language-css,
+.language-css .token.function {
+  color: #0086b3;
+}
+
+/* YAML */
+.language-yaml .token.atrule {
+  color: #63a35c;
+}
+
+code.language-yaml {
+  color: #183691;
+}
+
+/* Ruby */
+.language-ruby .token.function {
+  color: #333;
+}
+
+/* Markdown */
+.language-markdown .token.url {
+  color: #795da3;
+}
+
+/* Makefile */
+.language-makefile .token.symbol {
+  color: #795da3;
+}
+
+.language-makefile .token.variable {
+  color: #183691;
+}
+
+.language-makefile .token.builtin {
+  color: #0086b3;
+}
+
+/* Bash */
+.language-bash .token.keyword {
+  color: #0086b3;
+}html body{font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ul,html body>ol{margin-bottom:16px}html body ul,html body ol{padding-left:2em}html body ul.no-list,html body ol.no-list{padding:0;list-style-type:none}html body ul ul,html body ul ol,html body ol ol,html body ol ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:bold;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:bold}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em !important;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::before,html body code::after{letter-spacing:-0.2em;content:"\00a0"}html body pre>code{padding:0;margin:0;font-size:.85em !important;word-break:normal;white-space:pre;background:transparent;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;font-size:.85em !important;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:before,html body pre tt:before,html body pre code:after,html body pre tt:after{content:normal}html body p,html body blockquote,html body ul,html body ol,html body dl,html body pre{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body pre,html body code{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview .pagebreak,.markdown-preview .newpage{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center !important}.markdown-preview:not([for="preview"]) .code-chunk .btn-group{display:none}.markdown-preview:not([for="preview"]) .code-chunk .status{display:none}.markdown-preview:not([for="preview"]) .code-chunk .output-div{margin-bottom:16px}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0}@media screen and (min-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px)}}@media screen and (max-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{font-size:14px !important;padding:1em}}@media print{html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,0.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{padding:0 1.6em;margin-top:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc li{margin-bottom:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{list-style-type:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% -  300px);padding:2em calc(50% - 457px -  150px);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+ 
+      </style>
+    </head>
+    <body for="html-export">
+      <div class="mume markdown-preview   ">
+      <h2 class="mume-header" id="about-this-document">About this document</h2>
+
+<p>This is a summary of a few papers I read in the past week which I believe are relevant for shaping my research directions. I summarized some important points from each article. For my own future reference, I rated each paper on four scales: relevance, insight, clarity and elegance. Elegance refers to the simplicity of the suggested approach relative to its potential gain. These papers cover a wide range of approaches. Further reading on each approach, and additional approaches, not covered by these papers, is still needed. All papers are freely accessible, see link below each title.</p>
+<h2 class="mume-header" id="1-distilling-a-neural-network-into-a-soft-decisiontree">1 Distilling a Neural Network Into a Soft DecisionTree</h2>
+
+<p><a href="https://arxiv.org/pdf/1711.09784.pdf">https://arxiv.org/pdf/1711.09784.pdf</a></p>
+<p>Relevance 3 Insight 4 Clarity 4 Elegance 3</p>
+<p>Distilling a Neural Network Into a Soft DecisionTree. Nicholas Frosst, Geoffrey Hinton, Google Brain Team.</p>
+<p>Several mini-MLPs, with a single-neuron output each, are trained simulatenously. Training examples are channeled according to the decision rule at the current node (&lt; 0: right branch, otherwise: right branch). A method to train the tree is presented. problems resulting from the low number of examples shown to each node at the deep layers are discussed. Regularization is required to ensure the split at each node is roughly equal between the two branches. Benefits:</p>
+<ul>
+<li>The split at each node can be interpreted by comparing the examples that are channeled to each side. Interpretability of results is cited as the main motivation for this effort.</li>
+<li>In multi-class classification problems, the classification may be done gradually, with each layer splitting to more refined class groups, until the final layer decides between 2 classes.</li>
+</ul>
+<h4 class="mume-header" id="review">Review</h4>
+
+<p>The main draw for me is in the elegant fusion between two established classification approaches, the decision tree and the MLP. While not necessarily viable as a &quot;production tool&quot;, the approach may be very interesting to try in the context of exploratory data analysis for high dimensional, high volume data.</p>
+<h2 class="mume-header" id="2-mobilenets-efficient-convolutional-neural-networks-for-mobile-vision-applications">2 MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications</h2>
+
+<p>MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications<br>
+Andrew G. Howard, Menglong Zhu, Bo Chen, Dmitry Kalenichenko, Weijun Wang, Tobias Weyand, Marco Andreetto, Hartwig Adam<br>
+17 April 2017</p>
+<p><a href="https://arxiv.org/pdf/1704.04861.pdf">https://arxiv.org/pdf/1704.04861.pdf</a></p>
+<p>Relevance 2 Insight ?  Clarity 2 Elegance ?</p>
+<blockquote>
+<p>This  paper  proposes  a class  of  network  architectures  that  allows  a  model  developer  to  specifically  choose  a  small  network  that  matches the resource restrictions (latency, size) for their application. MobileNets primarily focus on optimizing for latency but also yield small networks.  Many papers on small networks focus only on size but do not consider speed.</p>
+</blockquote>
+<p>The basis of the approach is matrix factorization, an approach studied in more detail and with more insight in other works (see below).</p>
+<p>The &quot;Prior work&quot; section is comprehensive and describes the following approaches. Numbers in brackets are the citation number within the article:</p>
+<h3 class="mume-header" id="training-small-networks">training small networks</h3>
+
+<ul>
+<li>Flattened networks [16] - fully factorized convolutions</li>
+<li>Factorized networks [34] - factorized convolution + topological connections</li>
+<li>Xception network [3] - scale up depthwise separable filters, outperform inception v3</li>
+<li>Squeezenet [12] - bottleneck approach to design a very small network</li>
+<li>structured transform network [28]</li>
+<li>deep fried convents [37]</li>
+</ul>
+<h3 class="mume-header" id="shrinking-factorizing-or-compressing-pretrained-networks">shrinking, factorizing or compressing pretrained networks</h3>
+
+<ul>
+<li>Compression based on product quantization [36],</li>
+<li>Hashing [2] - See #3 below</li>
+<li>Pruning, quantization, Huffman [5]</li>
+<li>Factorization speed up [14,20]</li>
+<li>Distillation [9] Using a large network to teach a small network</li>
+<li>Low bit networks [4, 22, 11] - [11] see #4 below</li>
+</ul>
+<p>hard to read without understanding the following terms:</p>
+<ul>
+<li>batchnorm [13]</li>
+<li>depthwise separable convolution</li>
+</ul>
+<h2 class="mume-header" id="3-compressing-neural-networks-with-the-hashing-trick">3 Compressing Neural Networks with the Hashing Trick</h2>
+
+<p><a href="https://arxiv.org/pdf/1504.04788.pdf">https://arxiv.org/pdf/1504.04788.pdf</a><br>
+Wenlin Chen<br>
+James T. Wilson<br>
+Stephen Tyree<br>
+Kilian Q. Weinberger<br>
+Yixin Chen<br>
+19 Apr 2015</p>
+<p>(This is ref. 2 in Mobilenets article)<br>
+Code: <a href="http://www.weinbergerweb.com">http://www.weinbergerweb.com</a></p>
+<p>Relevance 4 Insight 3 Clarity 5 Elegance 5</p>
+<blockquote>
+<p>As  deep  nets  are  increasingly  used  in  applications  suited  for  mobile  devices,  a  fundamental  dilemma  becomes  apparent: the  trend  in deep learning is to grow models to absorb ever-increasing data set sizes; however mobile devices are designed with very little memory and cannot store such large models. We present a novel network architecture, HashedNets, that exploits inherent redundancy in neural networks to achieve drastic  reductions  in  model  sizes.   Hashed Nets uses a low-cost hash function to randomly group connection  weights  into  hash  buckets,  and all connections  within  the  same  hash  bucket  share a single parameter value.  These parameters are tuned to adjust to the Hashed Nets weight sharing architecture with standard backprop during training. Our  hashing  procedure  introduces  no  additional memory overhead, and we demonstrate on several benchmark data sets that Hashed Nets shrink  the  storage  requirements  of  neural  networks substantially while mostly preserving generalization performance.</p>
+</blockquote>
+<blockquote>
+<p>Ba &amp; Caruana (2014) [see  #5 below] show that deep neural networks can be successfully compressed into &#x201C;shallow&#x201D; single-layer neural networks by training the small network on the (log-) outputs of the fully trained deep network  (Bucilu  et  al.,  2006)</p>
+</blockquote>
+<p>In this article, the authors discuss a heruistic memory-reduction technique. The concepts are developed with ordinary, fully-connected MLPs in mind, but it is mentioned they can be applied to many other ANN architectures (including recurrent networks), and also combined with memory reduction techniques proposed by other authors (some of which are cited and briefly explained).</p>
+<p>The <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>m</mi><mo>&#xD7;</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">m \times n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord mathit">m</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">&#xD7;</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathit">n</span></span></span></span> parameters of the weight matrix <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>V</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">V_{ij}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.969438em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathit" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.22222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathit mtight">i</span><span class="mord mathit mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> between two consecutive hidden layers of sizes <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathit">m</span></span></span></span> and <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathit">n</span></span></span></span>, are replaced with a vector of <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.03148em;">k</span></span></span></span> parameters, where <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.03148em;">k</span></span></span></span> can be decided by the user based on the desired memory-performance  tradeoff. The linear part of the traditional feed-forward calculation,  <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>z</mi><mo>=</mo><mi>V</mi><mi>a</mi></mrow><annotation encoding="application/x-tex">z = Va</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.04398em;">z</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.22222em;">V</span><span class="mord mathit">a</span></span></span></span>, is replaced by:<br>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>z</mi><mo>=</mo><munderover><mo>&#x2211;</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><msub><mi>w</mi><mrow><mi>h</mi><mo>(</mo><mi>i</mi><mo separator="true">,</mo><mi>j</mi><mo>)</mo></mrow></msub><msub><mi>a</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">z=\sum \limits_{j=1}^m w_{h(i,j)}a_j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.04398em;">z</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:3.0651740000000007em;vertical-align:-1.4137769999999998em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.6513970000000007em;"><span style="top:-1.872331em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathit mtight" style="margin-right:0.05724em;">j</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.050005em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">&#x2211;</span></span></span><span style="top:-4.3000050000000005em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathit mtight">m</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:1.4137769999999998em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathit" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.34480000000000005em;"><span style="top:-2.5198em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathit mtight">h</span><span class="mopen mtight">(</span><span class="mord mathit mtight">i</span><span class="mpunct mtight">,</span><span class="mord mathit mtight" style="margin-right:0.05724em;">j</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.3551999999999999em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathit">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathit mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span></span><br>
+Where <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi></mrow><annotation encoding="application/x-tex">w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.02691em;">w</span></span></span></span> is the vector of weights (length <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.03148em;">k</span></span></span></span>) and<br>
+<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>h</mi><mo>(</mo><mi>i</mi><mo separator="true">,</mo><mi>j</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">h(i,j)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathit">h</span><span class="mopen">(</span><span class="mord mathit">i</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathit" style="margin-right:0.05724em;">j</span><span class="mclose">)</span></span></span></span> is a mapping <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>h</mi><mo>:</mo><mtext>&#xA0;</mtext><mi>m</mi><mo>&#xD7;</mo><mi>n</mi><mo>&#x2192;</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">h:\ m \times n \to k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathit">h</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mspace">&#xA0;</span></span><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord mathit">m</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">&#xD7;</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathit">n</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&#x2192;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.03148em;">k</span></span></span></span></p>
+<p>The &quot;hashing trick&quot;  refers to the fact that <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>h</mi></mrow><annotation encoding="application/x-tex">h</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathit">h</span></span></span></span>, rather than being tabulated in memory, is an instance from a suitable family of hashing functions and therfore takes up <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo>(</mo><mn>1</mn><mo>)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathit" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> memory. A different hashing function is assigned to each layer.</p>
+<p>The modifications required in the SGD training procedure are detailed.</p>
+<h4 class="mume-header" id="details-and-notes">Details and notes</h4>
+
+<ul>
+<li>
+<p>Each of the <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>m</mi><mo>&#xD7;</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">m \times n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord mathit">m</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">&#xD7;</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathit">n</span></span></span></span> weights of the original transfer matrix can be factored out in the mult-sum expression, as the same value is used in several connections.</p>
+</li>
+<li>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>V</mi></mrow><annotation encoding="application/x-tex">V</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.22222em;">V</span></span></span></span> is populated by <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.03148em;">k</span></span></span></span> distinct values. A location <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>(</mo><mi>i</mi><mo separator="true">,</mo><mi>j</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">(i,j)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathit">i</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathit" style="margin-right:0.05724em;">j</span><span class="mclose">)</span></span></span></span> shares the parameter value with the other locations mapped to the same hash bin.</p>
+</li>
+<li>
+<p>This is equivalent to an ordinary MLP where an extra linear layer of dimension <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.03148em;">k</span></span></span></span> was added between the two layers of the original MLP. The weights in the two extra transfer matrices (before and after the new layer) are all 0&apos;s and 1&apos;s, and are predetermined (i.e. not learnable). This representation may be  useful when comparing performance with ordinary MLP architectures, and possibly opens the door for analogies with LSTM architectures with its learnable gates.</p>
+</li>
+</ul>
+<p>An optional extension discussed by the authors is to use <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>{</mo><mn>0</mn><mo separator="true">,</mo><mo>&#x2212;</mo><mn>1</mn><mo separator="true">,</mo><mo>+</mo><mn>1</mn><mo>}</mo></mrow><annotation encoding="application/x-tex">\{0, -1, +1\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">&#x2212;</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">+</span><span class="mord">1</span><span class="mclose">}</span></span></span></span> as the possible values, this is supposedly to avoid &quot;bias in the weights&quot;. This is achived by multiplication by an additional hash function <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>&#x3BE;</mi><mo>:</mo><mtext>&#xA0;</mtext><mi>m</mi><mo>&#xD7;</mo><mi>n</mi><mo>&#x2192;</mo><mo>{</mo><mo>&#x2212;</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo>}</mo></mrow><annotation encoding="application/x-tex">\xi:\ m \times n \to \{-1,1\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathit" style="margin-right:0.04601em;">&#x3BE;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mspace">&#xA0;</span></span><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord mathit">m</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">&#xD7;</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathit">n</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&#x2192;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord">&#x2212;</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">1</span><span class="mclose">}</span></span></span></span></p>
+<p>In the &quot;experimental results&quot; sections, the authors compare several memory reduction techniques tested on MNIST hand-written digit image classification task. HashNet shows equivalent performance to other methods up to 1:8 compression ratio (CR), and superior performance from 1:16 to 1:64 CRs. In some settings, however, it is only slightly better than straightforward &quot;compression&quot; by training ordinary NNs with shrinked layer sizes. Low-Rank Factorization, a competing and somewhat easier-to-implement compression approach, has competitive performance up to 1:8 CR, but performs poorly at higher CRs. Low-Rank Factorization is discussed in #4 below.</p>
+<h2 class="mume-header" id="4-predicting-parameters-in-deep-learning">4 Predicting Parameters in Deep Learning</h2>
+
+<p><a href="https://arxiv.org/pdf/1306.0543.pdf">https://arxiv.org/pdf/1306.0543.pdf</a><br>
+Misha Denil, Babak Shakibi, Laurent Dinh, Marc&#x2019;Aurelio Ranzato, Nando de Freitas,<br>
+27 Oct 2014</p>
+<p>Relevance 5 Insight 5 Clarity 3.5 Elegance 3</p>
+<blockquote>
+<p>We  demonstrate  that  there  is  significant  redundancy  in  the  parameterization  of several deep learning models.  Given only a few weight values for each feature it is possible to accurately predict the remaining values. Moreover, we show that not only can the parameter values be predicted, but many of them need not be learned at all. We train several different architectures by learning only a small number of weights and predicting the rest. In the best case we are able to predict more than 95% of the weights of a network without any drop in accuracy.</p>
+</blockquote>
+<p>This is referenced in #3 above<br>
+Code available on github: <a href="https://github.com/mdenil/parameter_prediction">https://github.com/mdenil/parameter_prediction</a></p>
+<p><a name="ReallyNeed" href=""></a></p>
+<h2 class="mume-header" id="5-do-deep-nets-really-need-to-be-deep">5 Do Deep Nets Really Need to be Deep</h2>
+
+<p>Lei Jimmy Ba<br>
+Rich Caruana<br>
+NIPS 2014<br>
+<a href="https://papers.nips.cc/paper/5484-do-deep-nets-really-need-to-be-deep.pdf">https://papers.nips.cc/paper/5484-do-deep-nets-really-need-to-be-deep.pdf</a></p>
+<p>Relevance 5 Insight 5 Clarity 4 Elegance ?</p>
+<p>The authors perform a &quot;shallowing&quot; of existing neural networks and report that learning a smooth function (i.e. the soft outputs of a trained ANN) is faster than learning the &quot;hard&quot; classifications with the same shallow architecture.</p>
+<p>They also point that a matrix between a layer of size <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>D</mi></mrow><annotation encoding="application/x-tex">D</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.02778em;">D</span></span></span></span> and a layer of size <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>H</mi></mrow><annotation encoding="application/x-tex">H</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.08125em;">H</span></span></span></span> does not need to have <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo>(</mo><mi>H</mi><mi>D</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">O(HD)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathit" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathit" style="margin-right:0.08125em;">H</span><span class="mord mathit" style="margin-right:0.02778em;">D</span><span class="mclose">)</span></span></span></span> parameters. The number of parameters can be reduced, and controlled using a parameter <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.03148em;">k</span></span></span></span> by writing it as</p>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>W</mi><mo>=</mo><mi>U</mi><mi>V</mi></mrow><annotation encoding="application/x-tex">W = UV</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.13889em;">W</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.10903em;">U</span><span class="mord mathit" style="margin-right:0.22222em;">V</span></span></span></span> where <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>W</mi><mo>&#x2208;</mo><msup><mi mathvariant="double-struck">R</mi><mrow><mi>H</mi><mo>&#xD7;</mo><mi>D</mi></mrow></msup><mo separator="true">,</mo><mtext>&#xA0;</mtext><mi>U</mi><mo>&#x2208;</mo><msup><mi mathvariant="double-struck">R</mi><mrow><mi>H</mi><mo>&#xD7;</mo><mi>k</mi></mrow></msup><mo separator="true">,</mo><mtext>&#xA0;</mtext><mi>V</mi><mo>&#x2208;</mo><msup><mi mathvariant="double-struck">R</mi><mrow><mi>k</mi><mo>&#xD7;</mo><mi>D</mi></mrow></msup><mo separator="true">,</mo><mtext>&#xA0;</mtext><mi>k</mi><mo>&#x226A;</mo><mi>min</mi><mo>&#x2061;</mo><mo>(</mo><mi>H</mi><mo separator="true">,</mo><mi>D</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">W \in \mathbb{R}^{H \times D},\ U \in \mathbb{R}^{H \times k}, \ V \in \mathbb{R}^{k \times D},\ k \ll \min(H,D)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72243em;vertical-align:-0.0391em;"></span><span class="mord mathit" style="margin-right:0.13889em;">W</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&#x2208;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.035771em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord"><span class="mord mathbb">R</span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8413309999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathit mtight" style="margin-right:0.08125em;">H</span><span class="mbin mtight">&#xD7;</span><span class="mord mathit mtight" style="margin-right:0.02778em;">D</span></span></span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mspace">&#xA0;</span><span class="mord mathit" style="margin-right:0.10903em;">U</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&#x2208;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.043548em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord"><span class="mord mathbb">R</span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathit mtight" style="margin-right:0.08125em;">H</span><span class="mbin mtight">&#xD7;</span><span class="mord mathit mtight" style="margin-right:0.03148em;">k</span></span></span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mspace">&#xA0;</span><span class="mord mathit" style="margin-right:0.22222em;">V</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&#x2208;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.043548em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord"><span class="mord mathbb">R</span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathit mtight" style="margin-right:0.03148em;">k</span><span class="mbin mtight">&#xD7;</span><span class="mord mathit mtight" style="margin-right:0.02778em;">D</span></span></span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mspace">&#xA0;</span><span class="mord mathit" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&#x226A;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop">min</span><span class="mopen">(</span><span class="mord mathit" style="margin-right:0.08125em;">H</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathit" style="margin-right:0.02778em;">D</span><span class="mclose">)</span></span></span></span></p>
+<p><img src="do-they-really-need-quote1.png" alt="factorization insight excerpt"></p>
+<h2 class="mume-header" id="6-binarized-neural-networks">6 Binarized Neural Networks</h2>
+
+<p>Binarized Neural Networks: Training Neural Networks with Weights and Activations Constrained to +1 or &#x2212;1<br>
+Matthieu Courbariaux<br>
+Itay Hubara<br>
+Daniel Soudry<br>
+Ran El-Yaniv<br>
+Yoshua Bengio<br>
+17 Mar 2016</p>
+<p>Relevance 5 Insight 5 Clarity 4 Elegance 2.5<br>
+<a href="https://arxiv.org/pdf/1602.02830.pdf">https://arxiv.org/pdf/1602.02830.pdf</a></p>
+<p>The work described in this paper combines algorithmic innovation, low-level (GPU instruction) coding, and task-specific deep learning network design, to demonstarte that BNNs (Binarized deep Neural Networks) can perform similarly to ordinary floating-point networks, with significant savings in energy consumption (memory savings are also substantial, but are secondary from the authros&apos; point of view). The scope of the research presented suggests a team efforts of several months.</p>
+<h4 class="mume-header" id="the-main-contributions-are">The main contributions are:</h4>
+
+<ul>
+<li>
+<p>Presenting a novel training algorithm which improves on previous works in binarization:</p>
+<ul>
+<li>Resulting weights and activations are both binary (the binary digit 0 is used to represent a value of -1. This is realized by choosing a binary function that produces the correct output for multiplication i.e. f(0,0)=1, f(0,1)=0 etc.).</li>
+<li>The forward passes - both in training and testing time - are fully binary (i.e. weights and activations) - with the exception of input layer being still real-valued.</li>
+<li>The backpropagation maintains real-valued weights, which are binarized to evaluate the error. The binarization is either stochastic or by rounding (i.e. applying the sign function to each weight). Both methods seem to perform equally well.</li>
+</ul>
+</li>
+<li>
+<p>Demonstrating how BNNs can be implemented on NVIDIA GPUs efficiently:</p>
+<ul>
+<li>Implementing the binary &quot;multiplications&quot; and aggregations using two binary instructions (<em>XNOR</em> for multiplication and <em>popcount</em> for counting bits turned on).</li>
+<li>Using <em>SWAR</em> coding principle (supported in NVIDIA&apos;s GPU instruction set) to condese 32 bits of data into a single 32-bit word, then perform perform bitwise-<em>XNOR</em> on the data in two 32-bit registers in a s single operation.</li>
+</ul>
+</li>
+<li>
+<p>Demonstrating that BNN&apos;s achieve &quot;near state-of-the-art&quot; results on MNIST and CIFAR image-classification datasets. The task-specific network design is detailed, several advanced techniques were combined to reach competitive performance.</p>
+</li>
+</ul>
+<p>The authors report a speedup factor of 7 of their SWAR-optimized kernel over naive kernel implementation.</p>
+<h4 class="mume-header" id="review-1">Review</h4>
+
+<p>The concept of a binary networks is intuitively appealing. This work demonstrates that careful design and training of binary networks can achieve state-of-the-art results, giving hope that additional network architectures can be binarized,  with significant gains in computational resource efficiency and run times.</p>
+<p>In order to comprehend the apparent success of the approach in saving NN computations, I offer the following intuitive explanations. They expalin how the workings of a binarized network compare with a traditional network, with regards to the 3 main notions of a neural network - the state representation vector, the linear transformation matrix, and the nonlinearity. For developing this intuition I was assisted by <a href="https://www.youtube.com/watch?v=CaKlcxyBRP8&amp;feature=youtu.be&amp;t=1">this recorded talk</a> by Daniel Soudry.</p>
+<ul>
+<li>The activation Vectors, containing just +1&apos;s and -1&apos;s can represent any corner of the symmetrically located  hypercube with sides of length 2.</li>
+<li>Feature vectors (columns of the the weight matrix), which are also limited to &#xB1;1, again &quot;span&quot; all possible vector directions. These directions are a discrete subset of all possible (continuous) rotation transformations.</li>
+<li>The aggregation method is done exactly as one would in a traditional NN, if the nonlinearity is Hard-Tanh.</li>
+</ul>
+<p>To summarize, the binary network performs similar logic to a traditional network, except it limits itself to a very concise (prehaps <em>the most</em> concise) representation for each element. This supports the case for make existing neural networks &quot;leaner&quot; by removing the less significant parts of their representation, while maintaining a very good handle on their performance.</p>
+<p>The authors further report they were able to reach comparable performance to a reference (traditional) MLP without increasing the number of neurons per layer, relative to the reference MLP. In the talk, it is further detailed that in some cases, in order to reach similar results, the network was expanded, however the binary network remained substatially more efficient that the full-percision network even after expansion (which was by a maximum factor of 3).</p>
+<h4 class="mume-header" id="points-requiring-further-clarifications">Points requiring further clarifications</h4>
+
+<p>These are points that I feel were not sufficiently discussed and may represent potential gaps in the methodology:</p>
+<ul>
+<li>In order to effectively implement binary networks, nonstandard backpropagation and stepsize rules were developed. Does this imply that every practicitioner faces a &quot;barrier of entry&quot;, in the shape of adoption of nonstandard techniques, if he wishes to test out the binary approach?</li>
+<li>The amount of work required in order to extend current deep-learning frameworks to be able to design and implement BNNs is not clear - need to understand what functionalities are missing, and whether they require fundamental changes to the framework.</li>
+<li>The same goes for the standard vs. tailor-made GPU kernel - It looks likes tranining and testing on a standard kernel would be too slow even for initial evaluation, so - is kernel deployment knowhow necessary if oen wants to &quot;play around&quot; with BNN&apos;s?.</li>
+<li>There calculation of the first layer is not binary. How does this affect future hardware implementations of the method?</li>
+<li>More detailed accounts of memory, time and energy savings in various circumstance, relative to standard implementations, are required, in order to be able to estimate the nominal expected gain from switching to BNN&apos;s in various settings.</li>
+</ul>
+<h3 class="mume-header" id="further-reading">Further reading</h3>
+
+<ul>
+<li><a href="https://arxiv.org/pdf/1502.03167.pdf">batch normalization</a></li>
+<li>kernel ridge regression</li>
+<li>fixed- and floating-point arithmetic (multiplication)</li>
+</ul>
+
+      </div>
+      
+      
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    </body></html>

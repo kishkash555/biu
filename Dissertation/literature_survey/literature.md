@@ -36,7 +36,7 @@ The "Prior work" section is comprehensive and describes the following approaches
 * Xception network [3] - scale up depthwise separable filters, outperform inception v3
 * Squeezenet [12] - bottleneck approach to design a very small network
 * structured transform network [28]
-* deep fried convents [37]
+* deep fried convnets [37]
 
 ### shrinking, factorizing or compressing pretrained networks
 * Compression based on product quantization [36],
@@ -176,3 +176,24 @@ These are points that I feel were not sufficiently discussed and may represent p
 * [batch normalization](https://arxiv.org/pdf/1502.03167.pdf)
 * kernel ridge regression
 * fixed- and floating-point arithmetic (multiplication)
+
+
+# LSTM
+## Sparse LSTM on FPGA
+ESE: Efficient Speech Recognition Engine with Sparse LSTM on FPGA
+Song Han, Junlong Kang, Huizi Mao, Yiming Hu, Xin Li, Yubin Li, Dongliang Xie, Hong Luo, Song Yao, Yu Wang, Huazhong Yang and William J. Dally
+20 Feb 2017
+https://arxiv.org/pdf/1612.00694.pdf
+
+
+## Accelerating Recurrent Neural Networksin Analytics Servers
+FPL 2016 
+https://jaewoong.org/pubs/fpl16-accelerating-rnn.pdf
+
+## C-LSTM: Enabling Efficient LSTM using Structured CompressionTechniques on FPGAs
+C-LSTM: Enabling Efficient LSTM using Structured CompressionTechniques on FPGAs
+Shuo Wang, Zhe Li2, Caiwen Ding2, Bo Yuan, Qinru Qiu, Yanzhi Wang and Yun Liang
+
+14 March 2018
+
+https://arxiv.org/pdf/1803.06305.pdf

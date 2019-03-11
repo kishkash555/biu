@@ -29,3 +29,15 @@ This paper also led me to an important observations:
 Suppose we start with a large, multi-purpose, pre-trained ANN such as BERT. We intend to use BERT for a particular task of relatively limited scope, such as question answering for a specific document corpus. We are looking for an ad-hoc compression of the large network, that will remove redundancies without negatively affecting its performance on the particular task.
 
 We choose an input set, which represents the task, and run it through BERT. We select a specific "hidden" layer and look at the values at the outputs of this layer, for all the inputs. If two (or more) of these intermediate values are highly correlated, that means that they convey similar information and can be compressed into a single value. Conceptually, we're performing a Principle Component Analysis on an hidden layer and trying to replace the redundant representation with a more compact one.
+
+
+---
+
+LSTMs have a few one-layer MLPs. So figuring out leaner MLPs can help with LSTMs as well. The final layer is not a prediction, it is gates. So interpretation of 
+
+The techniques so far - from literature and "original"
+* repeating coefficients using hash function - not clear on why this works, and the paper does not provide much insight
+* using human engineered/ SGD-computed "vocabularly" of features. need to understand why you can't just let the network figure out the attributes itself. 
+* finding a rotation of the existing matrix so as to render some of the output irrelevant, then dropping the corresponding columns - this suggestion was not made in literature, it might not work for output layer
+* Need to see if the batch normalization can tell us more than good intuitions - can we directly utilize these ideas?
+ 

@@ -1,3 +1,6 @@
 [submodule "Dissertation/biu-research"]
 	path = Dissertation/biu-research
 	url = https://github.com/kishkash555/biu-research.git
+[submodule "2019-2/Seminar_2019"]
+	path = 2019-2/Seminar_2019
+	url = https://github.com/yoraml/Seminar_2019.git

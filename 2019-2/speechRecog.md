@@ -1,3 +1,5 @@
+https://www.cs.biu.ac.il/~jkeshet
+
 <div dir='rtl'>
 
 # זיהוי דיבור
@@ -95,6 +97,113 @@ Overtone - התופעה של ריבוי תדרים שיוצאים מחלל תה�
 משבוע הבא יותר מתמטי פוריה וDL כמה שעורים
 
 
+
+---
+2019-03-13
+
+נתחיל מעיבוד אותות
+
+סיגנל אנלוגי $X_a(t)z$ . גלי הקול מרטיטים מגנט שנע בתוך סליל ומייצר וריאציות במתח.
+
+רמקול זה אותו דבר רק בכיוון הפוך. צריך מגבר כדי להניע את הרמקול מספיק חזק.
+
+סיגנל אנלוגי לא מתאים למחשב, צריך להמיר אותו לסידרה. $x[n]z$. דיסקרטיזציה.
+
+**דיסקרטיזציה**
 </div>
 
-$A^2$
+$x[n] = x_a(nT)$ continuous to discrete: C/D
+<div dir='rtl'>
+
+איך נקבע הT? 
+בעזרת **Nyquist-Shannon Theorem**:
+אם נדגום בקצב מהיר שהוא פי שניים מהתדר הכי גבוה $f_{max}z$ 
+נוכל לשחזר את הסיגנל בצורה מושלמת
+
+ההנחה בהשמה $X[n]z = X_a(nT)z$ היא שהדיוק של ייצוג האמפליטודה הוא אינסופי.
+במקום C/D שהוא קונספטואלי
+משתמשים ב A/D. נותן דיוק סופי. 
+לזה אין משפט נייקוויסט.
+
+</div>
+
+#### 1. delta function
+
+$$\delta[n] = \left\{ 1,\ n=0; 0,\ n \ne 0 \right\}$$
+
+#### 2. step function
+
+$$u[n] = \left\{ 1,\ n \ge 0; 0,\ n \lt 0 \right\}$$
+
+##### 2.1 relation of $u$ and $\delta$
+$u[n] = \sum\limits^{\infty}_{k=0}\delta[n-k]$
+$\delta[n] = u[n] - u[n-1]$
+#### 3. exponential function
+$$x[n] = A\alpha^n,\ A,\alpha \in \mathbb{R}$$
+
+#### 4. Sinusoidal function
+
+$$x[n] = Acos(\omega\cdot n + \phi)$$
+
+#### 5. Complex exponential function
+
+$$A=a+ib = |A|e^{i\phi}$$
+$$|A| = \sqrt{a^2+b^2},\ \phi = \tan^{-1}\frac{b}{a}$$
+$$X[n] = Ae^{i\omega n} = |A|e^{i\phi}\cdot e^{i\omega n} = |A|e^{i(a\omega n + \phi)}$$
+
+
+
+<div dir='rtl'>
+
+סיגנל מחזורי בטבע אינו בהכרח מחזורי במחשב. התנאי שהדגימה תחזור על עצמה בדיוק, הוא שהתדר הוא כפולה שלמה של תדר הדגימה.
+
+
+
+#### מערכות ומערכות LTI
+
+</div>
+
+$y[n] = H(x[n])$
+
+Linear: $H(\alpha_1 x_1[n]+ \alpha_2x_2[n]) = \alpha_1H(x_1[n]) + \alpha_2H(x_2[n])$
+Time invariant: $y[n-n_0] = H(x[n-n_0])$
+
+$h[n] \equiv H(\delta[n])$
+
+<div dir='rtl'>
+מכאן הדימיון (הכמעט מוחלט) בין "סיגנל" למערכת LTI
+
+</div>
+
+$$y[n] = \sum\limits_{k=-\infty}^{\infty} h[n-k]\cdot x[k] \equiv h[n]*x[n]$$
+where $*$ signifies _convolution_. הפעלה" של מערכת".
+
+
+#### תנאי יציבות
+$\sum\limits_{n=-\infty}^{\infty} |h[n]| \lt \infty$
+
+
+##### דוגמא
+$h[n] = A\alpha^n\cdot u[n]$
+
+$\sum h[n] = \sum A\alpha^n u[n] = \sum A\alpha^n = \frac{A}{1-|\alpha|} \lt \infty$
+
+### אנליזת פוריה לסדרות בדידות
+DTFT:
+$X(\omega) = \sum x[n] e^{-i\omega n}$
+
+$X(\omega)$:
+* Complex
+* periodic with period $2\pi$
+* $x[n] \in \mathbb{R} \Rightarrow X(\omega) = X(-\omega)$ (Symmetric) 
+
+Inverse transform:
+$x[n] = \frac{1}{2\pi} = \int\limits_{-\pi}^{\pi}X(\omega)e^{i\omega n}$
+
+#### דוגמאות לשימוש בFourier
+
+1. $x[n] = \delta[n-n_0] \Rightarrow X(\omega) = \sum \delta[n-n_0]e^{-i\omega n}  = 1\cdot e^{-i\omega n_0}$
+
+1. $x[n] = a^nu[n] = a^n,\ n\ge0 \Rightarrow X(\omega) = \sum a^n e^{-i\omega n} = \sum (a e^{-i\omega})^n = \frac{1}{1-ae^{-i\omega}}$
+
+<div dir='rtl'>

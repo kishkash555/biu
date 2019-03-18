@@ -34,9 +34,20 @@ There are many approaches, and all of them work exceptionally well!
 ---
 
 ## Typical ANN layer
-* $z^{(\mathcal{l})} = xW^{(\mathcal{l})}+b^{(\mathcal{l})}$
-* $a^{(\mathcal{l})} = g(z^{(\mathcal{l})})$, we'll assume $g=\tanh$
-* $x^{(\mathcal{l+1})} \equiv a^{(\mathcal{l})}$ i.e. $a$ is the input for next layer
+* $z = xW+b$
+* $a = g(z)$, we'll assume $g=\tanh$
+* $z \in \mathbb{R}^{1 \times n},\ a \in \mathbb{R}^{1 \times m},\ W \in \mathbb{R}^{m\times n},\ b \in \mathbb{R}^{1 \times n}$
+*  <!-- .element: class="fragment" -->  Now let's write this with layer index as superscript $(l)$
+
+---
+
+#### Typical ANN layer (cont.)
+* $z^{(\mathcal{l})} = x^{(\mathcal{l})}W^{(\mathcal{l})}+b^{(\mathcal{l})}$
+* $a^{(\mathcal{l})} = \tanh(z^{(\mathcal{l})})$
+* <!-- .element: class="fragment" --> $x^{(\mathcal{l+1})} \equiv a^{(\mathcal{l})}$ 
+
+<span class="fragment"> $a$ is the input for next layer </span>
+
 
 ---
 
@@ -45,23 +56,30 @@ There are many approaches, and all of them work exceptionally well!
 * Rotate &rarr; Stretch&reflect &rarr; Rotate <!-- .element: style="color: #7070FF" -->
     * The entire matrix is an <!-- .element: class="fragment" data-fragment-index="1" -->  **affine tranformation** in hyperspace <!-- .element: class="fragment" data-fragment-index="1" -->
     * Result may be in a lower- or higher- dimension space <!-- .element: class="fragment" data-fragment-index="1" -->
-    * This is the matrix's Singular Value Decomposition. <!-- .element: class="fragment" data-fragment-index="1" -->
+    * <!-- .element: class="fragment" data-fragment-index="1" --> This corresponds to the matrix's _Singular Value Decomposition._ 
 * Columns as Features <!-- .element: style="color: #40B040" -->
+
 
 ---
 
 ## What does a connection matrix "do"?
 
-* Columns as Features <!-- .element: style="color: #40B040" -->
-    * The features are non-linearly combined layer by layer... <!-- .element: class="fragment" data-fragment-index="2" -->
-        * ... or in the same layer (two layers are enough) <!-- .element: class="fragment" data-fragment-index="3" -->
-    * Last transformation: each <!-- .element: class="fragment" data-fragment-index="4" --> **column** represents the scores of a class 
-        * The predicted class is decided by highest score <!-- .element: class="fragment" data-fragment-index="5" -->
-        * Probabilstic interpretation: I doubt it  <!-- .element: class="fragment" data-fragment-index="5" -->
-    * <!-- .element: class="fragment" data-fragment-index="6" --> **Classification is a "competition" between features** 
-        * Scores tend to only go up (we'll see why)
+
+#### Columns as _Features_ 
+* <!-- .element: class="fragment fade-in-then-semi-out" --> The features are non-linearly combined layer by layer...
+    * ... or in the same layer (two layers are enough) 
+* <!-- .element: class="fragment fade-in-then-semi-out" -->  Before last layer: Convert each _feature_ into a _score_
+    * each **column** represents the scores of a class  
+    * The predicted class is decided by highest score 
+* <!-- .element: class="fragment fade-in-then-semi-out" --> Probabilstic interpretation of scores? 
+    * <!-- .element: class="fragment fade-in" --> I doubt it  
+* <!-- .element: class="fragment fade-in-then-semi-out" --> During training, scores only go up! 
+    * (we'll see why) 
+
+
 
 ---
+
 
 ## What does a _nonlinearity_ "do"?
 * "Squash" together values (beyond a threshold) <!-- .element: class="fragment fade-in-then-semi-out" -->
@@ -80,19 +98,21 @@ There are many approaches, and all of them work exceptionally well!
 * <!-- .element: class="fragment" -->  _Saturated_ activations correspond to _decision planes_
 * Layer by layer (or in the same layer), planes combine into <!-- .element: class="fragment" --> (non-convex) _regions_
 * Therefore, (saturated) activations in intermediate layers are <!-- .element: class="fragment" --> _region indicators_ 
-* Regions <!-- .element: class="fragment" -->
-    * have soft boundaries,
+* These regions <!-- .element: class="fragment" -->
+    * have soft boundaries
     * and may overlap.
 
 ---
 
 ## How do the nonlinearities affect training?
-* After reaching an _approximate_ fit, futher epochs are expected to "harden" region boundaries:
-    * linear &rarr;&rarr;&rarr; saturated update is faster than &larr;&larr;&larr;. <!-- .element: class="fragment" -->
-    * <!-- .element: class="fragment", style="color:#FFB0B0" -->
- **"neg-log-softmax" error term pushes score of correct class to infinity** 
+<p align="left"> After reaching an _approximate_ fit, futher epochs are expected to "harden" region boundaries because: </p>
+
+* Random walk is not symmetric: $|z|$ &nearr; : stepsize &searr; 
+
+* _neg-log-softmax_ error term is always positive - class scores "race" to infinity
 
 ---
+
 
 ### Section 2
 # Survey of selected papers
@@ -121,13 +141,8 @@ There are many approaches, and all of them work exceptionally well!
 #### Method's benefits  <!-- .element: align="left" -->
 * <!-- .element: class="fragment" data-fragment-index="1" --> Demonstrated **7x** time reduction (through custom CUDA kernel) 
 * computations should reduce by ~6*10&sup2;: <!-- .element: class="fragment" data-fragment-index="2" -->
-
-| Number represenation | mult 2 numbers - ops | Comments |
-| ----: | :-----: | ---- |
-| 32 bit (FP)   | ~600 | |
-| 1 bit  | 1 | XNOR gate
- <!-- .element: class="fragment" data-fragment-index="2" --> 
-
+    * Multiply two 32-bit floating-point numbers: ~**600 ops**
+    * Multiply two 1-bit numbers: **1 op** (XNOR gate)
 
 ---
 
@@ -160,7 +175,7 @@ There are many approaches, and all of them work exceptionally well!
 * Length is not necessary to represent "states" 
     * All activations are saturatd
 * Good solutions do not require "infinite" resolution in input space.
-    * XNOR gates span the complete functional space.
+* Note that XNOR gates span the complete functional space.
 
 ---
 
@@ -201,7 +216,7 @@ There are many approaches, and all of them work exceptionally well!
 
 ### Connection hasing vs. feature hashing
 
-For $z_i$, layer outputs (pre-nonlinearity):
+For $z_i$ (the layer outputs pre-nonlinearity):
  
  `$z_i = \sum\limits_{j=1}^{m} V_{ij}a_j$`
 
@@ -215,35 +230,43 @@ Which means that each $z_i$ depends on a sum of an arbitrary subset of the previ
 
 ---
 
-<!-- .element: class="fragment" --> Mathematically equivalent to _feature_ hashing 
-* Heuristic <!-- .element: class="fragment" -->
- I believe that understanding this method's success is of fundamental importance <!-- .element: style="color: aqua" class="fragment" -->
-
+## Factorization
+![predicting parameters header](Presentations/predicting_parameters_header.png)
+* Concept: "Generate"  $W \in \mathbb{R}^{m \times n}$ from $UV,\ U \in \mathbb{R}^{m \times k}, V \in \mathbb{R}^{k \times n}$
+* Number of parameters drops from $mn$ to $(m+n)k$
 
 ---
 
 ### Factorization
-* Concept: Train $UV$ rather than $W$, where $U$ and $V$ are low rank.
 * Not all authors agree on the effectiveness: 
-    * one paper argues that U has to be predetermined
-    * A "smooth" $U$ works well in image processing context.
-* Factorization performed very poorly in the benchmark conducted by the _Hashing Trick_ authors.
+    * one paper argues that $U$ must to be predetermined by network designer
+    * Training together: works only for very shallow networks
+    * Image processing seems to favor any "smooth" $U$
+* This approach performed worst in the benchmark conducted by the _Hashing Trick_ authors.
+
+---
+
+## Batch Normalization
+![batch normalization header](Presentations/batch_normalization_header.png)
+
+Concept: Speed up training by deliberately eliminating the scale and bias of inputs to a layer
+
 
 ---
 
 ### Batch Normalization
-* Not a compression method
-* Concept: 
-    * Speed up training by deliberately eliminating the scale and bias of inputs to a layer
-    * Replace the implicit scale and bias of the input population with explicit, learnable scale and bias 
-* Faster training led to out-performing state-of-the-art of the time
-* Is this "Weak" factorization?
+<h5 align="left"> Concept (cont.): </h5>
+* Speed up training by deliberately eliminating the scale and bias of inputs to a layer
+* Replace the implicit scale and bias of the input population with explicit, learnable scale and bias 
+
+<h5 align="left"> Accomplished: </h5>
+* Achieved faster training and surpassed state-of-the-art performance in image processing
+* Is this a "Weaker" form of factorization?
 
 
 ---
 
-
-### Summary 
+## Summary 
 * Overlap between approaches
     * But a broader, more systematic framework is needed
 * Train-from-scratch vs. rely on existing network: 

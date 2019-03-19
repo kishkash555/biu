@@ -1,52 +1,64 @@
-# Neural Network compression
+# Neural Networks:
+## compression
+## and constrained learning
 
 ---
 
-## (My) Definition
-> A procedure which results in an ANN that can perform a task similarly to an existing ANN, consuming considerably less computational resources per processed sample, and typically having a more compact representation.
+### Neural Network Compression 
+> A procedure which reduces the size of a network with an acceptable impact on its test accuracy
 
 ---
 
-## Main Takeaway from reading so far
-There are many approaches, and all of them work exceptionally well!
- 
-*  <!-- .element: style="color: #202020;" -->
-*  <!-- .element: style="color: #202020;" -->
-*  <!-- .element: style="color: #202020;" -->
-*  <!-- .element: style="color: #202020;" -->
-*  <!-- .element: style="color: #202020;" -->
-
+### The _Efficient Frontier_ analogy
+![efficient frontier](Presentations/Efficient-Frontier.gif)
 
 ---
 
+### Research Questions
+* Can we "read" a trained MLP/LSTM to find it out what solution it "represents"?
 
-| Imposed Constraint | Interpretation | Benefit |
-| --- | --- | --- |
-| Low bit depth | Coarser search-grid | up to 100x faster |
-| "Fix together" arbitrary connection elements  | Impose correlations between columns | 4x reduction in number of parameters |
-| Matrix separated into 2 low-rank matrices | Columns constrained to a subspace | ?x compression | 
+* What types of solutions can ANNs trained through SGD can and cannot reach?
 
----
+* Can we estimate the "performance distance" between two ANNs without evaluating on the entire test set?
 
-### Section 1 
-# Some general observations
+* How does LSTM training relate to deep MLP training?
 
 ---
 
-## Typical ANN layer
+### Scope Questions
+* Classification tasks vs. general.
+* How much to invest in "cracking" MLP's before moving to sequence models?
+
+---
+
+#### SECTION 1 
+## SOME GENERAL OBSERVATIONS
+
+---
+
+## Typical ANN Layer
 * $z = xW+b$
 * $a = g(z)$, we'll assume $g=\tanh$
-* $z \in \mathbb{R}^{1 \times n},\ a \in \mathbb{R}^{1 \times m},\ W \in \mathbb{R}^{m\times n},\ b \in \mathbb{R}^{1 \times n}$
-*  <!-- .element: class="fragment" -->  Now let's write this with layer index as superscript $(l)$
+* dims:
+    * $z \in \mathbb{R}^{1 \times n}$
+    * $a \in \mathbb{R}^{1 \times m}$
+    * $W \in \mathbb{R}^{m\times n}$
+    * $b \in \mathbb{R}^{1 \times n}$
+*  <!-- .element: class="fragment" -->  Now let's put it in the context of multilayer 
+    * <!-- .element: style="color:#808080" --> $(l)$ will denote layer index
 
 ---
 
-#### Typical ANN layer (cont.)
+## Typical ANN layer 
 * $z^{(\mathcal{l})} = x^{(\mathcal{l})}W^{(\mathcal{l})}+b^{(\mathcal{l})}$
 * $a^{(\mathcal{l})} = \tanh(z^{(\mathcal{l})})$
-* <!-- .element: class="fragment" --> $x^{(\mathcal{l+1})} \equiv a^{(\mathcal{l})}$ 
 
-<span class="fragment"> $a$ is the input for next layer </span>
+<p class="fragment" data-fragment-index="1"> 
+$x^{(\mathcal{l+1})} \equiv a^{(\mathcal{l})}$ 
+</p>
+<p class="fragment" data-fragment-index="1"> 
+$a^{(\mathcal{l})}$ is the input for next layer 
+</p>
 
 
 ---
@@ -56,7 +68,7 @@ There are many approaches, and all of them work exceptionally well!
 * Rotate &rarr; Stretch&reflect &rarr; Rotate <!-- .element: style="color: #7070FF" -->
     * The entire matrix is an <!-- .element: class="fragment" data-fragment-index="1" -->  **affine tranformation** in hyperspace <!-- .element: class="fragment" data-fragment-index="1" -->
     * Result may be in a lower- or higher- dimension space <!-- .element: class="fragment" data-fragment-index="1" -->
-    * <!-- .element: class="fragment" data-fragment-index="1" --> This corresponds to the matrix's _Singular Value Decomposition._ 
+    * <!-- .element: class="fragment" data-fragment-index="1" --> This approach corresponds to the matrix's _Singular Value Decomposition._ 
 * Columns as Features <!-- .element: style="color: #40B040" -->
 
 
@@ -65,14 +77,15 @@ There are many approaches, and all of them work exceptionally well!
 ## What does a connection matrix "do"?
 
 
-#### Columns as _Features_ 
+<h4 align="left" style="color: #40b040"> Columns as _Features_ </h4> 
+
 * <!-- .element: class="fragment fade-in-then-semi-out" --> The features are non-linearly combined layer by layer...
     * ... or in the same layer (two layers are enough) 
 * <!-- .element: class="fragment fade-in-then-semi-out" -->  Before last layer: Convert each _feature_ into a _score_
     * each **column** represents the scores of a class  
     * The predicted class is decided by highest score 
 * <!-- .element: class="fragment fade-in-then-semi-out" --> Probabilstic interpretation of scores? 
-    * <!-- .element: class="fragment fade-in" --> I doubt it  
+* <!-- .element: class="fragment fade-in-then-semi-out" --> I doubt it  
 * <!-- .element: class="fragment fade-in-then-semi-out" --> During training, scores only go up! 
     * (we'll see why) 
 
@@ -107,17 +120,40 @@ There are many approaches, and all of them work exceptionally well!
 ## How do the nonlinearities affect training?
 <p align="left"> After reaching an _approximate_ fit, futher epochs are expected to "harden" region boundaries because: </p>
 
-* Random walk is not symmetric: $|z|$ &nearr; : stepsize &searr; 
+* Random walk is not symmetric: larger $|z|$ implies smaller stepsize. 
 
 * _neg-log-softmax_ error term is always positive - class scores "race" to infinity
 
 ---
 
 
-### Section 2
-# Survey of selected papers
+#### SECTION 2
+## SURVEY OF SELECTED PAPERS
 
 ---
+
+## Main Takeaway from reading so far
+There are many approaches, and all of them work exceptionally well!
+*  <!-- .element: style="color: #202020;" -->
+*  <!-- .element: style="color: #202020;" -->
+*  <!-- .element: style="color: #202020;" -->
+*  <!-- .element: style="color: #202020;" -->
+*  <!-- .element: style="color: #202020;" -->
+
+
+---
+
+ 
+
+| Imposed Constraint | Interpretation | Benefit |
+| --- | --- | --- |
+| Low bit depth | Coarser search-grid | up to 100x faster |
+| "Fix together" arbitrary connection elements  | Impose correlations between columns | 4x reduction in number of parameters |
+| Matrix separated into 2 low-rank matrices | Columns constrained to a subspace | ?x compression | 
+
+
+---
+
 
 ## Binarized networks 
 #### (Courbariaux _et al._ 2016)
@@ -127,9 +163,9 @@ There are many approaches, and all of them work exceptionally well!
 
 ---
 
-## Binarized networks
-#### (Courbariaux _et al._ 2016)
-**Concept:**  Develop an MLP with all connections weights restricted to +1 and -1
+## Binarized networks <!-- .element: align="left" -->
+#### <!-- .element: style="color: #808080" align="left" --> (Courbariaux _et al._ 2016)  
+<p align="left"> **Concept:**  Develop an MLP with all connections weights restricted to +1 and -1 <p>
 #### Overview  <!-- .element: align="left" -->
 * Successfully trained a "BNN" (binarized neural network) on an image classification task <!-- .element: class="fragment" -->
 * Reached same performance as reference network  <!-- .element: class="fragment" -->
@@ -239,10 +275,13 @@ Which means that each $z_i$ depends on a sum of an arbitrary subset of the previ
 
 ### Factorization
 * Not all authors agree on the effectiveness: 
-    * one paper argues that $U$ must to be predetermined by network designer
-    * Training together: works only for very shallow networks
-    * Image processing seems to favor any "smooth" $U$
-* This approach performed worst in the benchmark conducted by the _Hashing Trick_ authors.
+    * $U$ and $V$ "cannot be trained together" 
+    * $U$ as a "feature bank" 
+    * Predetermined by network designer 
+    * or pretrained
+* In image processing, "smooth" $U$'s work well.
+
+This approach performed worst in the benchmark conducted by the _Hashing Trick_ authors.
 
 ---
 
@@ -266,30 +305,40 @@ Concept: Speed up training by deliberately eliminating the scale and bias of inp
 
 ---
 
-## Summary 
-* Overlap between approaches
-    * But a broader, more systematic framework is needed
-* Train-from-scratch vs. rely on existing network: 
-    * Train from scratch received more emphasis.
-    * Maybe becuase it's easier when training data is not too big and openly available.
-    * Training on soft outputs is straightforward
-    * Did anyone try a method that compares hidden activations?
+## SUMMARY 
+* Approaches "overlap"
+* No theoretical framework
+* One successful application is not enough to understand approach
+* Smaller networks which "disguise themselves" as larger ones
+* Looks like everyone is trying to fool SGD...
 
 
 ---
 
-### Ideas to further develop
-* Interpretations for "action" of a layer
-    * Rotate &rarr; stretch/reflect &rarr; rotate (the SVD approach)  <!-- .element: class="fragment" -->
-        * &rarr; then "squash" (nonlinearity) <!-- .element: class="fragment" -->
-    * "features" or "projections" / "voting" system <!-- .element: class="fragment" -->
-* Avoiding the heavy parameterization of the final layer <!-- .element: class="fragment" -->
-    * having all possible classes compete "head to head" seems redundant <!-- .element: class="fragment" -->
-* 
+## NEXT STEPS
 
-All above approaches train a new model from scratch, using the same training data as the original network
-
+#### Further Reading
+* Sequence models - training and compression
+* Architecture evolution
+* Training on "soft" scores
+* SGD analysis
 
 
 ---
 
+## NEXT STEPS
+
+#### Reasearch
+* Implement ordinary vs. hashed MLP and look into training process
+* Design a problem with a known solution and check the solutions reached by SGD
+
+#### Ideas to further develop
+* Decision-tree-like splits
+* Correlations and linear dependence between activations
+
+
+---
+
+#  THANK YOU!
+
+---

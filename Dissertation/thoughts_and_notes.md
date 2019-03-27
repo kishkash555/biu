@@ -41,3 +41,29 @@ The techniques so far - from literature and "original"
 * finding a rotation of the existing matrix so as to render some of the output irrelevant, then dropping the corresponding columns - this suggestion was not made in literature, it might not work for output layer
 * Need to see if the batch normalization can tell us more than good intuitions - can we directly utilize these ideas?
  
+---
+
+March 25 2019
+#### From reading
+* "soft target" are easier to train - why? my guess: they "parallelize" the search (they don't fight over borders, they settle for ambivalence in areas that cannot eventually be decided)
+
+#### Other ideas
+* The linear layer concept: linear layers are "redundant" because if they can in succession they can be merged. However an architecture where a linear layer is "available" as input to all layers may help
+
+* The convolution idea: forget about matrix multiplication. think of the operation as a convolution between a spaced-out feature vector and a step function with the values of the different features interlaced. This turns the whole matrix into a single function with the $z$'s appearing as the values of the function. This makes a natural coarsening/refining axis (the details of the function along the axis). This may be an interesting mathematical framework to explore.
+
+* LSTM is just an MLP with a constraint of repeating (all) coefficients between layers :)
+
+
+#### From today's experiments
+* Convincing demonstration of how cross entropy pushes all the layers towards nonlinearity and hardens the margins
+* very interesting how SGD can hurt performance on the train data.
+* would be interesting to look at the rate of change. Think of the "active set" theory and how it can be used to test any compaction on a much smaller set than the whole train.
+* Do the large magnitudes lead to less stability (in training of cases near the margin)?
+* redundancy of the representation is directly evident
+
+
+
+
+
+conclusions from today's experiments + stuff to present

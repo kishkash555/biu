@@ -10,147 +10,57 @@
 ---
 
 ### The _Efficient Frontier_ analogy
-![efficient frontier](Presentations/Efficient-Frontier.gif)
+#### EF in finance
+![efficient frontier](meeting2/Efficient-Frontier.gif)
 
 ---
 
-### Research Questions
-* Can we "read" a trained MLP/LSTM to find it out what solution it "represents"?
+![efficient frontier1](meeting2/efficient_frontier1.png)
 
-* What types of solutions can ANNs trained through SGD can and cannot reach?
-
-* Can we estimate the "performance distance" between two ANNs without evaluating on the entire test set?
-
-* How does LSTM training relate to deep MLP training?
 
 ---
 
-### Scope Questions
-* Classification tasks vs. general.
-* How much to invest in "cracking" MLP's before moving to sequence models?
+![efficient frontier1](meeting2/efficient_frontier2.png)
+
 
 ---
 
-#### SECTION 1 
-## SOME GENERAL OBSERVATIONS
+![efficient frontier1](meeting2/efficient_frontier3.png)
+
 
 ---
 
-## Typical ANN Layer
+## MLP CLASSIFIERS
+
+---
+
+### MLP Layer
+
 * $z = xW+b$
-* $a = g(z)$, we'll assume $g=\tanh$
+* $a = g(z)$ nonlinearity, e.g. $a=\tanh(z)$
 * dims:
     * $z \in \mathbb{R}^{1 \times n}$
     * $a \in \mathbb{R}^{1 \times m}$
     * $W \in \mathbb{R}^{m\times n}$
     * $b \in \mathbb{R}^{1 \times n}$
-*  <!-- .element: class="fragment" -->  Now let's put it in the context of multilayer 
-    * <!-- .element: style="color:#808080" --> $(l)$ will denote layer index
 
 ---
 
-## Typical ANN layer 
-* $z^{(\mathcal{l})} = x^{(\mathcal{l})}W^{(\mathcal{l})}+b^{(\mathcal{l})}$
-* $a^{(\mathcal{l})} = \tanh(z^{(\mathcal{l})})$
+### Single activation - intuition
+Let $\vec{W_j}$ denote a column of $W$.
 
-<p class="fragment" data-fragment-index="1"> 
-$x^{(\mathcal{l+1})} \equiv a^{(\mathcal{l})}$ 
-</p>
-<p class="fragment" data-fragment-index="1"> 
-$a^{(\mathcal{l})}$ is the input for next layer 
-</p>
-
+Then $z_i = \vec{W_j} \cdot \vec{x}+b_i$
+* The _direction_ of $\vec{W_j}$ is the "feature"
+* The _magnitude_ of $\vec{W_j}$ determines the "thickness" of the transition.
+* For cross-entropy loss, good features will tend to grow in magnitude.
+* The _bias_ term $b_i$ determines _where_ the separation between positive and negative values occurs.
 
 ---
 
-## What does a connection matrix "do"?
-
-* Rotate &rarr; Stretch&reflect &rarr; Rotate <!-- .element: style="color: #7070FF" -->
-    * The entire matrix is an <!-- .element: class="fragment" data-fragment-index="1" -->  **affine tranformation** in hyperspace <!-- .element: class="fragment" data-fragment-index="1" -->
-    * Result may be in a lower- or higher- dimension space <!-- .element: class="fragment" data-fragment-index="1" -->
-    * <!-- .element: class="fragment" data-fragment-index="1" --> This approach corresponds to the matrix's _Singular Value Decomposition._ 
-* Columns as Features <!-- .element: style="color: #40B040" -->
-
-
----
-
-## What does a connection matrix "do"?
-
-
-<h4 align="left" style="color: #40b040"> Columns as _Features_ </h4> 
-
-* <!-- .element: class="fragment fade-in-then-semi-out" --> The features are non-linearly combined layer by layer...
-    * ... or in the same layer (two layers are enough) 
-* <!-- .element: class="fragment fade-in-then-semi-out" -->  Before last layer: Convert each _feature_ into a _score_
-    * each **column** represents the scores of a class  
-    * The predicted class is decided by highest score 
-* <!-- .element: class="fragment fade-in-then-semi-out" --> Probabilstic interpretation of scores? 
-* <!-- .element: class="fragment fade-in-then-semi-out" --> I doubt it  
-* <!-- .element: class="fragment fade-in-then-semi-out" --> During training, scores only go up! 
-    * (we'll see why) 
-
-
-
----
-
-
-## What does a _nonlinearity_ "do"?
-* "Squash" together values (beyond a threshold) <!-- .element: class="fragment fade-in-then-semi-out" -->
-* Reduces information.. <!-- .element: class="fragment fade-in-then-semi-out" -->
-    * but makes things more interesting <!-- .element: class="fragment fade-in-then-semi-out" -->
-* Example: <!-- .element: class="fragment" -->
-    * <!-- .element: class="fragment fade-in-then-semi-out" --> `$z=4x_1 + 2x_2 + 3x_3$` 
-       * changes in values of $x_{(\cdot)}$ have the same effect regardless of $z$
-    * <!-- .element: class="fragment fade-in-then-semi-out" --> `$a=\tanh(z + 0.5)$`  
-       * for {z | z &gt; 1.3 &or; z &lt; 2.3}, small changes in $x_{(\cdot)}$ have almost no effect on $a$
-       * $a$ now has a _qualitative_ rather than _quantitative_ interpretation
-
----
-
-## What does a nonlinearity "do"? (2)
-* <!-- .element: class="fragment" -->  _Saturated_ activations correspond to _decision planes_
-* Layer by layer (or in the same layer), planes combine into <!-- .element: class="fragment" --> (non-convex) _regions_
-* Therefore, (saturated) activations in intermediate layers are <!-- .element: class="fragment" --> _region indicators_ 
-* These regions <!-- .element: class="fragment" -->
-    * have soft boundaries
-    * and may overlap.
-
----
-
-## How do the nonlinearities affect training?
-<p align="left"> After reaching an _approximate_ fit, futher epochs are expected to "harden" region boundaries because: </p>
-
-* Random walk is not symmetric: larger $|z|$ implies smaller stepsize. 
-
-* _neg-log-softmax_ error term is always positive - class scores "race" to infinity
-
----
-
-
-#### SECTION 2
-## SURVEY OF SELECTED PAPERS
-
----
-
-## Main Takeaway from reading so far
-There are many approaches, and all of them work exceptionally well!
-*  <!-- .element: style="color: #202020;" -->
-*  <!-- .element: style="color: #202020;" -->
-*  <!-- .element: style="color: #202020;" -->
-*  <!-- .element: style="color: #202020;" -->
-*  <!-- .element: style="color: #202020;" -->
-
-
----
-
- 
-
-| Imposed Constraint | Interpretation | Benefit |
-| --- | --- | --- |
-| Low bit depth | Coarser search-grid | up to 100x faster |
-| "Fix together" arbitrary connection elements  | Impose correlations between columns | 4x reduction in number of parameters |
-| Matrix separated into 2 low-rank matrices | Columns constrained to a subspace | ?x compression | 
-
+## Compression approaches
+* Reducing bit depth
+* Reducing the number of free parameters in $W$
+* Modified training procedure
 
 ---
 
@@ -159,7 +69,7 @@ There are many approaches, and all of them work exceptionally well!
 #### (Courbariaux _et al._ 2016)
 **Concept:**  Develop an MLP with all connections weights restricted to +1 and -1
 
-![binary paper header](Presentations/binary_paper_header.png)
+![binary paper header](meeting2/binary_paper_header.png)
 
 ---
 
@@ -173,58 +83,98 @@ There are many approaches, and all of them work exceptionally well!
 
 ---
 
-## Binarized networks (2)
-#### Method's benefits  <!-- .element: align="left" -->
-* <!-- .element: class="fragment" data-fragment-index="1" --> Demonstrated **7x** time reduction (through custom CUDA kernel) 
-* computations should reduce by ~6*10&sup2;: <!-- .element: class="fragment" data-fragment-index="2" -->
+#### Binarized networks (cont.)  <!-- .element: align="left" -->
+### Benefits  <!-- .element: align="left" -->
+* <!-- .element: class="fragment" data-fragment-index="1" --> Demonstrated **7x** feed-forward time reduction (through custom CUDA kernel) 
+* Theoretical computation reduction bound (for same-size network): ~6*10&sup2;: <!-- .element: class="fragment" data-fragment-index="2" -->
     * Multiply two 32-bit floating-point numbers: ~**600 ops**
     * Multiply two 1-bit numbers: **1 op** (XNOR gate)
+* Further potential speed benefit by exploiting repeating columns.
 
 ---
 
-### Binarization - Limitations
-* Custom hardware and compiler optimizations are required. <!-- .element: class="fragment" -->
-* Performance outside image classification: not tested <!-- .element: class="fragment" -->
-* Cumbersome 'hybrid' compuational model still required:  <!-- .element: class="fragment" -->
-    * Inputs: floating point <!-- .element: class="fragment" -->
-    * Intermediate layers: binary <!-- .element: class="fragment" -->
-    * Class scores: integers <!-- .element: class="fragment" -->
+#### Binarized networks (cont.)  <!-- .element: align="left" -->
+### Limitations  <!-- .element: align="left" -->
+* Speedup depends on either custom hardware or custom kernel.
+* Training requires special code and may take more cycles.
+* First layer, final layer, and training are not binarized.
+* Proven only for image classification problems.
 
 ---
 
-### Binarization - Analysis
-* _Any_ arbitrary vector in hyperspace can be represented as:
-    * A length $\\mathcal{l} \\in \\mathbb{R}^+$, and angles `$\phi _1, \phi_2, ... \phi_{d-1}$`
-    * `$\phi_i \in (0, 2 \pi)$`
-* ANN matrix columns &xhArr; arbitrary vectors <!-- .element: class="fragment" -->
+#### Binarized networks (cont.)  <!-- .element: align="left" -->
+### Analysis of space discretization:
+* Arbitrary $m \times n$ matrices: Vectors of arbitrary length and spatial angle: 
+    * Length $\\mathcal{l} \\in \\mathbb{R}^+$, and angle `$\left\{ \phi _1, \phi_2, ... \phi_{d-1}\right\} \in (0, 2 \pi)^{m-1}$`
 * BNN matrix columns &xhArr; Constrained vectors: <!-- .element: class="fragment" -->
     * `$\mathcal{l} = \sqrt{d}$`
     * `$\hat{\phi_i} \cdot \hat{\phi_j} = \cos \theta_{ij} \in \pm(1-\frac{2k}{d})$` where `$k = 1,\ldots,d/2$`
 
-**Yet they succeed!**  <!-- .element: class="fragment" -->
     
 
 ---
 
 
 ### Binarization - Conclusions
-* Length is not necessary to represent "states" 
-    * All activations are saturatd
-* Good solutions do not require "infinite" resolution in input space.
-* Note that XNOR gates span the complete functional space.
+BNN success demonstrates redundancies in ANN representation power:
+
+* Length is not necessary to represent "states"  <!-- .element: class="fragment" -->
+* All activations are saturated  <!-- .element: class="fragment" -->
+* Good solutions do not require "infinite" resolution in input space.  <!-- .element: class="fragment" -->
+
+Note: XNOR gates span the complete functional space.  <!-- .element: class="fragment" -->
+
+
+---
+
+### Constraining network structure
+* Reduce bit depth
+* Reduce the number of free parameters in $W$:
+    * hard structure
+    * soft structure
+    * unstructured
+
+### Smarter training
+* _distillation_: Train a "student" network on outputs of "teacher" network
+* Batch Normalization
+
+### Post training
+* Remove very similar features occurring in same layer 
+
+---
+
+## Compression approaches
+
+### Not encountered in literature
+* Concatenate output of a (deep) layer with outputs from a previous layer
+* Detect correlation between neurons (in same layer or different layers)
+* Stochastic neuron activation
+
+
+---
+
+
+ 
+
+| Imposed Constraint | Interpretation | Benefit |
+| --- | --- | --- |
+| Low bit depth | Coarser search-grid | up to 100x faster |
+| "Fix together" arbitrary connection elements  | Impose correlations between columns | 4x reduction in number of parameters |
+| Matrix separated into 2 low-rank matrices | Columns constrained to a subspace | ?x compression | 
+
 
 ---
 
 
 ## Repeating elements in a connection matrix
-<span class="fragment" data-fragment-index="1"> ![hashing_trick](Presentations/hashing_trick_header.png) <!-- .element: class="fragment shrink" data-fragment-index="2" --> </span>
+<span class="fragment" data-fragment-index="1"> ![hashing_trick](meeting2/hashing_trick_header.png) <!-- .element: class="fragment shrink" data-fragment-index="2" --> </span>
 
 <span class="fragment" data-fragment-index="2">  **Concept**: Save memory and multiplications, by arbitrarily constraining different entries to the same value </span> 
 
 ---
 
 ### Repeating elements in a connection matrix
-![hashing_trick](Presentations/Hashing_trick_illustration.png)
+![hashing_trick](Hashing_trick_illustration.png)
 
 
 ---
@@ -244,13 +194,13 @@ There are many approaches, and all of them work exceptionally well!
     * 1:64  &xhArr; &frac12; bit per entry! 
 * outperforms other methods(?) <!-- .element: class="fragment" -->
 <span class="fragment">
-![hashing trick performance](Presentations/hashing_trick_performance.png) 
-![hashing trick performance](Presentations/hashing_trick_performance_legend.png)
+![hashing trick performance](meeting2/hashing_trick_performance.png) 
+![hashing trick performance](meeting2/hashing_trick_performance_legend.png)
 </span>
 
 ---
 
-### Connection hasing vs. feature hashing
+### Connection hashing vs. feature hashing
 
 For $z_i$ (the layer outputs pre-nonlinearity):
  
@@ -267,8 +217,14 @@ Which means that each $z_i$ depends on a sum of an arbitrary subset of the previ
 ---
 
 ## Factorization
-![predicting parameters header](Presentations/predicting_parameters_header.png)
-* Concept: "Generate"  $W \in \mathbb{R}^{m \times n}$ from $UV,\ U \in \mathbb{R}^{m \times k}, V \in \mathbb{R}^{k \times n}$
+![predicting parameters header](meeting2/predicting_parameters_header.png)
+
+![need_deep networks header](meeting2/need_deep_networks_header.png)
+
+---
+
+### Factorization
+* Concept: reduce the number of free parameters in a fully-connected layer without alterating matrix shape"Generate"  $W \in \mathbb{R}^{m \times n}$ from $UV,\ U \in \mathbb{R}^{m \times k}, V \in \mathbb{R}^{k \times n}$
 * Number of parameters drops from $mn$ to $(m+n)k$
 
 ---
@@ -286,7 +242,7 @@ This approach performed worst in the benchmark conducted by the _Hashing Trick_ 
 ---
 
 ## Batch Normalization
-![batch normalization header](Presentations/batch_normalization_header.png)
+![batch normalization header](meeting2/batch_normalization_header.png)
 
 Concept: Speed up training by deliberately eliminating the scale and bias of inputs to a layer
 

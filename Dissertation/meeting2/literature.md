@@ -10,15 +10,18 @@
 ---
 
 ### The _Efficient Frontier_ analogy
-#### EF in finance
+#### The EF in finance
 ![efficient frontier](meeting2/Efficient-Frontier.gif)
 
 ---
 
+#### Feasible Neural Networks
 ![efficient frontier1](meeting2/efficient_frontier1.png)
 
 
 ---
+
+#### Frontier of Feasible Neural Networks
 
 ![efficient frontier1](meeting2/efficient_frontier2.png)
 
@@ -29,6 +32,11 @@
 
 
 ---
+
+Effective compression allows us to attain performance not attainable with SGD from the same size network
+
+---
+
 
 ## MLP CLASSIFIERS
 
@@ -51,16 +59,21 @@ Let $\vec{W_j}$ denote a column of $W$.
 
 Then $z_i = \vec{W_j} \cdot \vec{x}+b_i$
 * The _direction_ of $\vec{W_j}$ is the "feature"
-* The _magnitude_ of $\vec{W_j}$ determines the "thickness" of the transition.
-* For cross-entropy loss, good features will tend to grow in magnitude.
+* The _magnitude_ of $\vec{W_j}$ determines the "thickness" of the transition from negative to positive saturation.
+* **cross-entropy loss** pushes useful features towards **larger and larger magnitudes**.
 * The _bias_ term $b_i$ determines _where_ the separation between positive and negative values occurs.
 
 ---
 
 ## Compression approaches
-* Reducing bit depth
-* Reducing the number of free parameters in $W$
-* Modified training procedure
+
+* ***Indirect***
+    * Binarized weights
+    * Structure (i.e. repetitions) in $W$
+    * Normalize input layer/ intermediate layer activations relative to minibatch
+* ***Direct***
+    * Post-training weight/ activation elimination
+    * Post-training bit depth reduction
 
 ---
 
@@ -75,106 +88,83 @@ Then $z_i = \vec{W_j} \cdot \vec{x}+b_i$
 
 ## Binarized networks <!-- .element: align="left" -->
 #### <!-- .element: style="color: #808080" align="left" --> (Courbariaux _et al._ 2016)  
-<p align="left"> **Concept:**  Develop an MLP with all connections weights restricted to +1 and -1 <p>
 #### Overview  <!-- .element: align="left" -->
-* Successfully trained a "BNN" (binarized neural network) on an image classification task <!-- .element: class="fragment" -->
-* Reached same performance as reference network  <!-- .element: class="fragment" -->
-* with just a modest increase in number of nodes per layer  <!-- .element: class="fragment" -->
+* Developed a "BNN" (binarized neural network), an MLP with all connections weights restricted to +1 and -1 <!-- .element: class="fragment" -->
+* Successfully trained BNNs on image classification tasks <!-- .element: class="fragment" -->
+    * Achieved same accuracy <!-- .element: class="fragment" -->
+    * Used same number of neurons per layer <!-- .element: class="fragment" -->
+* Demonstrated 7x feed-forward time reduction, through custom CUDA kernel implementation. <!-- .element: class="fragment" -->
+
 
 ---
 
 #### Binarized networks (cont.)  <!-- .element: align="left" -->
-### Benefits  <!-- .element: align="left" -->
-* <!-- .element: class="fragment" data-fragment-index="1" --> Demonstrated **7x** feed-forward time reduction (through custom CUDA kernel) 
-* Theoretical computation reduction bound (for same-size network): ~6*10&sup2;: <!-- .element: class="fragment" data-fragment-index="2" -->
-    * Multiply two 32-bit floating-point numbers: ~**600 ops**
-    * Multiply two 1-bit numbers: **1 op** (XNOR gate)
-* Further potential speed benefit by exploiting repeating columns.
+### Theoretical speedup factor <!-- .element: align="left" -->
+* 1-bit multiplication is _600 more_ efficient than 32-bit floating-point multiplication
+* Further potential speedup by exploiting repeating columns.
 
 ---
 
 #### Binarized networks (cont.)  <!-- .element: align="left" -->
 ### Limitations  <!-- .element: align="left" -->
-* Speedup depends on either custom hardware or custom kernel.
-* Training requires special code and may take more cycles.
-* First layer, final layer, and training are not binarized.
+* Realizing speedup depends on either custom hardware or custom kernel. Otherwise no speedup.
+* Training is more complex (and may take more cycles).
+* First and final layer are not binarized.
+* Weights during training are not binarized.
 * Proven only for image classification problems.
 
 ---
 
-#### Binarized networks (cont.)  <!-- .element: align="left" -->
-### Analysis of space discretization:
-* Arbitrary $m \times n$ matrices: Vectors of arbitrary length and spatial angle: 
-    * Length $\\mathcal{l} \\in \\mathbb{R}^+$, and angle `$\left\{ \phi _1, \phi_2, ... \phi_{d-1}\right\} \in (0, 2 \pi)^{m-1}$`
-* BNN matrix columns &xhArr; Constrained vectors: <!-- .element: class="fragment" -->
-    * `$\mathcal{l} = \sqrt{d}$`
-    * `$\hat{\phi_i} \cdot \hat{\phi_j} = \cos \theta_{ij} \in \pm(1-\frac{2k}{d})$` where `$k = 1,\ldots,d/2$`
+### Binarized networks analysis  <!-- .element: align="left" -->
+* The spatial _magnitude_ of each feature vector is restricted to $\sqrt{d}$
+* The spatial _angles_ of each feature vector are restricted to the corners of a cube:
 
-    
+`$\hat{\phi_i} \cdot \hat{\phi_j} = \cos \theta_{ij} \in \left\{\pm(1-\frac{2k}{d}) | k \in \left[1,\ldots,d/2 \right] \right\}$`
 
----
-
-
-### Binarization - Conclusions
-BNN success demonstrates redundancies in ANN representation power:
-
-* Length is not necessary to represent "states"  <!-- .element: class="fragment" -->
-* All activations are saturated  <!-- .element: class="fragment" -->
-* Good solutions do not require "infinite" resolution in input space.  <!-- .element: class="fragment" -->
-
-Note: XNOR gates span the complete functional space.  <!-- .element: class="fragment" -->
-
-
----
-
-### Constraining network structure
-* Reduce bit depth
-* Reduce the number of free parameters in $W$:
-    * hard structure
-    * soft structure
-    * unstructured
-
-### Smarter training
-* _distillation_: Train a "student" network on outputs of "teacher" network
-* Batch Normalization
-
-### Post training
-* Remove very similar features occurring in same layer 
+> The effect on the "expression power" is negligible <!-- .element: class="fragment" -->
 
 ---
 
 ## Compression approaches
 
-### Not encountered in literature
-* Concatenate output of a (deep) layer with outputs from a previous layer
-* Detect correlation between neurons (in same layer or different layers)
-* Stochastic neuron activation
-
-
----
-
-
- 
-
-| Imposed Constraint | Interpretation | Benefit |
-| --- | --- | --- |
-| Low bit depth | Coarser search-grid | up to 100x faster |
-| "Fix together" arbitrary connection elements  | Impose correlations between columns | 4x reduction in number of parameters |
-| Matrix separated into 2 low-rank matrices | Columns constrained to a subspace | ?x compression | 
-
+* ***Indirect***
+    * ~~Binarized weights~~
+    * <b>Structure (i.e. repetitions) in $W$</b>
+<u style="color:#A0A0A0;text-decoration:none">
+    * Normalize input layer/ intermediate layer activations relative to minibatch
+<u style="color:#A0A0A0;text-decoration:none">
+* ***Direct*** 
+    * Post-training weight/ activation elimination 
+    * Post-training bit depth reduction 
+</u>
 
 ---
 
+</u>
 
-## Repeating elements in a connection matrix
+## Structured and low-rank matrices
+#### Concept <!-- .element: align="left" -->
+* retain the dimensions of $W$ but optimize less than $m\cdot n$ parameters.
+
+
+#### Approaches <!-- .element: align="left" -->
+* Repeat values in arbitrary positions within each $W$
+* Express $W$ as a multiplication of two low-rank matrices
+* Systematically repeating entries e.g. along secondary diagonals ([toeplitz](https://en.wikipedia.org/wiki/Toeplitz_matrix))
+
+Each approach requires its own mathematical derivation and methods.
+
+---
+
+## Compressing Neural Networks with the Hashing Trick
 <span class="fragment" data-fragment-index="1"> ![hashing_trick](meeting2/hashing_trick_header.png) <!-- .element: class="fragment shrink" data-fragment-index="2" --> </span>
 
-<span class="fragment" data-fragment-index="2">  **Concept**: Save memory and multiplications, by arbitrarily constraining different entries to the same value </span> 
+<span class="fragment" data-fragment-index="2">  **Concept**: Save memory and multiplications, by arbitrarily constraining different entries witn a matrix to the same value </span> 
 
 ---
 
 ### Repeating elements in a connection matrix
-![hashing_trick](Hashing_trick_illustration.png)
+![hashing_trick](meeting2/Hashing_trick_illustration.png)
 
 
 ---
@@ -203,16 +193,26 @@ Note: XNOR gates span the complete functional space.  <!-- .element: class="frag
 ### Connection hashing vs. feature hashing
 
 For $z_i$ (the layer outputs pre-nonlinearity):
- 
- `$z_i = \sum\limits_{j=1}^{m} V_{ij}a_j$`
+
+`$z_i = \sum\limits_{j=1}^{m} W_{ij}x_j\ \ ;\ \ W_{ij} = w_{h(i,j)}$`
+
+Where $h(i,j)$ maps from index in $W$ to index in $w$
 
 Equivalently 
-`$z_i = \mathbf{w}^T\phi_i(\mathbf{a})$`
+`$z_i = \mathbf{w}^T\phi_i(\mathbf{x})$`
 Where
 
-`$$[\phi_i(\mathbf{a})]_k = \sum\limits_{j:h(i,j)=k}a_j$$`
+`$$[\phi_i(\mathbf{x})]_k = \sum\limits_{j:h(i,j)=k}x_j$$`
 
-Which means that each $z_i$ depends on a sum of an arbitrary subset of the previous layer's activations $a_1,\ldots,a_m$
+Which means we can equivalenty view this as hashing the _inputs_ to the layer. 
+
+
+---
+
+### Connection hashing - analysis
+* Very easy to implement
+* Good control of compression factor upto 1:64 (and beyond)
+* Not clear why (and if) this works better than reducing the layer size
 
 ---
 
@@ -224,20 +224,56 @@ Which means that each $z_i$ depends on a sum of an arbitrary subset of the previ
 ---
 
 ### Factorization
-* Concept: reduce the number of free parameters in a fully-connected layer without alterating matrix shape"Generate"  $W \in \mathbb{R}^{m \times n}$ from $UV,\ U \in \mathbb{R}^{m \times k}, V \in \mathbb{R}^{k \times n}$
-* Number of parameters drops from $mn$ to $(m+n)k$
+$W = UV$
+
+$W \in \mathbb{R}^{m \times n},\ U \in \mathbb{R}^{m \times k},\ V \in \mathbb{R}^{k \times n}$
+
+* Reduces from $mn$ to $(m+n)k$ parameters
+* $k$ controls the compression factor
 
 ---
 
 ### Factorization
-* Not all authors agree on the effectiveness: 
-    * $U$ and $V$ "cannot be trained together" 
-    * $U$ as a "feature bank" 
-    * Predetermined by network designer 
-    * or pretrained
-* In image processing, "smooth" $U$'s work well.
+* Method was used succesfully in imitating a deep net with a shallow one
+* Others avoid training $U$ and $V$ together. 
+* Instead, They set $U$ before learning.
+    * Either via domain expertise
+    * Or by first learning $U$ separately in a simplified problem.
 
-This approach performed worst in the benchmark conducted by the _Hashing Trick_ authors.
+---
+
+### Factorization
+
+* In image processing, $U$ can be designed to span all important smooth filters.
+* The benchmark in _Hashing Trick_ ranked this method worst 
+    * but they were learning $U$ and $V$ concurrently <!-- .element: class="fragment" -->
+
+
+---
+
+### low displacement-rank matrices
+![structured transforms](meeting2/structured_transforms.png)
+
+---
+
+### low displacement-rank matrices
+* The naive implementation allows some memory saving, but no speedup.
+* The authors develop a more elaborate system that takes advantage of Fast Fourier Transform to speed up both inference and backpropagation, with a controllable compression factor.
+* On a CPU, the wall-clock speedup break-even is 2048 neurons (wider layers &rArr; more speedup).
+
+
+
+---
+
+
+ 
+
+| Imposed Constraint | Interpretation | Benefit |
+| --- | --- | --- |
+| Low bit depth | Coarser search-grid | up to 100x faster |
+| "Fix together" arbitrary connection elements  | Impose correlations between columns | 4x reduction in number of parameters |
+| Matrix separated into 2 low-rank matrices | Columns constrained to a subspace | ?x compression | 
+
 
 ---
 
@@ -258,6 +294,16 @@ Concept: Speed up training by deliberately eliminating the scale and bias of inp
 * Achieved faster training and surpassed state-of-the-art performance in image processing
 * Is this a "Weaker" form of factorization?
 
+---
+
+
+
+## Compression approaches
+
+### Not encountered in literature
+* Concatenate output of a (deep) layer with outputs from a previous layer
+* Detect correlation between neurons (in same layer or different layers)
+* Stochastic neuron activation
 
 ---
 
@@ -298,3 +344,20 @@ Concept: Speed up training by deliberately eliminating the scale and bias of inp
 #  THANK YOU!
 
 ---
+
+
+---
+
+### Constraining network structure
+* Reduce bit depth
+* Reduce the number of free parameters in $W$:
+    * hard structure
+    * soft structure
+    * unstructured
+
+### Smarter training
+* _distillation_: Train a "student" network on outputs of "teacher" network
+* Batch Normalization
+
+### Post training
+* Remove very similar features occurring in same layer 

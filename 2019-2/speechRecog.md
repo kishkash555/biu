@@ -206,4 +206,152 @@ $x[n] = \frac{1}{2\pi} = \int\limits_{-\pi}^{\pi}X(\omega)e^{i\omega n}$
 
 1. $x[n] = a^nu[n] = a^n,\ n\ge0 \Rightarrow X(\omega) = \sum a^n e^{-i\omega n} = \sum (a e^{-i\omega})^n = \frac{1}{1-ae^{-i\omega}}$
 
+
+----
+
+March 27 2019 YK
+
+
+</div>
 <div dir='rtl'>
+אחד הבסיסים הלינאריים האפשרים הוא ייצוג של סינוסים. DTFT.
+בייצוג הזה יש הרבה יותר הדירות בין דגימות של אותה מילה.
+
+</div>
+
+$$x[n]=\frac{1}{2\pi}\int\limits_{-\pi}^{\pi}X(\omega)e^{i\omega n} d\omega$$
+
+$$X(\omega)=\sum\limits_{n=-\infty}^{\infty}x[n]e^{-i\omega n}$$
+
+$e^{i\omega n} = \cos(\omega n) + i \sin(\omega n)$
+
+<div dir='rtl'>
+
+w תדר.נמדד ביחידות $rad/sec = 2\pi/sec$ 
+</div>
+
+$\omega = 2 \pi f \rightarrow f $ frequenency measured in $1/sec = Hz$
+
+
+<div dir='rtl'>
+אפשר ייצג את x[n]
+ע"י אינסוף סינוסים, כ"א בתדר w
+אחר.
+</div>
+
+x[n]: time domain
+x(w): frequency domain
+
+
+<div dir='rtl'>
+
+#### X(w)z קומפלקסי
+מה עושים עם הקומפלקסי? רוב האינפורמציה נמצאת במגניטודה, אבל כדי לשחזר צריך את הפאזה. כדי לנתח לוקחים את  $|X(\omega)z|$.
+
+#### עבור x[n]z ממשי: X(w)=x(-w)z
+
+
+#### X(w)z מחזורי עם מחזוריות 2&pi;
+
+מה שזה אומר שכל הסיגנל נמצא בין 0 ל &pi; (אפשר לשחזר את הסיגנל מהערכים בטווח הזה)
+
+מה זה פאזה? זה הדיליי של כל סינוס. כל אחד חוזר בפאזה שונה. בהידהוד בחדר יש חשיבות לפאזות כי ההד מעוות את הפאזה של הדיבור המקורי.
+
+
+</div>
+
+$x[n] = A\cos(\omega_0n + \phi) \Rightarrow$
+
+$X(\omega) = \sum\limits_{n=-\infty}^{\infty} A\cos (\omega_0n+\phi)e^{-i\omega n} \\
+= \frac{A}{2}\sum_n[e^{i(\omega n + \phi)} + e^{-i(\omega n + \phi)}]e^{-\omega n i}\\
+\ \\
+= \frac{A}{2} e^{-i\phi} [\delta(\omega-\omega_0) + \delta(\omega+\omega_0)]\ [-\pi,\pi]$
+
+
+<div dir="rtl">
+
+כל vowel
+מורכב משני תדרים עיקריים. יש מפות. בצרפתית יש 24 סוגים שונים של vowels.
+
+
+#### מערכת הדיבור
+vocal cords - the note. the frequency.
+vocal tract - the cavities of the mouth and noise - _what_ we say
+
+מיתרי הקול מייצרים איזשהו סיגנל בסיסי. לא, לא סינוס, אלא סידרה אינסופית של פולסים במרחק P ביניהם.
+Pulse train.
+הגוף מתאמץ לסגור, בגלל הזרימה של האוויר מהריאות הם נפתחים בפולס ונסגרים מיד בחזרה (גם בגלל ברנולי).
+אמרנו שבמישור התדר הסיגנל רציף. 
+
+
+</div>
+
+---
+
+3 April 2019 YK
+####חזרה
+
+sampling
+$x[n]=X_a(nT)$
+
+Fourier
+$x[n]=\frac{1}{2\pi}\int\limits_\pi^\pi X(\omega)e^{i\omega n} dw$ DTFT
+
+$X(\omega) = \sum\limits_{n=-\infty}^\infty x[n]e^{-i\omega n}$
+
+
+impulse train with spacing P &harr; impulse trainn with spacing $\frac{2\pi}{p}$
+
+
+הבעיה עם דגימה היא כאשר תדר טהור שקיים בסיגנל המקורי עלול ליפול בין שני תדרים בדגימה. התוצאה היא קונבולוציה עם פונקציית סינק, כלומר מריחה של התדרים סביב התדר האמיתי. כשיש שני תדרים מקוריים קרובים, לא נוכל להפריד אותם.
+
+### משפט הדגימה
+אם $X_a(t)z$ 
+דגום כל T 
+שניות 
+$F_s=1/T$
+וגם התדר הגבוה ביותר של 
+$X_a(t)z$ 
+הוא 
+$F_{max}$
+אז אפשר לדגום את 
+$X_a(t)z$ 
+בתדר גבוה מ 
+$2F_{max}$
+ולשחזר את 
+$X_a(t)z$
+בצורה מושלמת
+
+
+מה קורה אם התדר הגבוה ביותר גדול מתדר הדגימה?
+![aliasing](SpeechRecog/aliasing.png)
+
+<div dir='rtl'>
+
+#### מודל הפקה של דיבור
+![speech system](SpeechRecog/speech_physiology.png)
+
+#### שיערוך מעטפת הספקטרום
+התחילו מדחיסה. האם אפשר לבטא את האבר ה n כסכום של אברים שלפניו כפול מקדמים. 
+נעשה אופטימיזציה כלומר נמצא שגיאה ריבועית מינימלית של המקדמים.
+
+</div>
+
+$s[n] \approx \sum\limits_{i=1}^p a_is[n-i]\\
+e[n]=s[n] - \sum\limits_{i=1}^p a_is[n-i]\\
+\min\sum e^2[n] = \sum\left(s[n]-\sum a_is[n-1\right)^2\\
+\frac{\partial \sum_n e^2[n]}{\partial a_k}=0\\
+sum_{n=0}^m s(s[n]-sum_i a_i s[n-i](-s[n-k])=0$
+
+$$\sum_n s[n]s[n-k]=\sum \sum$$
+
+$$\phi(m,i)=\sum_{n=0}^m s[n] s[n-i]$$ autocorrelation
+
+הדרך למצוא את התדר היסודי של הדיבור זה להסתכל על אוטוקורלציה. הפסגה המשמעותית הראשונה היא במרחק של זמן מחזור של התדר היסודי.
+
+
+
+
+"Linear predictive coding"
+
+

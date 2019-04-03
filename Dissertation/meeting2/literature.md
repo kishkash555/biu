@@ -30,10 +30,7 @@
 
 ![efficient frontier1](meeting2/efficient_frontier3.png)
 
-
----
-
-Effective compression allows us to attain performance not attainable with SGD from the same size network
+Effective compression should allow us to attain performance otherwise attainable only with larger networks.
 
 ---
 
@@ -235,14 +232,14 @@ $W \in \mathbb{R}^{m \times n},\ U \in \mathbb{R}^{m \times k},\ V \in \mathbb{R
 
 ### Factorization
 * Method was used succesfully in imitating a deep net with a shallow one
-* Others avoid training $U$ and $V$ together. 
-* Instead, They set $U$ before learning.
-    * Either via domain expertise
+* Other authors argue against training $U$ and $V$ together. 
+* Instead, They determine $U$ before learning,
+    * Either via domain expertise,
     * Or by first learning $U$ separately in a simplified problem.
 
 ---
 
-### Factorization
+### Factorization (cont.)
 
 * In image processing, $U$ can be designed to span all important smooth filters.
 * The benchmark in _Hashing Trick_ ranked this method worst 
@@ -251,16 +248,16 @@ $W \in \mathbb{R}^{m \times n},\ U \in \mathbb{R}^{m \times k},\ V \in \mathbb{R
 
 ---
 
-### low displacement-rank matrices
+### Low displacement-rank matrices
 ![structured transforms](meeting2/structured_transforms.png)
 
 ---
 
-### low displacement-rank matrices
+### Low displacement-rank matrices
 * The naive implementation allows some memory saving, but no speedup.
 * The authors develop a more elaborate system that takes advantage of Fast Fourier Transform to speed up both inference and backpropagation, with a controllable compression factor.
-* On a CPU, the wall-clock speedup break-even is 2048 neurons (wider layers &rArr; more speedup).
-
+* On a CPU, the minimal layer size to achieve wall-clock speedup is 2048 neurons (wider layers &rArr; more speedup).
+* Another paper proves the universality of such NNs.
 
 
 ---
@@ -270,33 +267,109 @@ $W \in \mathbb{R}^{m \times n},\ U \in \mathbb{R}^{m \times k},\ V \in \mathbb{R
 
 | Imposed Constraint | Interpretation | Benefit |
 | --- | --- | --- |
-| Low bit depth | Coarser search-grid | up to 100x faster |
+| Low bit depth | Coarser search-grid | up to 600x faster |
 | "Fix together" arbitrary connection elements  | Impose correlations between columns | 4x reduction in number of parameters |
 | Matrix separated into 2 low-rank matrices | Columns constrained to a subspace | ?x compression | 
+| Structured matrices | - | $O(nlog^2n)$ multiplication |
 
 
 ---
+
+## Compression approaches
+
+* ***Indirect***
+    * ~~Binarized weights~~
+    * ~~Structure (i.e. repetitions) in _W_~~
+    * <b>Normalize input layer/ intermediate layer activations relative to minibatch</b>
+<u style="color:#A0A0A0;text-decoration:none">
+    * 
+<u style="color:#A0A0A0;text-decoration:none">
+* ***Direct*** 
+    * Post-training weight/ activation elimination 
+    * Post-training bit depth reduction 
+</u>
+
+
+---
+
+</u>
 
 ## Batch Normalization
 ![batch normalization header](meeting2/batch_normalization_header.png)
 
-Concept: Speed up training by deliberately eliminating the scale and bias of inputs to a layer
-
-
 ---
 
 ### Batch Normalization
+
 <h5 align="left"> Concept (cont.): </h5>
-* Speed up training by deliberately eliminating the scale and bias of inputs to a layer
+
+* Speed up training by maintaining direct control over the scale and bias of inputs to a layer
+
 * Replace the implicit scale and bias of the input population with explicit, learnable scale and bias 
 
 <h5 align="left"> Accomplished: </h5>
+
 * Achieved faster training and surpassed state-of-the-art performance in image processing
-* Is this a "Weaker" form of factorization?
+* Broad adoption
+
+Is this a "Weaker" form of factorization?
 
 ---
 
 
+### Direct methods
+![data free param pruning](meeting2/data_free_param_pruning_header.png)
+
+---
+
+### Parameter pruning
+* Choose a distance metric between $\vec{W_j}$ e.g. L<sub>2</sub>
+* compute the metric for every feature pair:
+    * disregarding magnitude differences
+    * Giving the bias term more weight in the distance formula
+* Starting with the closest pair, pick one member to remove.
+* "Reroute" the inputs and outputs of the deleted neuron.
+* Stop before "knee" in error curve
+* Tested with ReLU activations where $\forall\alpha\ge0,\ g(\alpha \vec{x})=\alpha g(\vec{x})$ so scale can always be delegated to next layer.
+
+---
+
+### Parameter pruning
+
+![pruning-saliency](meeting2/pruning_saliency.png)
+
+---
+
+### Parameter pruning
+
+![owl](meeting2/owl.jpg)
+
+---
+
+### Summary
+* Compression, and improved learning, are interwined.
+* Methods can be mapped to a "spectrum" from most inutitive/heuristic to more mathematically involved.
+* Research area still wide open 
+
+---
+
+### Next steps
+* Implement:
+    * The hashing trick
+    * Binarized networks 
+    * Parameter pruning
+* Ideas to develop
+
+---
+
+### Ideas to develop
+* Stochastic neurons
+* Layer genetic evolution
+* Correlations between activations
+* Scoring layer reduction techniques
+
+
+---
 
 ## Compression approaches
 

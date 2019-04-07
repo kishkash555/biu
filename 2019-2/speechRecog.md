@@ -297,15 +297,18 @@ $x[n]=X_a(nT)$
 Fourier
 $x[n]=\frac{1}{2\pi}\int\limits_\pi^\pi X(\omega)e^{i\omega n} dw$ DTFT
 
-$X(\omega) = \sum\limits_{n=-\infty}^\infty x[n]e^{-i\omega n}$
+$X(\omega)$ = $\sum\limits_{n=-\infty}^{\infty}$ $x[n]e^{-iwn}$ .
 
 
-impulse train with spacing P &harr; impulse trainn with spacing $\frac{2\pi}{p}$
 
+impulse train with spacing P &harr; impulse train with spacing $\frac{2\pi}{p}$ .
+
+<div dir="rtl">
 
 הבעיה עם דגימה היא כאשר תדר טהור שקיים בסיגנל המקורי עלול ליפול בין שני תדרים בדגימה. התוצאה היא קונבולוציה עם פונקציית סינק, כלומר מריחה של התדרים סביב התדר האמיתי. כשיש שני תדרים מקוריים קרובים, לא נוכל להפריד אותם.
 
 ### משפט הדגימה
+
 אם $X_a(t)z$ 
 דגום כל T 
 שניות 
@@ -335,17 +338,24 @@ $X_a(t)z$
 התחילו מדחיסה. האם אפשר לבטא את האבר ה n כסכום של אברים שלפניו כפול מקדמים. 
 נעשה אופטימיזציה כלומר נמצא שגיאה ריבועית מינימלית של המקדמים.
 
-</div>
 
-$s[n] \approx \sum\limits_{i=1}^p a_is[n-i]\\
-e[n]=s[n] - \sum\limits_{i=1}^p a_is[n-i]\\
-\min\sum e^2[n] = \sum\left(s[n]-\sum a_is[n-1\right)^2\\
-\frac{\partial \sum_n e^2[n]}{\partial a_k}=0\\
-sum_{n=0}^m s(s[n]-sum_i a_i s[n-i](-s[n-k])=0$
+<div dir='ltr'>
+
+
+$s[n] \approx \sum\limits_{i=1}^p a_is[n-i]$
+
+$e[n]=s[n] - \sum\limits_{i=1}^p a_is[n-i]$
+
+$\min\sum e^2[n] = \sum\left(s[n]-\sum a_is[n-1\right)^2$
+
+$\frac{\partial \sum_n e^2[n]}{\partial a_k}=0$
+
+$sum_{n=0}^m s(s[n]-sum_i a_i sn-i(-s[n-k])=0$
 
 $$\sum_n s[n]s[n-k]=\sum \sum$$
 
-$$\phi(m,i)=\sum_{n=0}^m s[n] s[n-i]$$ autocorrelation
+$$\phi(m,i)=\sum_{n=0}^m s[n] s[n-i]$$ 
+autocorrelation
 
 הדרך למצוא את התדר היסודי של הדיבור זה להסתכל על אוטוקורלציה. הפסגה המשמעותית הראשונה היא במרחק של זמן מחזור של התדר היסודי.
 

@@ -11,5 +11,5 @@ def load_dog():
     A = A.astype(float) / 255.
     img_size = A.shape
     X = A.reshape(img_size[0] * img_size[1], img_size[2])
-    return X
+    return X, img_size
 

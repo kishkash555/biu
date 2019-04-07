@@ -1,14 +1,26 @@
 import numpy as np
 import load
 from init_centroids import init_centroids
+from imageio import imwrite
+import matplotlib.pyplot as plt
 
 MAX_ITERS = 10
 
 def main():
-    X = load.load_dog()
+    X, img_shape = load.load_dog()
     for k in [2,4,8,16]:
         print('k={}:'.format(k))
-        k_means(X,k)
+        centroids, pixel_centroids, mean_distance = k_means(X,k)
+        compressed_image = np.vstack(centroids)[pixel_centroids,:].reshape(img_shape)
+        imwrite("compressed_{}.png".format(k),compressed_image)
+        plt.clf()
+        plt.plot(range(MAX_ITERS),mean_distance)
+        plt.title('Loss, K={}'.format(k))
+        plt.xlabel('iteration')
+        plt.ylabel('mean distance')
+        plt.savefig("loss_curve_{}.png".format(k))
+        #plt.show()
+
 
 
 norm = lambda x: np.sqrt(np.sum(x*x,axis=1))
@@ -19,16 +31,20 @@ def arr2str(nparr):
 def k_means(X,K):
     centroids = init_centroids(K)
     print("iter 0: {}".format(arr2str(centroids)))
-
+    mean_distance=[]
     for i in range(MAX_ITERS):
         distances_to_centroids = np.vstack([norm(X - c) for c in centroids]) # loop over array (first pass only)
         pixel_centroids = np.argmin(distances_to_centroids,axis=0)
         centroids = [np.mean(X[pixel_centroids==k,:],axis=0) for k in range(K)]
         
+        total_dist=0.
+        for col,row in enumerate(pixel_centroids):
+            total_dist+=distances_to_centroids[row,col]
+        mean_distance.append(total_dist/pixel_centroids.shape[0])
         centroid_str = arr2str(centroids)
         print("iter {}: {}".format(i+1, centroid_str))
 
-    return centroids
+    return centroids, pixel_centroids, mean_distance
 
 
 if __name__ == "__main__":

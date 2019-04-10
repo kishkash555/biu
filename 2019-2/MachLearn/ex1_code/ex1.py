@@ -1,26 +1,28 @@
 import numpy as np
 import load
 from init_centroids import init_centroids
-from imageio import imwrite
 import matplotlib.pyplot as plt
 from collections import Counter
 
 MAX_ITERS = 10
+SAVE_EXTRAS = False
 
 def main():
     X, img_shape = load.load_dog()
     for k in [2,4,8,16]:
         print('k={}:'.format(k))
         centroids, pixel_centroids, mean_distance = k_means(X,k)
-        compressed_image = np.vstack(centroids)[pixel_centroids,:].reshape(img_shape)
-        imwrite("compressed_{}.png".format(k),compressed_image)
-        plt.clf()
-        plt.plot(range(MAX_ITERS),mean_distance)
-        plt.title('Loss, K={}'.format(k))
-        plt.xlabel('iteration')
-        plt.ylabel('mean distance')
-        plt.savefig("loss_curve_{}.png".format(k))
-        #plt.show()
+        if SAVE_EXTRAS:
+            from imageio import imwrite
+
+            compressed_image = np.vstack(centroids)[pixel_centroids,:].reshape(img_shape)
+            imwrite("compressed_{}.png".format(k),compressed_image)
+            plt.clf()
+            plt.plot(range(MAX_ITERS),mean_distance)
+            plt.title('Loss, K={}'.format(k))
+            plt.xlabel('iteration')
+            plt.ylabel('mean distance')
+            plt.savefig("loss_curve_{}.png".format(k))
 
 
 

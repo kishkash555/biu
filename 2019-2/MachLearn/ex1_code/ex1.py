@@ -18,7 +18,7 @@ def main():
             compressed_image = np.vstack(centroids)[pixel_centroids,:].reshape(img_shape)
             imwrite("compressed_{}.png".format(k),compressed_image)
             plt.clf()
-            plt.plot(range(MAX_ITERS),mean_distance)
+            plt.plot(range(0,MAX_ITERS+1),mean_distance)
             plt.title('Loss, K={}'.format(k))
             plt.xlabel('iteration')
             plt.ylabel('mean distance')
@@ -40,7 +40,7 @@ def k_means(X,K):
     centroids = init_centroids(K)
     print("iter 0: {}".format(arr2str2(centroids)))
     mean_distance=[]
-    for i in range(MAX_ITERS):
+    for i in range(MAX_ITERS+1):
         distances_to_centroids = np.vstack([norm(X - c) for c in centroids]) # loop over array (first pass only)
         pixel_centroids = np.argmin(distances_to_centroids,axis=0)
 
@@ -51,7 +51,8 @@ def k_means(X,K):
             total_dist+=distances_to_centroids[row,col]
         mean_distance.append(total_dist/pixel_centroids.shape[0])
         centroid_str = arr2str2(centroids)
-        print("iter {}: {}".format(i+1, centroid_str))
+        if i < MAX_ITERS: # skip on last
+            print("iter {}: {}".format(i+1, centroid_str))
 
     return centroids, pixel_centroids, mean_distance
 

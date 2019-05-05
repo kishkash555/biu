@@ -1,2 +1,3 @@
 test_files/
 train_files/
+*_out.txt

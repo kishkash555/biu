@@ -22,7 +22,14 @@ class naive_feature_extractor:
         mfcc = librosa.feature.mfcc(y=audio_samples, sr = sr, n_mfcc=N_FEATURES)
         return mfcc
 
-extract = naive_feature_extractor.extract
+class truncate_feature_extractor:
+    @staticmethod
+    def extract(audio_samples,sr):
+        mfcc = librosa.feature.mfcc(y=audio_samples, sr = sr, n_mfcc=N_FEATURES) # 20x32
+        mfcc = mfcc[:-1,:]        
+        return mfcc
+        
+extract = truncate_feature_extractor.extract
 
 def load(fname):
     return librosa.load(fname, sr=None)
@@ -45,8 +52,10 @@ def main(is_normalize_inputs=False, is_normalize_features=False):
         train_x.append(feature_mat.T)
         train_y.append(LABELS_TO_NUMBERS[label])
         
+
+
     clsfier1 = nn1(lambda v1, v2: dynamic_time_warping(v1, v2, euclidean_dist)).fit(train_x, train_y)
-    clsfier2 = nn1(euclidean_dist).fit(train_x, train_y)
+    clsfier2 = nn1(sum_of_euclid_distances).fit(train_x, train_y)
     
     for tst in test_files:
         tst_fname = path.basename(tst)
@@ -61,8 +70,9 @@ def main(is_normalize_inputs=False, is_normalize_features=False):
 
         cls1 = clsfier1.predict(tst_features.T)
         cls2 = clsfier2.predict(tst_features.T)
-        fprint("{} - {} - {}".format(tst_fname, cls2, cls1))
 
+        fprint("{} - {} - {}".format(tst_fname, cls2, cls1))
+        
 
 def normalize_vec(v):
     return (v-v.mean()) / v.std()
@@ -89,6 +99,23 @@ class nn1:
         dist = np.array([self.distance_metric(x, test_sample) for x in self.train_x])
         min_dist_sample = np.argmin(dist)
         return self.train_y[min_dist_sample]
+
+    def predict_full(self, test_sample):
+        dist = np.array([self.distance_metric(x, test_sample) for x in self.train_x])
+        ret = sorted(zip(self.train_y,dist))
+        return ret
+
+    def save_data(self,fname):
+        save_arr = np.array(
+            sorted(
+                [[y]+x for x,y in zip(self.train_x, self.train_y)],
+                key=lambda r: r[0]
+                ),
+            dtype=np.float)
+        np.savetxt(fname, save_arr,fmt='%.2f',delimiter=',')
+
+def sum_of_euclid_distances(v1,v2):
+    return sum(np.linalg.norm(v1-v2,axis=1))       
 
 def dynamic_time_warping(vec1, vec2, distance_metric):
     """
@@ -155,11 +182,8 @@ if __name__ == "__main__":
     mfp = manage_fprint(args)
     fprint = mfp.get_fprint()
     
-    main(is_normalize_inputs=False, is_normalize_features=False)
+    main(is_normalize_inputs=True, is_normalize_features=True)
     mfp.close()
 
-
-    # y, sr = librosa.load(f_path, sr=None)
-    # mfcc = librosa.feature.mfcc(y=y, sr=sr)
 
 

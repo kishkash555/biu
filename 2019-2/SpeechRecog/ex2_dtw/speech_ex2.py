@@ -26,10 +26,10 @@ class truncate_feature_extractor:
     @staticmethod
     def extract(audio_samples,sr):
         mfcc = librosa.feature.mfcc(y=audio_samples, sr = sr, n_mfcc=N_FEATURES) # 20x32
-        mfcc = mfcc[:-1,:]        
+        mfcc = mfcc[1:,:]        
         return mfcc
         
-extract = naive_feature_extractor.extract
+extract = truncate_feature_extractor.extract
 
 def load(fname):
     return librosa.load(fname, sr=None)
@@ -182,7 +182,7 @@ if __name__ == "__main__":
     mfp = manage_fprint(args)
     fprint = mfp.get_fprint()
     
-    main(is_normalize_inputs=True, is_normalize_features=True)
+    main(is_normalize_inputs=False, is_normalize_features=True)
     mfp.close()
 
 

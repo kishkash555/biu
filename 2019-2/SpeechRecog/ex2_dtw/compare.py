@@ -1,4 +1,5 @@
-out_file = 'ex2_286382_out.txt'
+#out_file = 'ex2_24da3d_out.txt'
+out_file = 'aviv.out'
 
 if __name__ == "__main__":
     gold = open('gold.txt','rt')

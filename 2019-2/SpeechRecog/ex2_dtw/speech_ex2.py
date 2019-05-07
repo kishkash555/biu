@@ -182,7 +182,7 @@ if __name__ == "__main__":
     mfp = manage_fprint(args)
     fprint = mfp.get_fprint()
     
-    main(is_normalize_inputs=False, is_normalize_features=True)
+    main(is_normalize_inputs=True, is_normalize_features=True)
     mfp.close()
 
 

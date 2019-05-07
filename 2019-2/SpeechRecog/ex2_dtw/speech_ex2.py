@@ -26,7 +26,7 @@ class truncate_feature_extractor:
     @staticmethod
     def extract(audio_samples,sr):
         mfcc = librosa.feature.mfcc(y=audio_samples, sr = sr, n_mfcc=N_FEATURES) # 20x32
-        mfcc = mfcc[1:,:]        
+        mfcc = mfcc[:-1,:]        
         return mfcc
         
 extract = truncate_feature_extractor.extract

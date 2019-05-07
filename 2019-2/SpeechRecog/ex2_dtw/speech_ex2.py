@@ -14,7 +14,7 @@ LABELS_TO_NUMBERS = {
     "one": 1, "two": 2, "three": 3, "four": 4, "five": 5
     }
     
-euclidean_dist = lambda v1, v2: np.linalg.norm(v2-v1)
+euclidean_dist = lambda v1, v2: np.linalg.norm(v2-v1)**2
 
 class naive_feature_extractor:
     @staticmethod
@@ -29,7 +29,7 @@ class truncate_feature_extractor:
         mfcc = mfcc[:-1,:]        
         return mfcc
         
-extract = truncate_feature_extractor.extract
+extract = naive_feature_extractor.extract
 
 def load(fname):
     return librosa.load(fname, sr=None)
@@ -46,10 +46,10 @@ def main(is_normalize_inputs=False, is_normalize_features=False):
         x_trn, sr_train = load(trn)
         if is_normalize_inputs:
             x_trn = normalize_vec(x_trn)
-        feature_mat = extract(x_trn,sr_train)
+        feature_mat = extract(x_trn,sr_train).T
         if is_normalize_features:
             feature_mat = normalize_columns(feature_mat)
-        train_x.append(feature_mat.T)
+        train_x.append(feature_mat)
         train_y.append(LABELS_TO_NUMBERS[label])
         
 
@@ -64,12 +64,12 @@ def main(is_normalize_inputs=False, is_normalize_features=False):
         if is_normalize_inputs:
             x_test = normalize_vec(x_test)
         
-        tst_features = extract(x_test, sr_test)
+        tst_features = extract(x_test, sr_test).T
         if is_normalize_features:
             tst_features = normalize_columns(tst_features)
 
-        cls1 = clsfier1.predict(tst_features.T)
-        cls2 = clsfier2.predict(tst_features.T)
+        cls1 = clsfier1.predict(tst_features)
+        cls2 = clsfier2.predict(tst_features)
 
         fprint("{} - {} - {}".format(tst_fname, cls2, cls1))
         
@@ -182,7 +182,7 @@ if __name__ == "__main__":
     mfp = manage_fprint(args)
     fprint = mfp.get_fprint()
     
-    main(is_normalize_inputs=True, is_normalize_features=True)
+    main(is_normalize_inputs=False, is_normalize_features=True)
     mfp.close()
 
 

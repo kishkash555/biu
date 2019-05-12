@@ -1,7 +1,31 @@
 import numpy as np
 from collections import namedtuple
+import argparse
 
 abalone_datum = namedtuple('seashell','sex,length,diameter,height,whole_weight,shucked_weight,viscera_weight,shell_weight'.split(','))
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('output_file', action='store', nargs='?')
+    args = parser.parse_args()
+    return args
+
+class manage_fprint:
+    def __init__(self, args):
+        self.f = None
+        if args.output_file:
+            self.f = open(args.output_file,'wt',buffering=1)
+
+    def get_fprint(self):
+        def fprint(s):
+            print(s)
+            print(s, file=self.f)
+        if self.f:
+            return fprint
+        return print
+
+    def close(self):
+        self.f.close()
 
 class seashell_data_holder:
     @classmethod
@@ -28,7 +52,7 @@ class seashell_data_holder:
         # in this way, one line of code only (the below line) needs to change to test different converters
         # the static method will still recieve self as first parameter
         self.n_samples = 0 
-        self.n_features = 10
+        self.n_features = 11
 
 
     def split(self, counts, shuffle=False):
@@ -36,15 +60,16 @@ class seashell_data_holder:
         return an array of seashell_data_holders, by splitting the existing data, without deep-copying the data
         """
         ty = self.train_y is not None
-        if type(count) ==int:
-            count = [count]
-        if count[0] != 0:
-            count = [0] + count
-        elif len(count) == 1:
+        if type(counts) ==int:
+            counts = [counts]
+        if counts[0] != 0:
+            counts = [0] + counts
+        elif len(counts) == 1:
             raise ValueError("cannot split at 0")
+        counts += [self.n_samples]
 
         ret = [] 
-        for (st, sp) in enumerate(zip(counts[:-1],counts[1:])):
+        for (st, sp) in zip(counts[:-1],counts[1:]):
             cur = seashell_data_holder()
             cur.train_x = self.train_x[st:sp]
             if ty:
@@ -55,7 +80,9 @@ class seashell_data_holder:
 
     @staticmethod
     def get_datum(datum):
-        return seashell_data_holder._convert_onehot(datum)
+        ret = seashell_data_holder._convert_onehot(datum)
+        ret = seashell_data_holder.add_constant(ret)
+        return ret
 
     @staticmethod
     def load_line(line):
@@ -71,6 +98,10 @@ class seashell_data_holder:
         a2 = list(datum)
         ret = np.array(a1+a2[1:], dtype=float)
         return ret
+
+    @staticmethod
+    def add_constant(vec):
+        return np.concatenate([vec,np.ones(1)])
 
     def data_generator(self, shuffle=True):
         r = np.arange(start=0, stop=self.n_samples,dtype=int)
@@ -112,22 +143,22 @@ class base_classifier:
     def test(self, sample_x):
         return np.argmax(self._score(sample_x))
 
-    def train(self, dh):
+    def train(self, train_dh, validation_dh):
         for ep in range(self.epochs):
-            for sample_x, sample_y in dh.data_generator():
+            for sample_x, sample_y in train_dh.data_generator():
                 sample_yhat = self.test(sample_x)
                 self.update_rule(sample_x, sample_y, sample_yhat)
             good = 0
-            for sample_x, sample_y in dh.data_generator(shuffle=False):
+            for sample_x, sample_y in validation_dh.data_generator(shuffle=False):
                 good = good + int(sample_y ==  self.test(sample_x))
-            print("epoch: {}, good: {} ({:.1%})".format(ep, good, good/dh.n_samples))
+            print("epoch: {}, good: {} ({:.1%})".format(ep, good, good/validation_dh.n_samples))
 
 
 class pereceptron(base_classifier):
     def __init__(self, feature_count):
         super().__init__(feature_count)
         self.type = 'perceptron'
-        self.eta = 0.01
+        self.eta = 1e-5
 
     def update_rule(self, sample_x, sample_y, sample_yhat):
         delta = self.eta * sample_x
@@ -180,14 +211,20 @@ def even_sampling(vec,count):
     return np.interp(x,xp,svec)
 
 if __name__ == "__main__":
-    train_data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
+    global fprint
+    args = parse_args()
+    mfp = manage_fprint(args)
+    fprint = mfp.get_fprint()
+
+    data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
+    validation_data, train_data = data.split(300)
     pcp = pereceptron(train_data.n_features)
     pa = passive_agressive(train_data.n_features)
     svm = support_vector_machine(train_data.n_features)
 
     print("Perceptron")
-    pcp.train(train_data)
-    print("\n\n\nPassive-Agrressive")
-    pa.train(train_data)
-    print("\n\n\n SVM")
-    svm.train(train_data)
+    pcp.train(train_data,validation_data)
+    # print("\n\n\nPassive-Agrressive")
+    # pa.train(train_data,validation_data)
+    # print("\n\n\n SVM")
+    # svm.train(train_data,validation_data)

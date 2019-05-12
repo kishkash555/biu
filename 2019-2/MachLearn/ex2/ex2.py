@@ -4,27 +4,58 @@ from collections import namedtuple
 abalone_datum = namedtuple('seashell','sex,length,diameter,height,whole_weight,shucked_weight,viscera_weight,shell_weight'.split(','))
 
 class seashell_data_holder:
-    def __init__(self, x_file, y_file=None):
-        self.train_x = []
-        
+    @classmethod
+    def from_file(cls, x_file, y_file=None):
+        self = cls()
         with open(x_file,'rt') as x:
             for line in x:
                 self.train_x.append(seashell_data_holder.load_line(line))    
+                
         if y_file:
             self.train_y = []
             with open(y_file,'rt') as y:
                 for line in y:
                     self.train_y.append(int(line.split('.')[0]))
-        else:
-            self.train_y=None
+        self.n_samples = len(self.train_x)
+        return self
+
+
         
+    def __init__(self):
+        self.train_x = []
+        self.train_y = None
         # here monkey-patching is used to allow flexibility in choosing the converter function
         # in this way, one line of code only (the below line) needs to change to test different converters
         # the static method will still recieve self as first parameter
-        self.get_datum = seashell_data_holder._convert_onehot
-        self.n_samples = len(self.train_x)
+        self.n_samples = 0 
         self.n_features = 10
 
+
+    def split(self, counts, shuffle=False):
+        """
+        return an array of seashell_data_holders, by splitting the existing data, without deep-copying the data
+        """
+        ty = self.train_y is not None
+        if type(count) ==int:
+            count = [count]
+        if count[0] != 0:
+            count = [0] + count
+        elif len(count) == 1:
+            raise ValueError("cannot split at 0")
+
+        ret = [] 
+        for (st, sp) in enumerate(zip(counts[:-1],counts[1:])):
+            cur = seashell_data_holder()
+            cur.train_x = self.train_x[st:sp]
+            if ty:
+                cur.train_y = self.train_y[st:sp]
+            cur.n_samples = sp-st
+            ret.append(cur)
+        return ret
+
+    @staticmethod
+    def get_datum(datum):
+        return seashell_data_holder._convert_onehot(datum)
 
     @staticmethod
     def load_line(line):
@@ -138,14 +169,24 @@ class support_vector_machine(base_classifier):
         self.w[sample_yhat, :] -= delta
 
 
+def even_sampling(vec,count):
+    """
+    returns the entries at (k*i) positions in the sorted vec, where i are consecutive natural numbers and k is len/count
+    uses interpolation in case of noninteger index
+    """
+    svec = sorted(vec)
+    x = np.arange(0,1,1/count)
+    xp = np.arange(0,1,1/len(svec))
+    return np.interp(x,xp,svec)
+
 if __name__ == "__main__":
-    train_data = seashell_data_holder("train_x.txt","train_y.txt")
+    train_data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
     pcp = pereceptron(train_data.n_features)
     pa = passive_agressive(train_data.n_features)
     svm = support_vector_machine(train_data.n_features)
 
-    # print("Perceptron")
-    # pcp.train(train_data)
+    print("Perceptron")
+    pcp.train(train_data)
     print("\n\n\nPassive-Agrressive")
     pa.train(train_data)
     print("\n\n\n SVM")

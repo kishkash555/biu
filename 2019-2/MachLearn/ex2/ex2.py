@@ -112,7 +112,7 @@ class seashell_data_holder:
 
 
 class learn_rate_schedule:
-    def __init__(self, alpha=0.5):
+    def __init__(self, alpha=0.05):
         self.eta = 0.1
         self.alpha = alpha
     

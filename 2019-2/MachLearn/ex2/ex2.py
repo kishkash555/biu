@@ -111,21 +111,15 @@ class seashell_data_holder:
             yield self.get_datum(self.train_x[i]), self.train_y[i]
 
 
-
-# class threeway_predictor:
-#     def __init__(self, class0, class1, class2):
-#         self.classifiers = [class0, class1, class2]
-
-#     def predict(self, sample_x):
-#         votes = np.array([
-#             [[1,0,0],[0,1,0],[0,0,1]],
-#             [[0,1,1],[1,0,1],[1,1,0]],
-#         ], dtype = int)
-#         y_total = np.zeros(3, dtype=int)
-#         for i,cl in enumerate(self.classifiers):
-#             y = 0 if cl.predict(sample_x) < 0 else 1
-#             y_total += votes[y, i, :]
-#         return np.argmax(y_total)
+class learn_rate_schedule:
+    def __init__(self, alpha=0.5):
+        self.eta = 0.1
+        self.alpha = alpha
+    
+    def lr_generator(self):
+        while True:
+            yield self.eta
+            self.eta = self.eta - self.alpha * self.eta**2
 
 class base_classifier:
     def __init__(self, feature_count):
@@ -158,10 +152,11 @@ class pereceptron(base_classifier):
     def __init__(self, feature_count):
         super().__init__(feature_count)
         self.type = 'perceptron'
-        self.eta = 1e-5
+        self.lr = learn_rate_schedule().lr_generator()
+        
 
     def update_rule(self, sample_x, sample_y, sample_yhat):
-        delta = self.eta * sample_x
+        delta = next(self.lr) * sample_x
         self.w[sample_y, :] += delta
         self.w[sample_yhat, : ] -= delta
 

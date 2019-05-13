@@ -213,7 +213,7 @@ def main():
 
     data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
     validation_set1, validation_set2, train_data = data.split([300,600])
-    fiers, goods = select_best_classifier(passive_agressive,train_data,validation_set1)
+    fiers, goods = select_best_classifier(support_vector_machine,train_data,validation_set1)
     test_scores = [sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers]
     print("goods: {}\ntest_goods: {}, corr{}".format(goods, test_scores, np.corrcoef(np.array(goods), np.array(test_scores))))
     

@@ -169,7 +169,7 @@ class passive_agressive(base_classifier):
     
     def update_rule(self, sample_x, sample_y, sample_yhat):
         loss = self.hinge_loss(sample_x, sample_y)
-        tau = loss / np.dot(sample_x, sample_x)
+        tau = loss / (2*np.dot(sample_x, sample_x))
         delta = tau * sample_x
         self.w[sample_y,:] += delta
         self.w[sample_yhat, :] -= delta
@@ -187,7 +187,7 @@ class support_vector_machine(base_classifier):
         self.eta = 0.01
         self.lada = 0.001
         self.type = 'svm'
-        
+
     def update_rule(self, sample_x, sample_y, sample_yhat):
         delta = self.eta * sample_x
         decay = 1- self.lada * self.eta

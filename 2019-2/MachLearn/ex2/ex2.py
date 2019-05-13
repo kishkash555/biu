@@ -112,7 +112,7 @@ class seashell_data_holder:
 
 
 class learn_rate_schedule:
-    def __init__(self, alpha=2):
+    def __init__(self, alpha=2  ):
         self.eta = 0.1
         self.alpha = alpha
     
@@ -126,7 +126,7 @@ class base_classifier:
         self.type = None   
         self.nclasses = 3   
         self.w = np.zeros((self.nclasses, feature_count), dtype=np.float)
-        self.epochs = 20
+        self.epochs = 2
 
     def _score(self, sample_x):
         return np.dot(self.w,sample_x[:,np.newaxis])
@@ -146,7 +146,7 @@ class base_classifier:
             for sample_x, sample_y in validation_dh.data_generator(shuffle=False):
                 good = good + int(sample_y ==  self.test(sample_x))
             print("epoch: {}, good: {} ({:.1%})".format(ep, good, good/validation_dh.n_samples))
-
+        return good
 
 class pereceptron(base_classifier):
     def __init__(self, feature_count):
@@ -205,21 +205,30 @@ def even_sampling(vec,count):
     xp = np.arange(0,1,1/len(svec))
     return np.interp(x,xp,svec)
 
-if __name__ == "__main__":
+def main():
     global fprint
     args = parse_args()
     mfp = manage_fprint(args)
     fprint = mfp.get_fprint()
 
     data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
-    validation_data, train_data = data.split(300)
-    pcp = pereceptron(train_data.n_features)
-    pa = passive_agressive(train_data.n_features)
-    svm = support_vector_machine(train_data.n_features)
-
-    print("Perceptron")
-    pcp.train(train_data,validation_data)
+    validation_set1, validation_set2, train_data = data.split([300,600])
+    fiers, goods = select_best_classifier(pereceptron,train_data,validation_set1)
+    test_scores = [sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers]
+    print("goods: {}\ntest_goods: {}, corr{}".format(goods, test_scores, np.corrcoef(np.array(goods), np.array(test_scores))))
+    
     # print("\n\n\nPassive-Agrressive")
     # pa.train(train_data,validation_data)
     # print("\n\n\n SVM")
     # svm.train(train_data,validation_data)
+
+def select_best_classifier(classifier, train_data, validation_data, attempts=20):
+    fiers = []
+    goods = np.zeros(attempts, dtype=int)
+    for a in range(attempts):
+        fiers.append(classifier(train_data.n_features))
+        goods[a] = fiers[-1].train(train_data,validation_data)
+    return fiers, goods
+
+if __name__ == "__main__":
+    main()

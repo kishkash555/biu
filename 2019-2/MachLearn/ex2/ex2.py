@@ -183,10 +183,11 @@ class passive_agressive(base_classifier):
  
 class support_vector_machine(base_classifier):
     def __init__(self, feature_count):
-         super().__init__(feature_count)
-         self.eta = 0.01
-         self.lada = 0.001
-    
+        super().__init__(feature_count)
+        self.eta = 0.01
+        self.lada = 0.001
+        self.type = 'svm'
+        
     def update_rule(self, sample_x, sample_y, sample_yhat):
         delta = self.eta * sample_x
         decay = 1- self.lada * self.eta
@@ -212,10 +213,14 @@ def main():
     fprint = mfp.get_fprint()
 
     data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
-    validation_set1, validation_set2, train_data = data.split([300,600])
-    fiers, goods = select_best_classifier(support_vector_machine,train_data,validation_set1)
+    validation_set1, validation_set2, train_data = data.split([300, 600])
+    fiers = [
+        select_best_classifier(pereceptron, train_data, validation_set1),
+        select_best_classifier(passive_agressive, train_data, validation_set1),
+        select_best_classifier(support_vector_machine, train_data, validation_set1)
+    ]
     test_scores = [sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers]
-    print("goods: {}\ntest_goods: {}, corr{}".format(goods, test_scores, np.corrcoef(np.array(goods), np.array(test_scores))))
+    print("test_scores: "+ ", ".join(["{}: {}".format(f.type, t) for f,t in zip(fiers, test_scores)]))
     
     # print("\n\n\nPassive-Agrressive")
     # pa.train(train_data,validation_data)
@@ -228,7 +233,7 @@ def select_best_classifier(classifier, train_data, validation_data, attempts=20)
     for a in range(attempts):
         fiers.append(classifier(train_data.n_features))
         goods[a] = fiers[-1].train(train_data,validation_data)
-    return fiers, goods
+    return fiers[np.argmax(goods)]
 
 if __name__ == "__main__":
     main()

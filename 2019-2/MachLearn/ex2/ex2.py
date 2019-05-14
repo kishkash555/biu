@@ -28,6 +28,11 @@ class manage_fprint:
         self.f.close()
 
 class seashell_data_holder:
+    digitaztion_datum = abalone_datum(
+        sex = '',
+        length = 
+    )
+
     @classmethod
     def from_file(cls, x_file, y_file=None):
         self = cls()
@@ -52,7 +57,7 @@ class seashell_data_holder:
         # in this way, one line of code only (the below line) needs to change to test different converters
         # the static method will still recieve self as first parameter
         self.n_samples = 0 
-        self.n_features = 11
+        self.n_features = 18
 
 
     def split(self, counts, shuffle=False):
@@ -80,7 +85,9 @@ class seashell_data_holder:
 
     @staticmethod
     def get_datum(datum):
+        datum = seashell_data_holder.approx_mean(datum)
         ret = seashell_data_holder._convert_onehot(datum)
+        ret = seashell_data_holder.add_2nd_degree(ret,list(range(3,10)))
         ret = seashell_data_holder.add_constant(ret)
         return ret
 
@@ -90,6 +97,19 @@ class seashell_data_holder:
         ret = [sp_line[0]] + [float(d) for d in sp_line[1:]]
         return abalone_datum(*ret)
     
+    @staticmethod
+    def approx_mean(datum):
+        return abalone_datum(
+            datum.sex,
+            datum.length - 0.5,
+            datum.diameter - 0.4,
+            datum.height - 0.14,
+            datum.whole_weight - 0.8,
+            datum.shucked_weight - 0.34,
+            datum.viscera_weight - 0.17,
+            datum.shell_weight - 0.23
+            )
+
     @staticmethod
     def _convert_onehot(datum):
         a1 = [0.,0.,0.]
@@ -102,6 +122,46 @@ class seashell_data_holder:
     @staticmethod
     def add_constant(vec):
         return np.concatenate([vec,np.ones(1)])
+
+    @staticmethod
+    def add_2nd_degree_full(vec, fields):
+        lf = len(fields)
+        n_added = int(lf*(lf+1)/2)
+        added_fields = np.zeros(n_added,dtype=float)
+        curr = 0
+        for i in range(lf):
+            for j in range(i,lf):
+                added_fields[curr] = vec[fields[i]]*vec[fields[j]]
+                curr += 1
+        return np.concatenate([vec,added_fields])
+
+    @staticmethod
+    def add_2nd_degree(vec, fields):
+        lf = len(fields)
+        n_added = lf
+        added_fields = np.zeros(n_added,dtype=float)
+        curr = 0
+        for i in range(lf):
+            added_fields[curr] = vec[fields[i]]*vec[fields[i]]
+            curr += 1
+        return np.concatenate([vec,added_fields])
+
+    
+    def digitize(self, digitization_datum):
+        feature_arr = np.vstack(self.data_generator(False))
+        for i, d_array in enumerate(digitization_datum):
+            if not (d_array is None):
+                feature_arr[:,i] = np.digitize(feature_arr[:,i], d_array)
+        self.train_x = [feature_arr[i,:] for i in range(self.n_samples)]
+        
+    def get_digitization_datum(self, n_points):
+        digitizable = 'length,diameter,height,whole_weight,shucked_weight,viscera_weight,shell_weight'.split(',')
+        feature_arr = np.vstack(self.data_generator(False))
+        feature_list = [feature_arr[:,i].copy() for i in range(feature_arr.shape[1])]
+        xp = np.arange(feature_arr.shape[0])
+        x = np.linspace(0,feature_arr.shape[0],n_points)
+        datum = abalone_datum(*[np.interp(x, xp, f) for f in feature_list])
+        return datum
 
     def data_generator(self, shuffle=True):
         r = np.arange(start=0, stop=self.n_samples,dtype=int)
@@ -126,7 +186,7 @@ class base_classifier:
         self.type = None   
         self.nclasses = 3   
         self.w = np.zeros((self.nclasses, feature_count), dtype=np.float)
-        self.epochs = 2
+        self.epochs = 1
 
     def _score(self, sample_x):
         return np.dot(self.w,sample_x[:,np.newaxis])

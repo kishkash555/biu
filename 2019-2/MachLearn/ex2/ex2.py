@@ -169,7 +169,7 @@ class seashell_data_holder:
         if shuffle:
             np.random.shuffle(r)
         for i in r:
-            yield self.array_x[i,:], self.train_y[i]
+            yield self.array_x[i,:], self.train_y[i] if self.train_y else None
 
 
 class learn_rate_schedule:
@@ -278,7 +278,7 @@ def even_sampling(vec,count):
 def fier_diff(fier):
     fier.array_x[:,5:10] = np.diff(fier.array_x[:,4:10])
 
-def main():
+def main_debug():
     global fprint
     args = parse_args()
     mfp = manage_fprint(args)
@@ -296,6 +296,26 @@ def main():
     test_scores = [sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers]
     fprint("test_score: {}".format(list(zip([f.type for f in fiers], test_scores))))
     
+def main():
+    global fprint
+    args = parse_args()
+    mfp = manage_fprint(args)
+    fprint = mfp.get_fprint()
+
+    data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
+    test_data = seashell_data_holder.from_file("train_x.txt")
+    validation_set, train_data = data.split(300)
+
+    fiers = [
+        select_best_classifier(pereceptron, train_data, validation_set),
+        select_best_classifier(support_vector_machine, train_data, validation_set),
+        select_best_classifier(passive_agressive, train_data, validation_set)
+    ]
+
+    for case in test_data.data_generator(shuffle=False):
+        fprint(", ".join(["{}: {}".format(f.type, f.test(case[0])) for f in fiers]))
+
+
 
 def select_best_classifier(classifier, train_data, validation_data, attempts=20,return_all=False):
     fiers = []

@@ -212,7 +212,7 @@ class base_classifier:
             good = 0
             for sample_x, sample_y in validation_dh.data_generator(shuffle=False):
                 good = good + int(sample_y ==  self.test(sample_x))
-            print("epoch: {}, good: {} ({:.1%})".format(ep, good, good/validation_dh.n_samples))
+            #fprint("epoch: {}, good: {} ({:.1%})".format(ep, good, good/validation_dh.n_samples))
         return good
 
 class pereceptron(base_classifier):
@@ -281,31 +281,37 @@ def main():
 
     data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
     validation_set1, validation_set2, train_data = data.split([300, 600])
+
+    fiers = select_best_classifier(pereceptron, train_data, validation_set1, return_all=True)
+    test_scores = np.array([sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers])
+    fprint("perceptron test_scores raw features:\n{}\n{} +/- {}".format(
+        np.array2string(test_scores,separator=', '), 
+        np.mean(test_scores), np.std(test_scores)
+        ))
+
     digitaztion_datum = train_data.get_digitization_func(50)
     digitaztion_datum[0:3] = None, None, None # do not digitize sex
     digitaztion_datum[10] = None # do not digitize constant
     train_data.digitize(digitaztion_datum)
     validation_set1.digitize(digitaztion_datum)
     validation_set2.digitize(digitaztion_datum)
-    fiers = [
-        select_best_classifier(pereceptron, train_data, validation_set1),
-        select_best_classifier(passive_agressive, train_data, validation_set1),
-        select_best_classifier(support_vector_machine, train_data, validation_set1)
-    ]
-    test_scores = [sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers]
-    print("test_scores: "+ ", ".join(["{}: {}".format(f.type, t) for f,t in zip(fiers, test_scores)]))
+    fiers = select_best_classifier(pereceptron, train_data, validation_set1, return_all=True)
+    test_scores = np.array([sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers])
+    fprint("percptron test_scores with digitze:\n{}\n{} +/- {}".format(
+        np.array2string(test_scores,separator=', '), 
+        np.mean(test_scores), 
+        np.std(test_scores)
+        ))
     
-    # print("\n\n\nPassive-Agrressive")
-    # pa.train(train_data,validation_data)
-    # print("\n\n\n SVM")
-    # svm.train(train_data,validation_data)
 
-def select_best_classifier(classifier, train_data, validation_data, attempts=20):
+def select_best_classifier(classifier, train_data, validation_data, attempts=20,return_all=False):
     fiers = []
     goods = np.zeros(attempts, dtype=int)
     for a in range(attempts):
         fiers.append(classifier(train_data.n_features))
         goods[a] = fiers[-1].train(train_data,validation_data)
+    if return_all:
+        return fiers
     return fiers[np.argmax(goods)]
 
 if __name__ == "__main__":

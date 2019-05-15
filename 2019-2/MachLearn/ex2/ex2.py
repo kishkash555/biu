@@ -133,6 +133,7 @@ class seashell_data_holder:
                 added_fields[:,curr] = ax[:,fields[i]]*ax[:,fields[j]]
                 curr += 1
         self.array_x = np.concatenate([ax,added_fields])
+        self.n_features = self.array_x.shape[1]
 
     def add_2nd_degree(self, fields):
         lf = len(fields)
@@ -143,7 +144,8 @@ class seashell_data_holder:
         for i in range(lf):
             added_fields[:,curr] = ax[:,fields[i]]*ax[:,fields[i]]
             curr += 1
-        self.array_x = np.concatenate([ax,added_fields])
+        self.array_x = np.concatenate([ax,added_fields], axis=1)
+        self.n_features = self.array_x.shape[1]
 
     def get_train_x_as_array(self):
         return np.vstack([x[0] for x in self.data_generator(False)])
@@ -274,7 +276,7 @@ def even_sampling(vec,count):
     return np.interp(x,xp,svec)
 
 def fier_diff(fier):
-    fier.array_x[:,1:10] = np.diff(fier.array_x[:,:10])
+    fier.array_x[:,5:10] = np.diff(fier.array_x[:,4:10])
 
 def main():
     global fprint
@@ -285,9 +287,9 @@ def main():
     data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
     validation_set1, validation_set2, train_data = data.split([300, 600])
 
-    fiers = select_best_classifier(passive_agressive, train_data, validation_set1, return_all=True)
+    fiers = select_best_classifier(pereceptron, train_data, validation_set1, return_all=True)
     test_scores = np.array([sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers])
-    fprint("pa test_scores raw features:\n{}\n{} +/- {}".format(
+    fprint("perceptron test_scores raw features:\n{}\n{} +/- {}".format(
         np.array2string(test_scores,separator=', '), 
         np.mean(test_scores), np.std(test_scores)
         ))
@@ -304,9 +306,13 @@ def main():
     fier_diff(validation_set1)
     fier_diff(validation_set2)
 
-    fiers = select_best_classifier(passive_agressive, train_data, validation_set1, return_all=True)
+    train_data.add_2nd_degree(list(range(3,10)))
+    validation_set1.add_2nd_degree(list(range(3,10)))
+    validation_set2.add_2nd_degree(list(range(3,10)))
+
+    fiers = select_best_classifier(pereceptron, train_data, validation_set1, return_all=True)
     test_scores = np.array([sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers])
-    fprint("pa test_scores with digitze:\n{}\n{} +/- {}".format(
+    fprint("perceptron test_scores with digitze:\n{}\n{} +/- {}".format(
         np.array2string(test_scores,separator=', '), 
         np.mean(test_scores), 
         np.std(test_scores)

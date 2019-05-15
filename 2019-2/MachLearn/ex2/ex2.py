@@ -287,36 +287,14 @@ def main():
     data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
     validation_set1, validation_set2, train_data = data.split([300, 600])
 
-    fiers = select_best_classifier(support_vector_machine, train_data, validation_set1, return_all=True)
-    test_scores = np.array([sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers])
-    fprint("svm test_scores raw features:\n{}\n{} +/- {}".format(
-        np.array2string(test_scores,separator=', '), 
-        np.mean(test_scores), np.std(test_scores)
-        ))
+    fiers = [
+        select_best_classifier(pereceptron, train_data, validation_set1),
+        select_best_classifier(support_vector_machine, train_data, validation_set1),
+        select_best_classifier(passive_agressive, train_data, validation_set1)
+    ]
 
-    digitaztion_datum = train_data.get_digitization_func(50)
-    digitaztion_datum[0:3] = None, None, None # do not digitize sex
-    digitaztion_datum[10] = None # do not digitize constant
-    train_data.digitize(digitaztion_datum)
-
-    validation_set1.digitize(digitaztion_datum)
-    validation_set2.digitize(digitaztion_datum)
-
-    fier_diff(train_data)
-    fier_diff(validation_set1)
-    fier_diff(validation_set2)
-
-    train_data.add_2nd_degree(list(range(3,10)))
-    validation_set1.add_2nd_degree(list(range(3,10)))
-    validation_set2.add_2nd_degree(list(range(3,10)))
-
-    fiers = select_best_classifier(support_vector_machine, train_data, validation_set1, return_all=True)
-    test_scores = np.array([sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers])
-    fprint("svm test_scores with digitze:\n{}\n{} +/- {}".format(
-        np.array2string(test_scores,separator=', '), 
-        np.mean(test_scores), 
-        np.std(test_scores)
-        ))
+    test_scores = [sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers]
+    fprint("test_score: {}".format(list(zip([f.type for f in fiers], test_scores))))
     
 
 def select_best_classifier(classifier, train_data, validation_data, attempts=20,return_all=False):

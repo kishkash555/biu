@@ -287,9 +287,9 @@ def main():
     data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
     validation_set1, validation_set2, train_data = data.split([300, 600])
 
-    fiers = select_best_classifier(pereceptron, train_data, validation_set1, return_all=True)
+    fiers = select_best_classifier(support_vector_machine, train_data, validation_set1, return_all=True)
     test_scores = np.array([sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers])
-    fprint("perceptron test_scores raw features:\n{}\n{} +/- {}".format(
+    fprint("svm test_scores raw features:\n{}\n{} +/- {}".format(
         np.array2string(test_scores,separator=', '), 
         np.mean(test_scores), np.std(test_scores)
         ))
@@ -310,9 +310,9 @@ def main():
     validation_set1.add_2nd_degree(list(range(3,10)))
     validation_set2.add_2nd_degree(list(range(3,10)))
 
-    fiers = select_best_classifier(pereceptron, train_data, validation_set1, return_all=True)
+    fiers = select_best_classifier(support_vector_machine, train_data, validation_set1, return_all=True)
     test_scores = np.array([sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers])
-    fprint("perceptron test_scores with digitze:\n{}\n{} +/- {}".format(
+    fprint("svm test_scores with digitze:\n{}\n{} +/- {}".format(
         np.array2string(test_scores,separator=', '), 
         np.mean(test_scores), 
         np.std(test_scores)

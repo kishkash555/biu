@@ -273,6 +273,9 @@ def even_sampling(vec,count):
     xp = np.arange(0,1,1/len(svec))
     return np.interp(x,xp,svec)
 
+def fier_diff(fier):
+    fier.array_x[:,1:10] = np.diff(fier.array_x[:,:10])
+
 def main():
     global fprint
     args = parse_args()
@@ -293,8 +296,14 @@ def main():
     digitaztion_datum[0:3] = None, None, None # do not digitize sex
     digitaztion_datum[10] = None # do not digitize constant
     train_data.digitize(digitaztion_datum)
+
     validation_set1.digitize(digitaztion_datum)
     validation_set2.digitize(digitaztion_datum)
+
+    fier_diff(train_data)
+    fier_diff(validation_set1)
+    fier_diff(validation_set2)
+
     fiers = select_best_classifier(pereceptron, train_data, validation_set1, return_all=True)
     test_scores = np.array([sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers])
     fprint("percptron test_scores with digitze:\n{}\n{} +/- {}".format(

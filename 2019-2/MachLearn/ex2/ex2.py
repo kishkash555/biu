@@ -28,11 +28,6 @@ class manage_fprint:
         self.f.close()
 
 class seashell_data_holder:
-    digitaztion_datum = abalone_datum(
-        sex = '',
-        length = 
-    )
-
     @classmethod
     def from_file(cls, x_file, y_file=None):
         self = cls()
@@ -45,7 +40,9 @@ class seashell_data_holder:
             with open(y_file,'rt') as y:
                 for line in y:
                     self.train_y.append(int(line.split('.')[0]))
+        
         self.n_samples = len(self.train_x)
+        self._to_array()
         return self
 
 
@@ -57,8 +54,8 @@ class seashell_data_holder:
         # in this way, one line of code only (the below line) needs to change to test different converters
         # the static method will still recieve self as first parameter
         self.n_samples = 0 
-        self.n_features = 18
-
+        self.n_features = None
+        self.array_x = None
 
     def split(self, counts, shuffle=False):
         """
@@ -80,16 +77,18 @@ class seashell_data_holder:
             if ty:
                 cur.train_y = self.train_y[st:sp]
             cur.n_samples = sp-st
+            cur._to_array()
             ret.append(cur)
         return ret
 
-    @staticmethod
-    def get_datum(datum):
-        datum = seashell_data_holder.approx_mean(datum)
-        ret = seashell_data_holder._convert_onehot(datum)
-        ret = seashell_data_holder.add_2nd_degree(ret,list(range(3,10)))
-        ret = seashell_data_holder.add_constant(ret)
-        return ret
+    def _to_array(self):
+        self.array_x = np.vstack([
+            seashell_data_holder._convert_onehot(
+                seashell_data_holder.approx_mean(x)
+                ) for x in self.train_x])
+        self.add_constant()
+        self.n_features = self.array_x.shape[1]
+
 
     @staticmethod
     def load_line(line):
@@ -119,67 +118,75 @@ class seashell_data_holder:
         ret = np.array(a1+a2[1:], dtype=float)
         return ret
 
-    @staticmethod
-    def add_constant(vec):
-        return np.concatenate([vec,np.ones(1)])
+    def add_constant(self):
+        self.array_x = np.hstack([self.array_x, np.ones((self.array_x.shape[0],1))])
 
-    @staticmethod
-    def add_2nd_degree_full(vec, fields):
+    
+    def add_2nd_degree_full(self, fields):
         lf = len(fields)
         n_added = int(lf*(lf+1)/2)
-        added_fields = np.zeros(n_added,dtype=float)
+        ax = self.array_x
+        added_fields = np.zeros((ax.shape[0],n_added),dtype=float)
         curr = 0
         for i in range(lf):
             for j in range(i,lf):
-                added_fields[curr] = vec[fields[i]]*vec[fields[j]]
+                added_fields[:,curr] = ax[:,fields[i]]*ax[:,fields[j]]
                 curr += 1
-        return np.concatenate([vec,added_fields])
+        self.array_x = np.concatenate([ax,added_fields])
 
-    @staticmethod
-    def add_2nd_degree(vec, fields):
+    def add_2nd_degree(self, fields):
         lf = len(fields)
         n_added = lf
-        added_fields = np.zeros(n_added,dtype=float)
+        ax = self.array_x
+        added_fields = np.zeros((ax.shape[0],n_added),dtype=float)
         curr = 0
         for i in range(lf):
-            added_fields[curr] = vec[fields[i]]*vec[fields[i]]
+            added_fields[:,curr] = ax[:,fields[i]]*ax[:,fields[i]]
             curr += 1
-        return np.concatenate([vec,added_fields])
+        self.array_x = np.concatenate([ax,added_fields])
 
-    
+    def get_train_x_as_array(self):
+        return np.vstack([x[0] for x in self.data_generator(False)])
+
     def digitize(self, digitization_datum):
-        feature_arr = np.vstack(self.data_generator(False))
+        ax = self.array_x
         for i, d_array in enumerate(digitization_datum):
             if not (d_array is None):
-                feature_arr[:,i] = np.digitize(feature_arr[:,i], d_array)
-        self.train_x = [feature_arr[i,:] for i in range(self.n_samples)]
+                self.array_x[:,i] = np.digitize(ax[:,i], d_array)
         
-    def get_digitization_datum(self, n_points):
-        digitizable = 'length,diameter,height,whole_weight,shucked_weight,viscera_weight,shell_weight'.split(',')
-        feature_arr = np.vstack(self.data_generator(False))
-        feature_list = [feature_arr[:,i].copy() for i in range(feature_arr.shape[1])]
-        xp = np.arange(feature_arr.shape[0])
-        x = np.linspace(0,feature_arr.shape[0],n_points)
-        datum = abalone_datum(*[np.interp(x, xp, f) for f in feature_list])
-        return datum
+    def get_digitization_func(self, n_points):
+        ax = self.array_x
+        feature_list = [np.sort(ax[:,i]) for i in range(ax.shape[1])]
+        xp = np.arange(ax.shape[0])
+        x = np.linspace(0,ax.shape[0],n_points)
+        funcs = [np.interp(x, xp, f) for f in feature_list]
+        return funcs
 
     def data_generator(self, shuffle=True):
-        r = np.arange(start=0, stop=self.n_samples,dtype=int)
+        r = np.arange(start=0, stop=self.n_samples, dtype=int)
         if shuffle:
             np.random.shuffle(r)
         for i in r:
-            yield self.get_datum(self.train_x[i]), self.train_y[i]
+            yield self.array_x[i,:], self.train_y[i]
 
 
 class learn_rate_schedule:
     def __init__(self, alpha=2  ):
         self.eta = 0.1
         self.alpha = alpha
+        self.lr_generator = self.inverse_time_decay
     
-    def lr_generator(self):
+    def inverse_time_decay(self):
         while True:
             yield self.eta
             self.eta = self.eta - self.alpha * self.eta**2
+
+    def exponential_decay(self):
+        if self.alpha >= 1.:
+            raise ValueError("alpha ({}) must be <1".format(self.alpha))
+        while True:
+            yield self.eta
+            self.eta = self.alpha * self.eta
 
 class base_classifier:
     def __init__(self, feature_count):
@@ -274,6 +281,12 @@ def main():
 
     data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
     validation_set1, validation_set2, train_data = data.split([300, 600])
+    digitaztion_datum = train_data.get_digitization_func(50)
+    digitaztion_datum[0:3] = None, None, None # do not digitize sex
+    digitaztion_datum[10] = None # do not digitize constant
+    train_data.digitize(digitaztion_datum)
+    validation_set1.digitize(digitaztion_datum)
+    validation_set2.digitize(digitaztion_datum)
     fiers = [
         select_best_classifier(pereceptron, train_data, validation_set1),
         select_best_classifier(passive_agressive, train_data, validation_set1),

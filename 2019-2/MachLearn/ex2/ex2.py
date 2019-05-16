@@ -1,29 +1,95 @@
-import numpy as np
+import argparse
 from collections import namedtuple
+import numpy as np
+from os import path
 
 abalone_datum = namedtuple('seashell','sex,length,diameter,height,whole_weight,shucked_weight,viscera_weight,shell_weight'.split(','))
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('train_x', action='store')
+    parser.add_argument('train_y', action='store')
+    parser.add_argument('test_x', action='store')
+
+    args = parser.parse_args()
+    return args
+
+class manage_fprint:
+    def __init__(self, args):
+        self.f = None
+        if args.output_file:
+            self.f = open(args.output_file,'wt',buffering=1)
+
+    def get_fprint(self):
+        def fprint(s):
+            print(s)
+            print(s, file=self.f)
+        if self.f:
+            return fprint
+        return print
+
+    def close(self):
+        self.f.close()
+
 class seashell_data_holder:
-    def __init__(self, x_file, y_file=None):
-        self.train_x = []
-        
+    @classmethod
+    def from_file(cls, x_file, y_file=None):
+        self = cls()
         with open(x_file,'rt') as x:
             for line in x:
                 self.train_x.append(seashell_data_holder.load_line(line))    
+                
         if y_file:
             self.train_y = []
             with open(y_file,'rt') as y:
                 for line in y:
                     self.train_y.append(int(line.split('.')[0]))
-        else:
-            self.train_y=None
         
+        self.n_samples = len(self.train_x)
+        self._to_array()
+        return self
+        
+    def __init__(self):
+        self.train_x = []
+        self.train_y = None
         # here monkey-patching is used to allow flexibility in choosing the converter function
         # in this way, one line of code only (the below line) needs to change to test different converters
         # the static method will still recieve self as first parameter
-        self.get_datum = seashell_data_holder._convert_onehot
-        self.n_samples = len(self.train_x)
-        self.n_features = 10
+        self.n_samples = 0 
+        self.n_features = None
+        self.array_x = None
+
+    def split(self, counts, shuffle=False):
+        """
+        return an array of seashell_data_holders, by splitting the existing data, without deep-copying the data
+        """
+        ty = self.train_y is not None
+        if type(counts) ==int:
+            counts = [counts]
+        if counts[0] != 0:
+            counts = [0] + counts
+        elif len(counts) == 1:
+            raise ValueError("cannot split at 0")
+        counts += [self.n_samples]
+
+        ret = [] 
+        for (st, sp) in zip(counts[:-1],counts[1:]):
+            cur = seashell_data_holder()
+            cur.train_x = self.train_x[st:sp]
+            if ty:
+                cur.train_y = self.train_y[st:sp]
+            cur.n_samples = sp-st
+            cur._to_array()
+            ret.append(cur)
+        return ret
+
+    def _to_array(self):
+        self.array_x = np.vstack([
+            seashell_data_holder._convert_onehot(
+                seashell_data_holder.approx_mean(x)
+                ) for x in self.train_x])
+        self.add_constant()
+        self.n_features = self.array_x.shape[1]
 
 
     @staticmethod
@@ -33,6 +99,19 @@ class seashell_data_holder:
         return abalone_datum(*ret)
     
     @staticmethod
+    def approx_mean(datum):
+        return abalone_datum(
+            datum.sex,
+            datum.length - 0.5,
+            datum.diameter - 0.4,
+            datum.height - 0.14,
+            datum.whole_weight - 0.8,
+            datum.shucked_weight - 0.34,
+            datum.viscera_weight - 0.17,
+            datum.shell_weight - 0.23
+            )
+
+    @staticmethod
     def _convert_onehot(datum):
         a1 = [0.,0.,0.]
         d = {"M": 0, "F": 1, "I": 2}
@@ -41,36 +120,45 @@ class seashell_data_holder:
         ret = np.array(a1+a2[1:], dtype=float)
         return ret
 
+    def add_constant(self):
+        self.array_x = np.hstack([self.array_x, np.ones((self.array_x.shape[0],1))])
+
+    
+    def get_train_x_as_array(self):
+        return np.vstack([x[0] for x in self.data_generator(False)])
+
     def data_generator(self, shuffle=True):
-        r = np.arange(start=0, stop=self.n_samples,dtype=int)
+        r = np.arange(start=0, stop=self.n_samples, dtype=int)
         if shuffle:
             np.random.shuffle(r)
         for i in r:
-            yield self.get_datum(self.train_x[i]), self.train_y[i]
+            yield self.array_x[i,:], self.train_y[i] if self.train_y else None
 
 
+class learn_rate_schedule:
+    def __init__(self, alpha=2  ):
+        self.eta = 0.1
+        self.alpha = alpha
+        self.lr_generator = self.inverse_time_decay
+    
+    def inverse_time_decay(self):
+        while True:
+            yield self.eta
+            self.eta = self.eta - self.alpha * self.eta**2
 
-# class threeway_predictor:
-#     def __init__(self, class0, class1, class2):
-#         self.classifiers = [class0, class1, class2]
-
-#     def predict(self, sample_x):
-#         votes = np.array([
-#             [[1,0,0],[0,1,0],[0,0,1]],
-#             [[0,1,1],[1,0,1],[1,1,0]],
-#         ], dtype = int)
-#         y_total = np.zeros(3, dtype=int)
-#         for i,cl in enumerate(self.classifiers):
-#             y = 0 if cl.predict(sample_x) < 0 else 1
-#             y_total += votes[y, i, :]
-#         return np.argmax(y_total)
+    def exponential_decay(self):
+        if self.alpha >= 1.:
+            raise ValueError("alpha ({}) must be <1".format(self.alpha))
+        while True:
+            yield self.eta
+            self.eta = self.alpha * self.eta
 
 class base_classifier:
     def __init__(self, feature_count):
         self.type = None   
         self.nclasses = 3   
         self.w = np.zeros((self.nclasses, feature_count), dtype=np.float)
-        self.epochs = 20
+        self.epochs = 2
 
     def _score(self, sample_x):
         return np.dot(self.w,sample_x[:,np.newaxis])
@@ -81,25 +169,25 @@ class base_classifier:
     def test(self, sample_x):
         return np.argmax(self._score(sample_x))
 
-    def train(self, dh):
+    def train(self, train_dh, validation_dh):
         for ep in range(self.epochs):
-            for sample_x, sample_y in dh.data_generator():
+            for sample_x, sample_y in train_dh.data_generator():
                 sample_yhat = self.test(sample_x)
                 self.update_rule(sample_x, sample_y, sample_yhat)
             good = 0
-            for sample_x, sample_y in dh.data_generator(shuffle=False):
+            for sample_x, sample_y in validation_dh.data_generator(shuffle=False):
                 good = good + int(sample_y ==  self.test(sample_x))
-            print("epoch: {}, good: {} ({:.1%})".format(ep, good, good/dh.n_samples))
-
+        return good
 
 class pereceptron(base_classifier):
     def __init__(self, feature_count):
         super().__init__(feature_count)
         self.type = 'perceptron'
-        self.eta = 0.01
+        self.lr = learn_rate_schedule().lr_generator()
+        
 
     def update_rule(self, sample_x, sample_y, sample_yhat):
-        delta = self.eta * sample_x
+        delta = next(self.lr) * sample_x
         self.w[sample_y, :] += delta
         self.w[sample_yhat, : ] -= delta
 
@@ -112,7 +200,7 @@ class passive_agressive(base_classifier):
     
     def update_rule(self, sample_x, sample_y, sample_yhat):
         loss = self.hinge_loss(sample_x, sample_y)
-        tau = loss / np.dot(sample_x, sample_x)
+        tau = loss / (2*np.dot(sample_x, sample_x))
         delta = tau * sample_x
         self.w[sample_y,:] += delta
         self.w[sample_yhat, :] -= delta
@@ -126,10 +214,11 @@ class passive_agressive(base_classifier):
  
 class support_vector_machine(base_classifier):
     def __init__(self, feature_count):
-         super().__init__(feature_count)
-         self.eta = 0.01
-         self.lada = 0.001
-    
+        super().__init__(feature_count)
+        self.eta = 0.01
+        self.lada = 0.001 # "lambda" is reserved
+        self.type = 'svm'
+
     def update_rule(self, sample_x, sample_y, sample_yhat):
         delta = self.eta * sample_x
         decay = 1- self.lada * self.eta
@@ -138,15 +227,45 @@ class support_vector_machine(base_classifier):
         self.w[sample_yhat, :] -= delta
 
 
-if __name__ == "__main__":
-    train_data = seashell_data_holder("train_x.txt","train_y.txt")
-    pcp = pereceptron(train_data.n_features)
-    pa = passive_agressive(train_data.n_features)
-    svm = support_vector_machine(train_data.n_features)
+def main():
+    global fprint
+    args = parse_args()
+    args.output_file = None
 
-    # print("Perceptron")
-    # pcp.train(train_data)
-    print("\n\n\nPassive-Agrressive")
-    pa.train(train_data)
-    print("\n\n\n SVM")
-    svm.train(train_data)
+    mfp = manage_fprint(args)
+    fprint = mfp.get_fprint()
+
+    input_fnames = [args.train_x, args.train_y, args.test_x]
+
+    all_valid = [path.isfile(f) for f in input_fnames]
+    if not all(all_valid):
+        print("The following paths did not resove to a valid file name: {}".format(", ".join(f for f,b in zip(input_fnames, all_valid) if b is False)))
+        raise ValueError("File(s) not found")
+
+    data = seashell_data_holder.from_file(args.train_x, args.train_y)
+    test_data = seashell_data_holder.from_file(args.test_x)
+    validation_set, train_data = data.split(300)
+
+    fiers = [
+        select_best_classifier(pereceptron, train_data, validation_set),
+        select_best_classifier(support_vector_machine, train_data, validation_set),
+        select_best_classifier(passive_agressive, train_data, validation_set)
+    ]
+
+    for case in test_data.data_generator(shuffle=False):
+        fprint(", ".join(["{}: {}".format(f.type, f.test(case[0])) for f in fiers]))
+
+
+
+def select_best_classifier(classifier, train_data, validation_data, attempts=30,return_all=False):
+    fiers = []
+    goods = np.zeros(attempts, dtype=int)
+    for a in range(attempts):
+        fiers.append(classifier(train_data.n_features))
+        goods[a] = fiers[-1].train(train_data,validation_data)
+    if return_all:
+        return fiers
+    return fiers[np.argmax(goods)]
+
+if __name__ == "__main__":
+    main()

@@ -222,7 +222,7 @@ class support_vector_machine(base_classifier):
     def __init__(self, feature_count):
         super().__init__(feature_count)
         self.eta = 0.01
-        self.lada = 0.001 # "lambda" is reserved
+        self.lada = 0.01 # "lambda" is reserved
         self.type = 'svm'
 
     def update_rule(self, sample_x, sample_y, sample_yhat):
@@ -241,14 +241,15 @@ def main_debug():
     data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
     validation_set1, validation_set2, train_data = data.split([300, 600])
 
-    fiers = [
-        select_best_classifier(pereceptron, train_data, validation_set1),
-        select_best_classifier(support_vector_machine, train_data, validation_set1),
-        select_best_classifier(passive_agressive, train_data, validation_set1)
-    ]
+    for _ in range(10):
+        fiers = [
+            #select_best_classifier(pereceptron, train_data, validation_set1),
+            select_best_classifier(support_vector_machine, train_data, validation_set1),
+            #select_best_classifier(passive_agressive, train_data, validation_set1)
+        ]
 
-    test_scores = [sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers]
-    fprint("test_score: {}".format(list(zip([f.type for f in fiers], test_scores))))
+        test_scores = [sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers]
+        fprint("test_score: {}".format(list(zip([f.type for f in fiers], test_scores))))
 
 def main():
     global fprint

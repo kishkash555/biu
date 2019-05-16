@@ -145,7 +145,7 @@ class learn_rate_schedule:
     def __init__(self, alpha=2  ):
         self.eta = 0.1
         self.alpha = alpha
-        self.lr_generator = self.inverse_time_decay
+        self.lr_generator = self.constant
     
     def inverse_time_decay(self):
         while True:
@@ -158,6 +158,10 @@ class learn_rate_schedule:
         while True:
             yield self.eta
             self.eta = self.alpha * self.eta
+    
+    def constant(self):
+        while True:
+            yield self.eta
 
 class base_classifier:
     def __init__(self, feature_count):

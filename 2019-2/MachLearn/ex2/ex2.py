@@ -142,10 +142,10 @@ class seashell_data_holder:
 
 
 class learn_rate_schedule:
-    def __init__(self, alpha=2  ):
+    def __init__(self, alpha=0.93  ):
         self.eta = 0.1
         self.alpha = alpha
-        self.lr_generator = self.constant
+        self.lr_generator = self.exponential_decay
     
     def inverse_time_decay(self):
         while True:

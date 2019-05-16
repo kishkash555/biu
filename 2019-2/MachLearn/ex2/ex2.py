@@ -1,6 +1,6 @@
-import numpy as np
-from collections import namedtuple
 import argparse
+from collections import namedtuple
+import numpy as np
 from os import path
 
 abalone_datum = namedtuple('seashell','sex,length,diameter,height,whole_weight,shucked_weight,viscera_weight,shell_weight'.split(','))
@@ -48,8 +48,6 @@ class seashell_data_holder:
         self.n_samples = len(self.train_x)
         self._to_array()
         return self
-
-
         
     def __init__(self):
         self.train_x = []
@@ -126,47 +124,8 @@ class seashell_data_holder:
         self.array_x = np.hstack([self.array_x, np.ones((self.array_x.shape[0],1))])
 
     
-    def add_2nd_degree_full(self, fields):
-        lf = len(fields)
-        n_added = int(lf*(lf+1)/2)
-        ax = self.array_x
-        added_fields = np.zeros((ax.shape[0],n_added),dtype=float)
-        curr = 0
-        for i in range(lf):
-            for j in range(i,lf):
-                added_fields[:,curr] = ax[:,fields[i]]*ax[:,fields[j]]
-                curr += 1
-        self.array_x = np.concatenate([ax,added_fields])
-        self.n_features = self.array_x.shape[1]
-
-    def add_2nd_degree(self, fields):
-        lf = len(fields)
-        n_added = lf
-        ax = self.array_x
-        added_fields = np.zeros((ax.shape[0],n_added),dtype=float)
-        curr = 0
-        for i in range(lf):
-            added_fields[:,curr] = ax[:,fields[i]]*ax[:,fields[i]]
-            curr += 1
-        self.array_x = np.concatenate([ax,added_fields], axis=1)
-        self.n_features = self.array_x.shape[1]
-
     def get_train_x_as_array(self):
         return np.vstack([x[0] for x in self.data_generator(False)])
-
-    def digitize(self, digitization_datum):
-        ax = self.array_x
-        for i, d_array in enumerate(digitization_datum):
-            if not (d_array is None):
-                self.array_x[:,i] = np.digitize(ax[:,i], d_array)
-        
-    def get_digitization_func(self, n_points):
-        ax = self.array_x
-        feature_list = [np.sort(ax[:,i]) for i in range(ax.shape[1])]
-        xp = np.arange(ax.shape[0])
-        x = np.linspace(0,ax.shape[0],n_points)
-        funcs = [np.interp(x, xp, f) for f in feature_list]
-        return funcs
 
     def data_generator(self, shuffle=True):
         r = np.arange(start=0, stop=self.n_samples, dtype=int)
@@ -218,7 +177,6 @@ class base_classifier:
             good = 0
             for sample_x, sample_y in validation_dh.data_generator(shuffle=False):
                 good = good + int(sample_y ==  self.test(sample_x))
-            #fprint("epoch: {}, good: {} ({:.1%})".format(ep, good, good/validation_dh.n_samples))
         return good
 
 class pereceptron(base_classifier):
@@ -258,7 +216,7 @@ class support_vector_machine(base_classifier):
     def __init__(self, feature_count):
         super().__init__(feature_count)
         self.eta = 0.01
-        self.lada = 0.001
+        self.lada = 0.001 # "lambda" is reserved
         self.type = 'svm'
 
     def update_rule(self, sample_x, sample_y, sample_yhat):
@@ -269,37 +227,6 @@ class support_vector_machine(base_classifier):
         self.w[sample_yhat, :] -= delta
 
 
-def even_sampling(vec,count):
-    """
-    returns the entries at (k*i) positions in the sorted vec, where i are consecutive natural numbers and k is len/count
-    uses interpolation in case of noninteger index
-    """
-    svec = sorted(vec)
-    x = np.arange(0,1,1/count)
-    xp = np.arange(0,1,1/len(svec))
-    return np.interp(x,xp,svec)
-
-def fier_diff(fier):
-    fier.array_x[:,5:10] = np.diff(fier.array_x[:,4:10])
-
-def main_debug():
-    global fprint
-    args = parse_args()
-    mfp = manage_fprint(args)
-    fprint = mfp.get_fprint()
-
-    data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
-    validation_set1, validation_set2, train_data = data.split([300, 600])
-
-    fiers = [
-        select_best_classifier(pereceptron, train_data, validation_set1),
-        select_best_classifier(support_vector_machine, train_data, validation_set1),
-        select_best_classifier(passive_agressive, train_data, validation_set1)
-    ]
-
-    test_scores = [sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers]
-    fprint("test_score: {}".format(list(zip([f.type for f in fiers], test_scores))))
-    
 def main():
     global fprint
     args = parse_args()
@@ -330,7 +257,7 @@ def main():
 
 
 
-def select_best_classifier(classifier, train_data, validation_data, attempts=20,return_all=False):
+def select_best_classifier(classifier, train_data, validation_data, attempts=30,return_all=False):
     fiers = []
     goods = np.zeros(attempts, dtype=int)
     for a in range(attempts):

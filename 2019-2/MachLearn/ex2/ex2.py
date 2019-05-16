@@ -1,12 +1,16 @@
 import numpy as np
 from collections import namedtuple
 import argparse
+from os import path
 
 abalone_datum = namedtuple('seashell','sex,length,diameter,height,whole_weight,shucked_weight,viscera_weight,shell_weight'.split(','))
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('output_file', action='store', nargs='?')
+    parser.add_argument('train_x', action='store')
+    parser.add_argument('train_y', action='store')
+    parser.add_argument('test_x', action='store')
+
     args = parser.parse_args()
     return args
 
@@ -299,11 +303,20 @@ def main_debug():
 def main():
     global fprint
     args = parse_args()
+    args.output_file = None
+
     mfp = manage_fprint(args)
     fprint = mfp.get_fprint()
 
-    data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
-    test_data = seashell_data_holder.from_file("train_x.txt")
+    input_fnames = [args.train_x, args.train_y, args.test_x]
+
+    all_valid = [path.isfile(f) for f in input_fnames]
+    if not all(all_valid):
+        print("The following paths did not resove to a valid file name: {}".format(", ".join(f for f,b in zip(input_fnames, all_valid) if b is False)))
+        raise ValueError("File(s) not found")
+
+    data = seashell_data_holder.from_file(args.train_x, args.train_y)
+    test_data = seashell_data_holder.from_file(args.test_x)
     validation_set, train_data = data.split(300)
 
     fiers = [

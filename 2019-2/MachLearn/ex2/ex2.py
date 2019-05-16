@@ -14,6 +14,12 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+def parse_args_debug():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('output_file', action='store', nargs='?')
+    args = parser.parse_args()
+    return args
+    
 class manage_fprint:
     def __init__(self, args):
         self.f = None
@@ -226,6 +232,23 @@ class support_vector_machine(base_classifier):
         self.w[sample_y,:] +=  delta
         self.w[sample_yhat, :] -= delta
 
+def main_debug():
+    global fprint
+    args = parse_args_debug()
+    mfp = manage_fprint(args)
+    fprint = mfp.get_fprint()
+
+    data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
+    validation_set1, validation_set2, train_data = data.split([300, 600])
+
+    fiers = [
+        select_best_classifier(pereceptron, train_data, validation_set1),
+        select_best_classifier(support_vector_machine, train_data, validation_set1),
+        select_best_classifier(passive_agressive, train_data, validation_set1)
+    ]
+
+    test_scores = [sum(p.test(x)==y for x,y in validation_set2.data_generator()) for p in fiers]
+    fprint("test_score: {}".format(list(zip([f.type for f in fiers], test_scores))))
 
 def main():
     global fprint
@@ -268,4 +291,4 @@ def select_best_classifier(classifier, train_data, validation_data, attempts=30,
     return fiers[np.argmax(goods)]
 
 if __name__ == "__main__":
-    main()
+    main_debug()

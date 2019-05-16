@@ -222,7 +222,7 @@ class support_vector_machine(base_classifier):
     def __init__(self, feature_count):
         super().__init__(feature_count)
         self.eta = 0.01
-        self.lada = 10 # "lambda" is reserved
+        self.lada = 100 # "lambda" is reserved
         self.type = 'svm'
 
     def update_rule(self, sample_x, sample_y, sample_yhat):

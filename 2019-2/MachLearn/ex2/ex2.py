@@ -14,6 +14,13 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+def parse_args_debug():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('output_file', action='store', nargs='?')
+
+    args = parser.parse_args()
+    return args
+
 class manage_fprint:
     def __init__(self, args):
         self.f = None
@@ -40,10 +47,7 @@ class seashell_data_holder:
                 self.train_x.append(seashell_data_holder.load_line(line))    
                 
         if y_file:
-            self.train_y = []
-            with open(y_file,'rt') as y:
-                for line in y:
-                    self.train_y.append(int(line.split('.')[0]))
+            self.train_y = np.array(np.round(np.loadtxt(y_file)),dtype=int)
         
         self.n_samples = len(self.train_x)
         self._to_array()
@@ -59,11 +63,19 @@ class seashell_data_holder:
         self.n_features = None
         self.array_x = None
 
-    def split(self, counts, shuffle=False):
+    def split(self, counts, k_fold=False, shuffle=False):
         """
         return an array of seashell_data_holders, by splitting the existing data, without deep-copying the data
         """
         ty = self.train_y is not None
+        if shuffle:
+            shuffle_ind = np.arange(self.n_samples)
+            np.random.shuffle(shuffle_ind)
+            self.train_x = [self.train_x[i] for i in shuffle_ind]
+            self.array_x = self.array_x[shuffle_ind,:] 
+            if ty:
+                self.train_y = self.train_y[shuffle_ind] 
+            
         if type(counts) ==int:
             counts = [counts]
         if counts[0] != 0:
@@ -71,7 +83,6 @@ class seashell_data_holder:
         elif len(counts) == 1:
             raise ValueError("cannot split at 0")
         counts += [self.n_samples]
-
         ret = [] 
         for (st, sp) in zip(counts[:-1],counts[1:]):
             cur = seashell_data_holder()
@@ -80,8 +91,18 @@ class seashell_data_holder:
                 cur.train_y = self.train_y[st:sp]
             cur.n_samples = sp-st
             cur._to_array()
-            ret.append(cur)
+            if k_fold:
+                cur2 = seashell_data_holder()
+                cur2.train_x = self.train_x[:st]+ self.train_x[sp:]
+                if ty:
+                    cur2.train_y = np.concatenate([self.train_y[:st], self.train_y[sp:]])
+                cur2.n_samples = self.n_samples - (sp-st)
+                cur2._to_array()
+                ret.append((cur,cur2))
+            else:
+                ret.append(cur)
         return ret
+
 
     def _to_array(self):
         self.array_x = np.vstack([
@@ -116,7 +137,7 @@ class seashell_data_holder:
         a1 = [0.,0.,0.]
         d = {"M": 0, "F": 1, "I": 2}
         a1[d[datum.sex]]=1.
-        a2 = list(datum)
+        a2 = list(datum) # convert tuple to list
         ret = np.array(a1+a2[1:], dtype=float)
         return ret
 
@@ -124,41 +145,55 @@ class seashell_data_holder:
         self.array_x = np.hstack([self.array_x, np.ones((self.array_x.shape[0],1))])
 
     
-    def get_train_x_as_array(self):
-        return np.vstack([x[0] for x in self.data_generator(False)])
-
     def data_generator(self, shuffle=True):
         r = np.arange(start=0, stop=self.n_samples, dtype=int)
         if shuffle:
             np.random.shuffle(r)
         for i in r:
-            yield self.array_x[i,:], self.train_y[i] if self.train_y else None
+            yield self.array_x[i,:], None if self.train_y is None else self.train_y[i]
 
 
 class learn_rate_schedule:
-    def __init__(self, alpha=2):
-        self.eta = 0.1
-        self.alpha = alpha
-        self.lr_generator = self.inverse_time_decay
+    def __init__(self, lr_type, **params):
+        self.params = params
+        if lr_type == 'exponential':
+            self.lr_generator = self.exponential_decay()
+        elif lr_type == 'inverse_time':
+            self.lr_generator = self.inverse_time_decay()
+        elif lr_type == 'constant':
+            self.lr_generator = self.constant_lr()
     
     def inverse_time_decay(self):
+        step = 0
+        alpha = self.params['alpha']
+        eta = self.params['eta']
         while True:
-            yield self.eta
-            self.eta = self.eta - self.alpha * self.eta**2
+            step += 1
+            yield eta/(1 + alpha* step)
 
     def exponential_decay(self):
-        if self.alpha >= 1.:
-            raise ValueError("alpha ({}) must be <1".format(self.alpha))
+        alpha = self.params['alpha']
+        eta = self.params['eta']
+        if alpha >= 1.:
+            raise ValueError("alpha ({}) must be <1".format(alpha))
         while True:
-            yield self.eta
-            self.eta = self.alpha * self.eta
+            yield eta
+            eta *= alpha 
+    
+    def constant_lr(self):
+        eta = self.params['eta']
+        while True:
+            yield eta
+
+
 
 class base_classifier:
-    def __init__(self, feature_count):
+    def __init__(self, feature_count, debug):
         self.type = None   
         self.nclasses = 3   
         self.w = np.zeros((self.nclasses, feature_count), dtype=np.float)
-        self.epochs = 2
+        self.epochs = 20
+        self.debug = bool(debug)
 
     def _score(self, sample_x):
         return np.dot(self.w,sample_x[:,np.newaxis])
@@ -175,32 +210,44 @@ class base_classifier:
                 sample_yhat = self.test(sample_x)
                 self.update_rule(sample_x, sample_y, sample_yhat)
             good = 0
-            for sample_x, sample_y in validation_dh.data_generator(shuffle=False):
-                good = good + int(sample_y ==  self.test(sample_x))
+            if self.debug:
+                for sample_x, sample_y in validation_dh.data_generator(shuffle=False):
+                    good = good + int(sample_y ==  self.test(sample_x))
+                    fprint("{} ep {} accuracy: {} ({:.1%})".format(self.type, ep, good, good/validation_dh.n_samples))
+            self.next_epoch()
         return good
+    
+    def next_epoch(self):
+        raise NotImplementedError
 
 class pereceptron(base_classifier):
-    def __init__(self, feature_count):
-        super().__init__(feature_count)
+    def __init__(self, feature_count, debug=False):
+        super().__init__(feature_count, debug)
+        self.epochs = 15
         self.type = 'perceptron'
-        self.lr = learn_rate_schedule().lr_generator()
-        
+        self.lr = learn_rate_schedule('exponential', eta = 0.1, alpha = 0.5).lr_generator
+        self.next_epoch()        
 
     def update_rule(self, sample_x, sample_y, sample_yhat):
-        delta = next(self.lr) * sample_x
+        delta = self.eta * sample_x
         self.w[sample_y, :] += delta
-        self.w[sample_yhat, : ] -= delta
+        self.w[sample_yhat, :] -= delta
+
+    def next_epoch(self):
+        self.eta = next(self.lr)
 
 
 class passive_agressive(base_classifier):
-    def __init__(self, feature_count):
-        super().__init__(feature_count)
-        self.tau = 0.01
+    def __init__(self, feature_count, debug=False):
+        super().__init__(feature_count, debug)
         self.type = 'pa'
+        self.max_tau_rate = learn_rate_schedule('exponential', eta = 1, alpha = 0.5).lr_generator
+        self.next_epoch()
     
     def update_rule(self, sample_x, sample_y, sample_yhat):
         loss = self.hinge_loss(sample_x, sample_y)
         tau = loss / (2*np.dot(sample_x, sample_x))
+        tau = min(tau, self.max_tau)
         delta = tau * sample_x
         self.w[sample_y,:] += delta
         self.w[sample_yhat, :] -= delta
@@ -211,13 +258,18 @@ class passive_agressive(base_classifier):
         score[sample_y] = -np.inf
         highest = np.amax(score)
         return max(0, 1- (true_class_score - highest))        
+    
+    def next_epoch(self):
+        self.max_tau = next(self.max_tau_rate)
  
+
 class support_vector_machine(base_classifier):
-    def __init__(self, feature_count):
-        super().__init__(feature_count)
-        self.eta = 0.01
-        self.lada = 1 # "lambda" is reserved
+    def __init__(self, feature_count, debug=False):
+        super().__init__(feature_count, debug)
+        self.lada = 0.1 # "lambda" is reserved
         self.type = 'svm'
+        self.lr = learn_rate_schedule('exponential', eta = 0.1, alpha = 0.5).lr_generator
+        self.next_epoch()
 
     def update_rule(self, sample_x, sample_y, sample_yhat):
         delta = self.eta * sample_x
@@ -226,14 +278,42 @@ class support_vector_machine(base_classifier):
         self.w[sample_y,:] +=  delta
         self.w[sample_yhat, :] -= delta
 
+    def next_epoch(self):
+        self.eta = next(self.lr)
+
+def main_debug():
+    global fprint
+    args = parse_args_debug()
+    mfp = manage_fprint(args)
+    fprint = mfp.get_fprint()
+
+    data = seashell_data_holder.from_file("train_x.txt","train_y.txt")
+    kfold_data = data.split(list(range(0,data.n_samples,600)),k_fold=True, shuffle=True)
+
+    nf = data.n_features
+    for validation, train_data in kfold_data:
+        fiers = [
+            pereceptron(nf, False),
+            support_vector_machine(nf, False),
+            passive_agressive(nf, False)
+        ]
+
+        test_scores = []
+        for p in fiers:
+            p.train(train_data, validation)
+            test_scores.append(sum(p.test(x)==y for x,y in validation.data_generator()))
+        report = ["({}, {}, {:.1%})".format(f.type, score, score/validation.n_samples) for f, score in zip(fiers, test_scores)]
+        fprint("test_score: {}".format(report))
+
+
 
 def main():
     global fprint
     args = parse_args()
-    args.output_file = None
+    # args.output_file = None
 
-    mfp = manage_fprint(args)
-    fprint = mfp.get_fprint()
+    # mfp = manage_fprint(args)
+    fprint = print
 
     input_fnames = [args.train_x, args.train_y, args.test_x]
 
@@ -242,16 +322,17 @@ def main():
         print("The following paths did not resove to a valid file name: {}".format(", ".join(f for f,b in zip(input_fnames, all_valid) if b is False)))
         raise ValueError("File(s) not found")
 
-    data = seashell_data_holder.from_file(args.train_x, args.train_y)
+    train_data = seashell_data_holder.from_file(args.train_x, args.train_y)
     test_data = seashell_data_holder.from_file(args.test_x)
-    validation_set, train_data = data.split(300)
+    #validation_set, train_data = data.split(300)
 
     fiers = [
-        select_best_classifier(pereceptron, train_data, validation_set),
-        select_best_classifier(support_vector_machine, train_data, validation_set),
-        select_best_classifier(passive_agressive, train_data, validation_set)
+        pereceptron(train_data.n_features, False),
+        support_vector_machine(train_data.n_features, False),
+        passive_agressive(train_data.n_features, False)
     ]
-
+    for p in fiers:
+        p.train(train_data,None)
     for case in test_data.data_generator(shuffle=False):
         fprint(", ".join(["{}: {}".format(f.type, f.test(case[0])) for f in fiers]))
 

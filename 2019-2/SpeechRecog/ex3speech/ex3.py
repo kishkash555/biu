@@ -1,24 +1,26 @@
 import numpy as np
 import argparse
 from collections import namedtuple
-debug = True
+from ex3_test import prob_calc_bf
+from os import path
+#debug = True
 
 debug_args_nt = namedtuple('debug_args',['file','labeling','alphabet'])
-debug_args = debug_args_nt('mat.npy', 'ace', 'abcdef')
+debug_args = debug_args_nt('', 'ace', 'abcdef')
 
 probs = np.array([
-       [0.4 , 0.06, 0.01, 0.  , 0.  , 0.  , 0.  , 0.02, 0.28, 0.03],
-       [0.16, 0.2 , 0.02, 0.05, 0.  , 0.  , 0.05, 0.02, 0.01, 0.1 ],
+       [0.4 , 0.06, 0.01, 0.  , 0.  , 0.1 , 0.  , 0.02, 0.03, 0.03],
+       [0.16, 0.2 , 0.02, 0.05, 0.  , 0.1 , 0.05, 0.02, 0.01, 0.1 ],
        [0.03, 0.01, 0.09, 0.24, 0.55, 0.27, 0.25, 0.4 , 0.17, 0.06],
-       [0.37, 0.  , 0.58, 0.16, 0.05, 0.14, 0.35, 0.05, 0.08, 0.66],
-       [0.  , 0.18, 0.3 , 0.  , 0.01, 0.  , 0.35, 0.5 , 0.  , 0.11],
-       [0.  , 0.2 , 0.  , 0.03, 0.09, 0.01, 0.  , 0.  , 0.46, 0.  ],
-       [0.04, 0.35, 0.  , 0.52, 0.3 , 0.58, 0.  , 0.01, 0.  , 0.04]])
+       [0.17, 0.  , 0.38, 0.16, 0.05, 0.14, 0.15, 0.05, 0.08, 0.66],
+       [0.1 , 0.18, 0.3 , 0.  , 0.01, 0.1 , 0.15, 0.5 , 0.  , 0.11],
+       [0.1 , 0.2 , 0.  , 0.03, 0.09, 0.01, 0.  , 0.  , 0.46, 0.  ],
+       [0.04, 0.35, 0.2 , 0.52, 0.3 , 0.28, 0.4 , 0.01, 0.25, 0.04]])
 
 probs1 = np.array([
-    [0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0],
+    [1,0,0,0,0,0,0],
     [.5,0,0,0,0,0,.5],
-    [0,0,0,0,0,0,1],
     [0,0,.5,0,0,0,.5],
     [0,0,0,0,0,0,1],
     [0,0,0,0,.5,0,.5],
@@ -28,24 +30,34 @@ probs1 = np.array([
 
 def parseargs():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--debug", action='store_true')
     parser.add_argument("file", type=str, help='path to numpy binary with input probabilities')
     parser.add_argument("labeling", type=str, help='the labeling you wish to calculate probability for')
     parser.add_argument("alphabet", type=str, help='the output tokens corresponding to the columns of the matrix')
     return parser.parse_args()
 
 def main():
-    if not debug:
-        args = parseargs()
+    args = parseargs()
+    print(args)
+    debug = args.debug
+    prob_mat = None
+    if path.isfile(args.file):
         prob_mat = np.load(args.file).T
-    else:
-        args = debug_args
-        prob_mat = probs1
+    if debug:
+        prob_mat = prob_mat or probs
+        args.labeling = args.labeling if args.labeling != '-' else debug_args.labeling
+        args.alphabet = args.alphabet if args.alphabet != '-' else debug_args.alphabet
+        bruteforce = prob_calc_bf(prob_mat, args.labeling, args.alphabet)
+        print('brute force probability: {}'.format(bruteforce) )
 
     num_tokens = len(args.alphabet)+1
     if prob_mat.shape[0] != num_tokens:
-        raise ValueError("input matrix has {} rows, alphabet has {} tokens".format(prob_mat.shape[0], num_tokens))
+        raise ValueError("input matrix has {} rows, alphabet has {} tokens".format(prob_mat.shape[0], num_tokens-1 ))
     prbty = ctc_probl_calc(prob_mat, args.labeling, args.alphabet)
+    
     print(prbty)
+
+
 
 
 def shift(a):

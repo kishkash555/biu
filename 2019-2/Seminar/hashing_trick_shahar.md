@@ -1,11 +1,13 @@
 # Compressing Neural Networks With the Hashing Trick
 
+---
+
 ![hashing_trick](Seminar/hashing_trick_header.png)
 
 ---
 
 ### Section 1
-# Introduction
+# Background
 
 ---
 
@@ -42,9 +44,11 @@ Who is this guy?
 ---
 
 ### It works!
-* Revolutionized image processing and autonomous driving
-* Benchmarks in other fields seeing constant imporvements
-* 
+* Major impact:
+    * image recognition
+    * speech to text
+    * natural language processing
+    * ...
 
 ### It grows!
 * New architectures and topologies spring constantly
@@ -52,54 +56,149 @@ Who is this guy?
 
 ---
 
-### ...But
-* Networks are becoming larger and larger
-    * High operational costs
-    * Long development
-    * High memory requirements
-    * High energy requirements
-* No theoretical guidelines
+### How Performance is improved
+* More training examples
+* Sharing tuned networks among researchers
+* Combining proven submodules in a single architecture
+
+&dArr; <!-- .element: class="fragment" data-fragment-index="1" -->
+
+**Increased Network size** <!-- .element: class="fragment" data-fragment-index="1" -->
 
 ---
 
-### Theoretical gaps - examples
-* Theory lagging far behind practice
-    * Fitness for a particular problem? 
-    * Optimal architecture for a particular problem?
-    * Optimal hyperparameters? (e.g. learning rate)
-
-![learning-rate-pitfalls](Seminar/learning-rate-too-high-or-low.png)
+![network-year-size](Seminar/parameter-number-growth-by-year.jpg)
 
 ---
 
-### Stochastic Gradient Descent
-* <font color ="#A0F0A0"> Intuitive </font>
-* <font color ="#A0F0A0"> Generic </font>
-* <font color ="#F08080"> Depends on initial conditions </font>
-* <font color ="#F08080"> Depends on learning rate </font>
-
-
-![funky-path-SGD](Seminar/SGD-path.png)
-
----
-
-### Motivations for reducing size of network
+### Can we do more with less?
+If we can, we will...
 * Reduce operational costs
-* Reduce memory and energy requirements
-* Shorten response latency - improve user experience
-* Democratize AI (lower overhead costs)
+* Reduce energy consumption
+* Open the way for wider use
+* Accelerate development of new solutions
 
 ---
 
-### Network compression - Some approaches
+### After intese theoretical analysis...
+![yok](Seminar/mr-bean-scratching.jpg) <!-- .element: class="fragment" -->
 
-* "Optimal Brain Damage" <!-- .element: class="fragment" -->
-    * Remove/ join connections
-* Low-Rank decomposition <!-- .element: class="fragment" -->
-    * Use two "thin" matrices to replace one "fat"
-* Decreasing bit depth <!-- .element: class="fragment" -->
-* Distillation/ "Dark-knowledge" <!-- .element: class="fragment" -->
-    * Use "smooth" scores from big networks during training
+---
+
+### Summary
+* Technological evolution towards more sophisticated networks
+* More efficient networks "are out there"
+* Demand for methods that will either: 
+    * Train compact networks more efficiently
+    * Compress networks post-training
+
+---
+
+### Section 2
+# A few compression techniques
+
+---
+
+### _Optimal Brain Damage_
+* **Remove** connections with minimal (absolute) weight
+
+and/or 
+
+* **Join** similar neurons
+
+![pruning-saliency](Seminar/pruning_saliency.png)
+
+---
+
+### _Optimal Brain Damage_
+* Pros: intuitive, easy
+* Cons:
+    * Does not reduce matrix dimension
+    * Limited compression potential
+
+---
+
+### Matrix dimension trick
+* Layer $\mathcal{l}$ has $m$ neurons
+* Layer $\mathcal{l}+1$ has $n$ neurons
+* How many multiplications operations will we carry out?
+
+$W \in \mathbb{R}^{n \times m}$ <!-- .element: class="fragment" -->
+
+Calculating $Wx$ requires $m^2\cdot n$ operations <!-- .element: class="fragment" -->
+
+---
+
+`$W_{n\times m} \equiv U_{n \times r} V_{r \times m}$`
+
+`$r \ll \min(m,n)$`
+
+if $r=1$ we require just $m+n$ operations <!-- .element: class="fragment" -->
+
+---
+
+### Matrix dimension trick
+* Pros:
+    * Truely reduces number of operation
+    * "Scalable" compression (with $r=1,2,\ldots$)
+    * Hardware already optimized
+* Cons:
+    * hard to train
+
+---
+
+### Bit-depth reduction
+* Take the _k_ most signficant bits (MSBs) of each weight 
+
+---
+
+* Pros:
+    * Virtually no loss of accuracy
+* Cons:
+    * Need custom kernel to enjoy computational benefits
+
+---
+
+### Section 3
+# The Hashing Trick
+
+---
+
+### What is a Hash?
+
+$\mathcal{H}:\ \mathbb{N}^d \to \\{1, \ldots k\\}$ 
+
+* Outputs are uniformly distirbuted
+
+---
+
+### Principle
+* Replace $W_{n \times m}$ with $V_k$
+
+`$$W_{i,j} = V_{\mathcal{H}(i,j)}$$`
+
+---
+
+### Benefits
+* Fast to compute
+* Storage free (?)
+
+![hashing_trick](Seminar/Hashing_trick_illustration.png)
+
+---
+
+### Datasets
+![mnist](Seminar/MnistExamples.png)
+![conv](Seminar/convex-dataset.png)
+
+![mnist-bg](Seminar/mnist-back-random.png)
+![mnist-rot](Seminar/mnist-rot.png)
+![rect](Seminar/rect-example.png)
+
+---
+
+### Comparison to other methods
+
 
 
 ---
@@ -168,5 +267,41 @@ Who is this guy?
 * Learning rate too high or low: https://www.hackerearth.com/blog/machine-learning/3-types-gradient-descent-algorithms-small-large-data-sets/
 
 * AI tech landscape: https://dzone.com/articles/ai-and-machine-learning-trends-for-2018-what-to-ex
-
+* Parameter number by year: https://www.nature.com/articles/s41928-018-0059-3/figures/1
 ![hashing_trick](Seminar/Hashing_trick_illustration.png)
+
+* Mr. bean image https://indianexpress.com/article/entertainment/television/rowan-atkinson-says-mr-bean-return-doubtful-5391451/
+
+* MNIST image By Josef Steppan - Own work, <a href="https://creativecommons.org/licenses/by-sa/4.0" title="Creative Commons Attribution-Share Alike 4.0">CC BY-SA 4.0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=64810040">Link</a>
+
+
+* MNIST Rot image: https://sites.google.com/a/lisa.iro.umontreal.ca/public_static_twiki/variations-on-the-mnist-digits
+
+* Convex and Rect images: Larochelle, H. et al. An empirical evaluation of deep architectures on problems with many factors of variation. In ICML, pp. 473-480, 2007. http://www.dmi.usherb.ca/~larocheh/publications/deep-nets-icml-07.pdf    
+
+---
+
+---
+
+^Note:
+### Stochastic Gradient Descent
+* <font color ="#A0F0A0"> Intuitive </font>
+* <font color ="#A0F0A0"> Generic </font>
+* <font color ="#F08080"> Depends on initial conditions </font>
+* <font color ="#F08080"> Depends on learning rate </font>
+
+
+![funky-path-SGD](Seminar/SGD-path.png)
+
+---
+
+
+^Note:
+### Theoretical gaps - examples
+* Theory lagging far behind practice
+    * Fitness for a particular problem? 
+    * Optimal architecture for a particular problem?
+    * Optimal hyperparameters? (e.g. learning rate)
+
+![learning-rate-pitfalls](Seminar/learning-rate-too-high-or-low.png)
+

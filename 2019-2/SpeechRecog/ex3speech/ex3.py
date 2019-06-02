@@ -16,9 +16,9 @@ probs = np.array([
        [0.04, 0.35, 0.  , 0.52, 0.3 , 0.58, 0.  , 0.01, 0.  , 0.04]])
 
 probs1 = np.array([
-    [0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0],
+    [1,0,0,0,0,0,0],
     [.5,0,0,0,0,0,.5],
-    [0,0,0,0,0,0,1],
     [0,0,.5,0,0,0,.5],
     [0,0,0,0,0,0,1],
     [0,0,0,0,.5,0,.5],
@@ -40,12 +40,16 @@ def main():
     else:
         args = debug_args
         prob_mat = probs1
-
+        bruteforce = prob_calc_bf(prob_mat, args.labeling, args.alphabet)
+        print('brute force probability: {}'.format(bruteforce) )
     num_tokens = len(args.alphabet)+1
     if prob_mat.shape[0] != num_tokens:
         raise ValueError("input matrix has {} rows, alphabet has {} tokens".format(prob_mat.shape[0], num_tokens))
     prbty = ctc_probl_calc(prob_mat, args.labeling, args.alphabet)
+    
     print(prbty)
+
+
 
 
 def shift(a):

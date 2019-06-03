@@ -1,11 +1,37 @@
 
 def prob_calc_bf(y, word, alphabet):
-    label_length = len(word)
-    alpha = np.zeros(label_length * 2 + 1)
+    """
+     brue force probability calculation
+    y: the matrix of probabilities per time step, note it has to be TRANSPOSED before the call to prob_calc_bf
+    word: the word to calculate, eg. "cat"
+    alphabet: the interpretation of each column in y, eg. 'abcdef'
+    note the last column is reserved for blank
+    """
+    time_steps = y.shape[1]
     alphabet_dict = { t: i for i, t in enumerate(alphabet)}
-    blank_ordinal = len(alphabet)
-
+    alphabet_dict[':'] = len(alphabet_dict)
+    ret = 0.
+    for path in generate_paths('',0,word, time_steps):
+        path_p = 1
+        for i, char in enumerate(path):
+            path_p *= y[alphabet_dict[char],i]
+        ret += path_p
+    return ret
+    
 def generate_paths(current_path, next_symbol, word, total_length):
+    """
+    recursive generation of all valid paths for a given word and a total length
+    e.g. "cat", with total length of 5 will generate 'cat::','ca:t:','c:a:t','ca::t','c::at', '::cat',
+    'cccat', 'ccaatt' etc.
+    current path: always '', except within recursive call
+    next_symbol: always 0, except within recursive call
+    word: the word to generate paths for
+    total_length: the total length of the strings to generate
+    note this function is a _generator_. correct usages:
+    for p in generate_paths(...)
+    or
+    paths = list(generate_paths(...))
+    """
     if next_symbol == len(word):
         yield current_path + ':'*(total_length-len(current_path))
         return 
@@ -31,6 +57,11 @@ def generate_paths(current_path, next_symbol, word, total_length):
             yield p
 
 def squeeze(pt):
+    """
+    returns the word that is represented by a sequence with blanks and duplications.
+    set(map(squeeze, generate_path(...))) will return a set with just the original word since all sequences
+    represent the same original word
+    """
     ret = []
     curr = '*'
     for c in pt:

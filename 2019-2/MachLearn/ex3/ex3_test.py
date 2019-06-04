@@ -59,22 +59,22 @@ def test_softmax_network_bkwd():
         print(np.log(y1[0,0])-np.log(y2[0,0]), dx[i]*1e-4)
 #    print("{}\n{}\n{}".format(s(x1),s(x2),))
 
-def create_linear_data(dim=5, n_train=500, cube_side=10.):
+def create_linear_data(dim=5, n_train=50, cube_side=10.):
     angle = np.random.rand(1,dim-1) * np.pi
     angle[-1] = angle[-1]*2 # last angle has range [0,2*pi)
     w = angles_to_unit_vector(angle)
     bias = np.random.rand(1)*(cube_side/2.5)-(cube_side/5)
     train_x = np.random.rand(n_train,dim) * cube_side - (cube_side/2)
-    train_y = np.sign(train_x.dot(w.T) + bias).astype(int)
+    train_y = (0.5 * np.sign(train_x.dot(w.T) + bias) + 1).astype(int)
     return train_x, train_y
 
 
 def test_train_network():
     dim = 5
     train_x, train_y = create_linear_data(dim)
-    di = data_iterator(train_x, train_y, 64)
+    di = data_iterator(train_x, train_y, 1)
     net = network([linear_layer(dim,2),softmax_nll_layer()])
-    lr = learn_rate_schedule('exponential',eta=0.1, alpha=0.5)
+    lr = learn_rate_schedule('exponential',eta=0.1, alpha=0.5).set_step_width('epoch')
     net.train(di, lr)
 
 
@@ -90,6 +90,15 @@ def angles_to_unit_vector(angles):
         ret[:,i+1:] *= np.sin(angles[:,i])
     return ret
 
+def test_exp_step():
+    lr = learn_rate_schedule('exponential', eta=0.1, alpha=0.5).set_step_width('epoch')
+    lrg = lr.lr_generator
+    for ep in range(3):
+        for _ in range(5):
+            print(next(lrg))
+        print()
+        lr.new_epoch()
+
 if __name__ == "__main__":
     #test_linear()
     #test_relu()
@@ -97,3 +106,4 @@ if __name__ == "__main__":
     #test_softmax_network_fwd()
     #test_softmax_network_bkwd()
     test_train_network()
+    #test_exp_step()

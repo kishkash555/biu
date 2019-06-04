@@ -17,7 +17,7 @@ class data_iterator:
     
     def __next__(self):
         if self.n == self.length:
-            return StopIteration
-        n, next_n = self.n, min(self.batch_size, self.length)
+            raise StopIteration()
+        n, next_n = self.n, min(self.n + self.batch_size, self.length)
         self.n = next_n
         return self.array_x[self.schedule[n:next_n],:], self.array_y[self.schedule[n:next_n]]

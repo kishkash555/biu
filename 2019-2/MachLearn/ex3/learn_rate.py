@@ -43,10 +43,11 @@ class learn_rate_schedule:
     def set_step_width(self, st):
         if st == 'epoch':
             st = 0
-            self.trigger_epoch = True
+            self.epoch_as_trigger = True
         else:
-            self.trigger_epoch = False
+            self.epoch_as_trigger = False
         self.step_width = max(0, st)
+        return self
 
     def do_step(self):
         self.step += 1
@@ -56,6 +57,10 @@ class learn_rate_schedule:
 
     def _trigger_now(self):
         self.trigger_now = True
+
+    # def set_epoch_trigger(self, trigger=True):
+    #     self.epoch_as_trigger = trigger
+    #     return self
 
     def new_epoch(self):
         if self.epoch_as_trigger:

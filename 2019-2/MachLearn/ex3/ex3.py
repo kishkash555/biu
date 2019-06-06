@@ -35,7 +35,7 @@ def create_network():
 def ex3_main():
     net = create_network()
     di_train, di_valid = load_data()
-    lr = learn_rate_schedule('inverse_time',eta=0.0001, alpha=0.5).set_step_width(20)
+    lr = learn_rate_schedule('inverse_time',eta=0.001, alpha=0.5).set_step_width(20)
     net.set_train_options(report_interval=250)
     net.train(di_train, lr)
 

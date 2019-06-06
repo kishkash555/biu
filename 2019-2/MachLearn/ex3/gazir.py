@@ -54,8 +54,8 @@ class linear_layer(layer):
     def update(self, stepsize):
         W, b = self.parameters.values()
         grad_weight, grad_bias = self.ctx['grads']
-        W -= grad_weight
-        b -= grad_bias
+        W -= grad_weight * stepsize
+        b -= grad_bias * stepsize
     
 
 class relu_layer(layer):
@@ -90,6 +90,8 @@ class softmax_nll_layer(loss_layer):
         ret = self.ctx['softmax'].copy()
         rows = range(ret.shape[0])
         self.ctx['loss'] = -np.log(ret[rows,y])
+        if np.any(self.ctx['loss'] == np.inf):
+            print('inf detected. softmax:\n{}\nloss:{}'.format(ret[rows,y], self.ctx['loss']))
         ret[rows,y] = ret[rows,y] - 1
         return ret
 

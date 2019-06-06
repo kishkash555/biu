@@ -33,8 +33,8 @@ class linear_layer(layer):
     def __init__(self, fan_in, fan_out):
         super().__init__()
         self.parameters = OrderedDict([
-            ('W', np.random.rand(fan_in, fan_out)),
-            ('b', np.random.rand(fan_out))
+            ('W', np.random.rand(fan_in, fan_out)*2-1),
+            ('b', np.random.rand(fan_out)*2-1)
         ])
     
     def forward(self, x):
@@ -155,8 +155,8 @@ class network(loss_layer):
                 curr_loss += self.get_loss()
                 if (i+1) % to.report_interval == 0:
                     end = time.time()
-                    print("epoch {} iter {} ({:.4}): loss {:.4} acc {:.1%}, st {:.3}".format(
-                        ep, i, end-start, curr_loss/to.report_interval, good/cases, st_cum / to.report_interval)
+                    print("{}: epoch {} iter {} ({}): loss {:.4} acc {:.1%}, st {:.3}".format(
+                        time.strftime('%H:%M:%S',time.localtime(end)), ep, i, cases, curr_loss/cases, good/cases, st_cum / to.report_interval)
                         )
                     start = time.time()
                     curr_loss = 0.

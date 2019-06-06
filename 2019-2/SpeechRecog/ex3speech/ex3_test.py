@@ -1,11 +1,11 @@
 
 def prob_calc_bf(y, word, alphabet):
     """
-     brue force probability calculation
+    brute force probability calculation
     y: the matrix of probabilities per time step, note it has to be TRANSPOSED before the call to prob_calc_bf
     word: the word to calculate, eg. "cat"
     alphabet: the interpretation of each column in y, eg. 'abcdef'
-    note the last column is reserved for blank
+    note the last column represents the probability of blank
     """
     time_steps = y.shape[1]
     alphabet_dict = { t: i for i, t in enumerate(alphabet)}

@@ -2,18 +2,29 @@
 class learn_rate_schedule:
     def __init__(self, lr_type, **params):
         if lr_type == 'exponential':
-            self.lr_generator = self.exponential_decay()
+            lr_generator = self.exponential_decay()
         elif lr_type == 'inverse_time':
-            self.lr_generator = self.inverse_time_decay()
+            lr_generator = self.inverse_time_decay()
         elif lr_type == 'constant':
-            self.lr_generator = self.constant_lr()
+            lr_generator = self.constant_lr()
         else:
             raise ValueError("unrecognized lr_type")
+        if 'momentum' in params and bool(params['momentum'])==True:
+            self.lr_generator = self.apply_momentum(lr_generator)
+        else:
+            self.lr_generator = lr_generator
         self.params = params
         self.step = 0
         self.step_width = 1
         self.trigger_now = False
         self.epoch_as_trigger = False
+
+    def apply_momentum(self, lr_generator):
+        v = 0.
+        gamma = self.params['gamma']
+        for st in lr_generator:
+            v = gamma*v + st
+            yield v
 
     def inverse_time_decay(self):
         step =0
@@ -53,7 +64,7 @@ class learn_rate_schedule:
         self.step += 1
         is_trigger = self.trigger_now
         self.trigger_now = False
-        return is_trigger or (self.step_width > 0 and self.step % self.step_width)
+        return is_trigger or (self.step_width > 0 and self.step % self.step_width == 0)
 
     def _trigger_now(self):
         self.trigger_now = True

@@ -7,7 +7,7 @@ output_len =10
 train_x_file = 'train_x.npy'
 train_y_file = 'train_y'
 expected_train_size= 55000
-validation_sample_ratio = 11
+validation_sample_ratio = 55
 train_batch_size = 64
 validation_batch_size = 128
 
@@ -34,10 +34,12 @@ def create_network():
 
 def ex3_main():
     net = create_network()
+    net.to_pickle('save_model_before.pkl')
     di_train, di_valid = load_data()
-    lr = learn_rate_schedule('inverse_time',eta=0.001, alpha=0.5).set_step_width(20)
-    net.set_train_options(report_interval=250)
-    net.train(di_train, lr)
+    lr = learn_rate_schedule('constant',momentum=True, eta=0.001, alpha=10, gamma=0.8)
+    net.set_train_options(epochs=120, report_interval=250)
+    net.train(di_train, lr, di_valid)
+    net.to_pickle('save_model_after.pkl')
 
 if __name__ == "__main__":
     ex3_main()

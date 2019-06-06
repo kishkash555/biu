@@ -2,3 +2,4 @@ test_x
 train_x
 train_y
 train_x.npy
+results/

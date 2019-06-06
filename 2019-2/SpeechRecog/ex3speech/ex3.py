@@ -38,13 +38,12 @@ def parseargs():
 
 def main():
     args = parseargs()
-    print(args)
     debug = args.debug
     prob_mat = None
     if path.isfile(args.file):
         prob_mat = np.load(args.file).T
     if debug:
-        prob_mat = prob_mat or probs
+        prob_mat = prob_mat if prob_mat is not None else probs
         args.labeling = args.labeling if args.labeling != '-' else debug_args.labeling
         args.alphabet = args.alphabet if args.alphabet != '-' else debug_args.alphabet
         bruteforce = prob_calc_bf(prob_mat, args.labeling, args.alphabet)
@@ -55,7 +54,7 @@ def main():
         raise ValueError("input matrix has {} rows, alphabet has {} tokens".format(prob_mat.shape[0], num_tokens-1 ))
     prbty = ctc_probl_calc(prob_mat, args.labeling, args.alphabet)
     
-    print(prbty)
+    print('{:.2}'.format(round(prbty,2)))
 
 
 

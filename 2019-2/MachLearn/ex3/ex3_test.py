@@ -72,9 +72,9 @@ def create_linear_data(dim=5, n_train=50, cube_side=10.):
 def test_train_network():
     dim = 5
     train_x, train_y = create_linear_data(dim, n_train=100)
-    train_y[::7] = np.mod(train_y[::7]+1,2)
+    #train_y[45:47] = -train_y[45:47]+1
     di = data_iterator(train_x, train_y, 1)
-    net = network([linear_layer(dim,2),softmax_nll_layer()])
+    net = network([linear_layer(dim,2) ,softmax_nll_layer()])
     lr = learn_rate_schedule('exponential',eta=0.1, alpha=0.5).set_step_width('epoch')
     net.train(di, lr)
 

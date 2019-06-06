@@ -53,7 +53,7 @@ class learn_rate_schedule:
         self.step += 1
         is_trigger = self.trigger_now
         self.trigger_now = False
-        return is_trigger or (self.step_width > 0 and self.step % self.step_width)
+        return is_trigger or (self.step_width > 0 and self.step % self.step_width == 0)
 
     def _trigger_now(self):
         self.trigger_now = True

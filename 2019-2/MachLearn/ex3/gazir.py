@@ -2,6 +2,7 @@ import numpy as np
 from scipy.special import softmax
 from collections import OrderedDict, namedtuple
 import time
+import pickle
 
 train_options_nt = namedtuple('train_options',['epochs','report_interval'])
 
@@ -106,10 +107,11 @@ class network(loss_layer):
         super().__init__()
         layer_names = layer_names or ['layer{:02}'.format(i) for i in range(len(layer_obj))]
         self.layers = OrderedDict(zip(layer_names, layer_obj))
-        self.train_options = train_options_nt(20, 50)
+        self.train_options = {"epochs": 20, "report_interval": 50} 
     
     def set_train_options(self, **kwargs):
-        self.train_options = self.train_options._replace(**kwargs)
+        for k, v in kwargs.items():
+            self.train_options[k] = v
 
     def forward(self, x):
         z = x
@@ -148,7 +150,7 @@ class network(loss_layer):
         curr_loss = 0.
         good = cases = st_cum = 0.
         start = time.time()
-        for ep in range(to.epochs):
+        for ep in range(to["epochs"]):
             for i, (x, y) in enumerate(iter(train_set)):
                 st = next(lr_gen)
                 st_cum += st
@@ -158,7 +160,7 @@ class network(loss_layer):
                 self.backward(y)
                 self.update(st)
                 curr_loss += self.get_loss()
-                if (i+1) % to.report_interval == 0:
+                if (i+1) % to["report_interval"] == 0:
                     end = time.time()
                     report_validation = ""
                     if validation_set is not None:
@@ -170,7 +172,7 @@ class network(loss_layer):
                             report_validation = " dev acc {:.1%}, ".format(val_good/ val_cases)
                     report_header = "{}: epoch {} iter {} ({}):".format(time2str(end), ep, i, cases)
                     report_tr = " loss {:.4} tr_acc {:.1%}, st {:.3}".format(
-                            curr_loss/cases, good/cases, st_cum / to.report_interval)
+                            curr_loss/cases, good/cases, st_cum / to['report_interval'])
                     print(report_header+report_validation+report_tr, flush=True)
                     start = time.time()
                     curr_loss = 0.
@@ -178,3 +180,6 @@ class network(loss_layer):
                     st_cum = 0.
             lr.new_epoch()
 
+    def to_pickle(self,filename):
+        with open(filename,'wb') as p:
+            pickle.dump(self,p)

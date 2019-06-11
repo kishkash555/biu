@@ -37,7 +37,7 @@ def ex3_main():
     di_train, di_valid = load_data()
     lr = learn_rate_schedule('constant',momentum=True, eta=0.001, alpha=10, gamma=0)
     net.set_train_options(epochs=50, report_interval=250)
-    net.train(di_train, lr)
+    net.train(di_train, lr, di_valid)
 
 if __name__ == "__main__":
     ex3_main()

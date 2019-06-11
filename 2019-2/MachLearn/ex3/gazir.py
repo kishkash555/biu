@@ -5,6 +5,9 @@ import time
 
 train_options_nt = namedtuple('train_options',['epochs','report_interval'])
 
+def time2str(st):
+    return time.strftime('%H:%M:%S',time.localtime(st))
+
 class layer:
     def __init__(self):
         self.ctx = {}
@@ -157,9 +160,18 @@ class network(loss_layer):
                 curr_loss += self.get_loss()
                 if (i+1) % to.report_interval == 0:
                     end = time.time()
-                    print("{}: epoch {} iter {} ({}): loss {:.4} acc {:.1%}, st {:.3}".format(
-                        time.strftime('%H:%M:%S',time.localtime(end)), ep, i, cases, curr_loss/cases, good/cases, st_cum / to.report_interval)
-                        , flush=True)
+                    report_validation = ""
+                    if validation_set is not None:
+                        val_good = val_cases = 0
+                        for x,y in iter(validation_set):
+                            y_hats = np.argmax(self.forward(x), axis=1)
+                            val_good += (y_hats==y).sum()
+                            val_cases += len(y)
+                            report_validation = " dev acc {:.1%}, ".format(val_good/ val_cases)
+                    report_header = "{}: epoch {} iter {} ({}):".format(time2str(end), ep, i, cases)
+                    report_tr = " loss {:.4} tr_acc {:.1%}, st {:.3}".format(
+                            curr_loss/cases, good/cases, st_cum / to.report_interval)
+                    print(report_header+report_validation+report_tr, flush=True)
                     start = time.time()
                     curr_loss = 0.
                     good = cases = 0.

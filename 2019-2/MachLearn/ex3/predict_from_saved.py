@@ -55,7 +55,6 @@ def print_accuracy(model, valid_data):
 
 def main():
     args = parse_args()
-    print(args)
     model = load_model(args)
     if args.data_y is not None:
         valid_data = load_validation_data(args)

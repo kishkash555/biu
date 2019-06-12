@@ -3,3 +3,5 @@ test_x
 train*
 
 *.pkl
+ex3_submit/
+ex3_report.html

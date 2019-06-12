@@ -56,14 +56,14 @@ Who is this guy?
 
 ---
 
-### How Performance is improved
-* More training examples
-* Sharing tuned networks among researchers
-* Combining proven submodules in a single architecture
+### How are Performance Improvements Achieved?
+* Additional training examples <!-- .element: class="fragment" data-fragment-index="1" -->
+* Deeper, wider networks <!-- .element: class="fragment" data-fragment-index="1" -->
+* Combining various submodules into a single architecture <!-- .element: class="fragment" data-fragment-index="1" -->
 
-&dArr; <!-- .element: class="fragment" data-fragment-index="1" -->
+&dArr; <!-- .element: class="fragment" data-fragment-index="2" -->
 
-**Increased Network size** <!-- .element: class="fragment" data-fragment-index="1" -->
+**Constant increase in network sizes** <!-- .element: class="fragment" data-fragment-index="2" -->
 
 ---
 
@@ -71,7 +71,14 @@ Who is this guy?
 
 ---
 
-### Can we do more with less?
+### AlphaGo - 2017
+![alphago](Seminar/alphago.jpeg)
+
+He must be thinking about the $25 Million in hardware cost...
+
+---
+
+### Can we do the same with less?
 If we can, we will...
 * Reduce operational costs
 * Reduce energy consumption
@@ -268,6 +275,7 @@ $\mathcal{H}:\ \mathbb{N}^d \to \\{1, \ldots k\\}$
 
 * AI tech landscape: https://dzone.com/articles/ai-and-machine-learning-trends-for-2018-what-to-ex
 * Parameter number by year: https://www.nature.com/articles/s41928-018-0059-3/figures/1
+* AlphaGo player: https://www.telegraph.co.uk/science/2017/10/18/alphago-zero-google-deepmind-supercomputer-learns-3000-years/
 ![hashing_trick](Seminar/Hashing_trick_illustration.png)
 
 * Mr. bean image https://indianexpress.com/article/entertainment/television/rowan-atkinson-says-mr-bean-return-doubtful-5391451/

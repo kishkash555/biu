@@ -213,30 +213,13 @@ A hash-function should gives all the outputs "equal chances"
 
 ---
 
-### Reducing layer size
-
-_Reuse_ the same element in various locations within a connection matrix 
-
-![hashing_trick](Seminar/Hashing_trick_illustration.png) 
-
----
-
-### Reducing layer size
-
-_Reuse_ the same element in various locations within a connection matrix 
-
-
-
-
----
-
 ### Forward pass
 
 How to calculate `$\mathbf{z}_{n \times 1} = V_{n\times m} \cdot \mathbf{a}_{m \times 1}$`
 
-<u>Option 1 </u>
-* Expand $\mathbf{w}$ into $V$  
-* Calculate $z= Va$ (matrix &middot; vector multiplication) 
+<u>Direct</u>
+* calculate `$V_{i,j} = w_{\mathcal{H}(i,j)}$`
+* $z= Va$ 
 
 
 ---
@@ -246,17 +229,17 @@ How to calculate `$\mathbf{z}_{n \times 1} = V_{n\times m} \cdot \mathbf{a}_{m \
 
 How to calculate `$\mathbf{z}_{n \times 1} = V_{n\times m} \cdot \mathbf{a}_{m \times 1}$`
 
-<u>Option 2</u>
+<u>Feature-hashing</u>
 
-Collect $a_j$ into $n$ vectors $\phi_i$:
+Collect $a_j$ into $n$ vectors $\vec{\phi_1} \ldots \vec{\phi_n}$:
 * `$S_{ik} = \{j | h(i,j) = k \}$`
 * <!-- .element: style="color: #202020" -->
-* `$\phi_i$` = [ `$\sum\limits_{j \in S_{i1}} a_j$` | `$\sum\limits_{j \in S_{i2}} a_j$` | ... | `$\sum\limits_{{j \in S_{ik}}} a_j$`  ]
-* $z_i = \mathbf{w^T} \mathbf{\phi_i}$ (vector dot-product)
+* `$\vec{\phi_i}$` = [ `$\sum\limits_{j \in S_{i1}} a_j$` | `$\sum\limits_{j \in S_{i2}} a_j$` | ... | `$\sum\limits_{{j \in S_{ik}}} a_j$`  ]
+* $z_i = \vec{w} \cdot \vec{\phi_i}$ 
 
 ---
 
-#### Backward pass
+### Backward pass
 
 * The gradients "originate" from elements of $V$ but need to be accumulated per element of $\mathbf{w^T}$
 * This requires the backward mapping `$S_{ik} = \{j | h(i,j) = k \}$` to be kept in memory
@@ -276,71 +259,53 @@ Collect $a_j$ into $n$ vectors $\phi_i$:
 ---
 
 ### Experimental setup and comparison
-* Networks of 3 and 5 layers
-* The _Virtual_ size remains constant, the actual size varies
+* Feed-forward Networks of 3 and 5 layers
+* The _Virtual_ size remains constant, $k$ varies
 * compressions factors of &half; &frac14; &frac18; ... $\frac{1}{64}$
-* Compared to other well-known compression approaches
+* Compared to other compression approaches from literature
 
 ---
 
-![mnist-sbs](results-mnist-3layers-5layers-sbs.png)
+### Results - MNIST
+
+![mnist-sbs](Seminar/results-mnist-3layers-5layers-sbs.png)
+Note:
+* Nothing happening until 1/8
+* 5 layers is an overkill for this problem
+* The black (plain NN) and RER tell an interesting story
 
 ---
 
-### Compression &hArr; boosting SGD performance
-![EF1](Seminar/efficient-frontier1.png)
+### Results - MNIST ROT
+
+![mnist-sbs](Seminar/results-rot-3layers-5layers-sbs.png)
 
 ---
 
-### Compression &hArr; boosting SGD performance
-![EF2](Seminar/efficient-frontier2.png)
+### Thoughts - why it works
+* Redundancies in feed-forward networks:
+    * "Dead paths" / duplicate paths
+    * Columns can be shuffled
+    * magnitued of vectors is not important
+    * Direction can be "jiggled"
+* Conclusion: "Weak coupling" between vectors does not interfere with SGD learning
+ 
 
 ---
 
-### Section 2
-# Method
-
+### Recreation of results
+* Used pytorch to implement
+* Couldn't read authors codes (~7000 lines of code in _Lua_ lang)
+* Needed to try a few "tactics" for backpropagation
+* Training is about 200 times slower (2 minutes &rarr; 10 hours)
+* No benefit running on GPU
+* Was only able to reach 11% accuracy
+* Did not work with $\tanh$ activation
 
 
 ---
 
-### Standard ANN layer (fully-connected)
-* $z = Wx+b$
-* $a = g(z)$ nonlinearity, e.g. $a=\tanh(z)$
-* dims:
-    * $x \in \mathbb{R}^{m \times 1}$
-    * $z,a \in \mathbb{R}^{n \times 1}$
-    * $V \in \mathbb{R}^{m \times n}$
-    * $b \in \mathbb{R}^{n \times 1}$
-
----
-
-### Hashed ANN layer
-
-* `$w \in \mathbb{R}^{1 \times K}$`
-<p style="margin-bottom:1cm;"></p>
-* `$h:\ [1 \ldots m ] \times [1 \ldots n] \to [1 \ldots K]$`
-<p style="margin-bottom:1cm;"></p>
-* `$W_{ij} = w_{h(i,j)}$`
-<p style="margin-bottom:1cm;"></p>
-* <!-- .element: class="fragment" --> `$\frac{K}{m \cdot n}$` is the compression factor 
-* Different hash for each layer gets a different hash
-
----
-
-![hashing trick illustration](Seminar/Hasing_trick_illustration.png)
-
----
-
-### Hashing as matrix multiplication
-* Is there an $H$ such that `$W = Hw$`?
-
-`$W = H^{(1)}w \odot H^{(2)}w \odot \ldots H^{(n)}w$`
-
-`$H^{(j)} \in \mathbb{R}^{m \times K}$`
-
-`$H^{(j)}_{iq}=\cases{1 & h(i,j)=q\\
-0 & \text{otherwise}} $`
+### Summary
 
 ---
 
@@ -366,34 +331,8 @@ Collect $a_j$ into $n$ vectors $\phi_i$:
 
 ---
 
----
-
-^Note:
-### Stochastic Gradient Descent
-* <font color ="#A0F0A0"> Intuitive </font>
-* <font color ="#A0F0A0"> Generic </font>
-* <font color ="#F08080"> Depends on initial conditions </font>
-* <font color ="#F08080"> Depends on learning rate </font>
-
-
-![funky-path-SGD](Seminar/SGD-path.png)
-
----
-
-
-^Note:
-### Theoretical gaps - examples
-* Theory lagging far behind practice
-    * Fitness for a particular problem? 
-    * Optimal architecture for a particular problem?
-    * Optimal hyperparameters? (e.g. learning rate)
-
-![learning-rate-pitfalls](Seminar/learning-rate-too-high-or-low.png)
-
----
-
-### After intese theoretical analysis...
-![yok](Seminar/mr-bean-scratching.jpg) <!-- .element: class="fragment" -->
+# Thank You!
+![yok](Seminar/mr-bean-scratching.jpg) 
 
 ---
 

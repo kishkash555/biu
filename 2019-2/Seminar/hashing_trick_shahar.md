@@ -82,22 +82,16 @@ He must be thinking about the $25 Million in hardware cost...
 If we can, we will...
 * Reduce operational costs
 * Reduce energy consumption
-* Open the way for wider use
 * Accelerate development of new solutions
+* Open the way for running on smartphones
 
 ---
 
-### After intese theoretical analysis...
-![yok](Seminar/mr-bean-scratching.jpg) <!-- .element: class="fragment" -->
+### Doing the same with less - approaches
+* Pruning trained networks
+* keep _layers_ same size but with smaller _transition matrices_ 
 
----
-
-### Summary
-* Technological evolution towards more sophisticated networks
-* More efficient networks "are out there"
-* Demand for methods that will either: 
-    * Train compact networks more efficiently
-    * Compress networks post-training
+<font color ="#A0F0A0"> How? Using "math tricks" </color> <!-- .element: class="fragment" -->
 
 ---
 
@@ -125,7 +119,7 @@ and/or
 
 ---
 
-### Matrix dimension trick
+### Matrix decomposition trick
 * Layer $\mathcal{l}$ has $m$ neurons
 * Layer $\mathcal{l}+1$ has $n$ neurons
 * How many multiplications operations will we carry out?
@@ -144,7 +138,7 @@ if $r=1$ we require just $m+n$ operations <!-- .element: class="fragment" -->
 
 ---
 
-### Matrix dimension trick
+### Matrix decomposition trick
 * Pros:
     * Truely reduces number of operation
     * "Scalable" compression (with $r=1,2,\ldots$)
@@ -171,26 +165,103 @@ if $r=1$ we require just $m+n$ operations <!-- .element: class="fragment" -->
 
 ---
 
-### What is a Hash?
+<section style="text-align: left;">
 
-$\mathcal{H}:\ \mathbb{N}^d \to \\{1, \ldots k\\}$ 
+### Hash Functions 
 
-* Outputs are uniformly distirbuted
+$\mathcal{H}:\ \mathbb{N}^d \to \\{1, \ldots k\\}$ <!-- .element: align:left -->
+
+A hash-function should gives all the outputs "equal chances"
+<p style="margin-bottom:1cm;"></p>
+
+### Hash Generators <!-- .element: class="fragment" data-fragment-index="1" -->
+
+`$\mathcal{G}: \mathbb{N} \to \{ \mathbb{N}^d \to \{1, \ldots k\} \}$` <!-- .element: class="fragment" data-fragment-index="1" -->
+* Create as many $\mathcal{H}$'s as we need <!-- .element: class="fragment" data-fragment-index="1" -->
+* <!-- .element: class="fragment" data-fragment-index="1" --> The outputs of any two $\mathcal{H}$'s are _statistically independent_. 
+
 
 ---
 
-### Principle
-* Replace $W_{n \times m}$ with $V_k$
+### Reducing layer size
 
-`$$W_{i,j} = V_{\mathcal{H}(i,j)}$$`
+* by _reusing_ elements within a connection matrix 
+
+<div style="width: 100%; display: table;">
+    <div style="width: 100%; overflow: hidden;">
+        <div style="width: 600px; float: left;">
+<p style="margin-bottom:1cm;"></p>
+
+`$V_{i,j} := w_{\mathcal{H}(i,j)}$`
+
+<p style="margin-bottom:0.7cm;"></p>
+
+<ul>
+<li> Memory: `$n \times m \rightarrow k$`
+
+<li> $V$ - _Virtual_ connection matrix </li>
+<li> $\mathbf{w}$ - actual vector in memory </li>
+</ul>
+
+
+</div>
+
+<div style="margin-left: 620px;">
+![hashing_trick](Seminar/Hashing_trick_illustration.png) 
+        </div>
+    </div>
 
 ---
 
-### Benefits
-* Fast to compute
-* Storage free (?)
+### Reducing layer size
 
-![hashing_trick](Seminar/Hashing_trick_illustration.png)
+_Reuse_ the same element in various locations within a connection matrix 
+
+![hashing_trick](Seminar/Hashing_trick_illustration.png) 
+
+---
+
+### Reducing layer size
+
+_Reuse_ the same element in various locations within a connection matrix 
+
+
+
+
+---
+
+### Forward pass
+
+How to calculate `$\mathbf{z}_{n \times 1} = V_{n\times m} \cdot \mathbf{a}_{m \times 1}$`
+
+<u>Option 1 </u>
+* Expand $\mathbf{w}$ into $V$  
+* Calculate $z= Va$ (matrix &middot; vector multiplication) 
+
+
+---
+
+
+### Forward pass
+
+How to calculate `$\mathbf{z}_{n \times 1} = V_{n\times m} \cdot \mathbf{a}_{m \times 1}$`
+
+<u>Option 2</u>
+
+Collect $a_j$ into $n$ vectors $\phi_i$:
+* `$S_{ik} = \{j | h(i,j) = k \}$`
+* <!-- .element: style="color: #202020" -->
+* `$\phi_i$` = [ `$\sum\limits_{j \in S_{i1}} a_j$` | `$\sum\limits_{j \in S_{i2}} a_j$` | ... | `$\sum\limits_{{j \in S_{ik}}} a_j$`  ]
+* $z_i = \mathbf{w^T} \mathbf{\phi_i}$ (vector dot-product)
+
+---
+
+#### Backward pass
+
+* The gradients "originate" from elements of $V$ but need to be accumulated per element of $\mathbf{w^T}$
+* This requires the backward mapping `$S_{ik} = \{j | h(i,j) = k \}$` to be kept in memory
+* Backward calculations are memory demanding 
+* Memory access is inefficient (multiple single-cell access)
 
 ---
 
@@ -204,9 +275,15 @@ $\mathcal{H}:\ \mathbb{N}^d \to \\{1, \ldots k\\}$
 
 ---
 
-### Comparison to other methods
+### Experimental setup and comparison
+* Networks of 3 and 5 layers
+* The _Virtual_ size remains constant, the actual size varies
+* compressions factors of &half; &frac14; &frac18; ... $\frac{1}{64}$
+* Compared to other well-known compression approaches
 
+---
 
+![mnist-sbs](results-mnist-3layers-5layers-sbs.png)
 
 ---
 
@@ -312,4 +389,18 @@ $\mathcal{H}:\ \mathbb{N}^d \to \\{1, \ldots k\\}$
     * Optimal hyperparameters? (e.g. learning rate)
 
 ![learning-rate-pitfalls](Seminar/learning-rate-too-high-or-low.png)
+
+---
+
+### After intese theoretical analysis...
+![yok](Seminar/mr-bean-scratching.jpg) <!-- .element: class="fragment" -->
+
+---
+
+### Summary
+* Technological evolution towards more sophisticated networks
+* More efficient networks "are out there"
+* Demand for methods that will either: 
+    * Train compact networks more efficiently
+    * Compress networks post-training
 

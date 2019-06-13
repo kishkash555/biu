@@ -6,8 +6,8 @@
 
 ---
 
-### Section 1
-# Background
+### Section 1.1
+# Introduction
 
 ---
 
@@ -20,89 +20,98 @@ Who is this guy?
 
 ---
 
-### Deep learning concise timeline
-* <!-- .element: class="fragment" --> 1957 - Invention of the perceptron
-* <!-- .element: class="fragment" --> 1969 - Seymour Papert, _Perceptron_ 
-* 1970s - "ANN winter" <!-- .element: class="fragment" -->
-* 1982 - Backpropagation applied to Multi-Layer Perceptrons <!-- .element: class="fragment" -->
-* 1990s - Active research, small models <!-- .element: class="fragment" -->
-* 2000s - Second ANN winter <!-- .element: class="fragment" -->
-* 2012 - ImageNet (ILSVRC) Won by AlexNet (5 Layers, 60 Million parameters) <!-- .element: class="fragment" -->
-* 2012-present - Deep learning boom <!-- .element: class="fragment" -->
+## Answer
+
+Geoffery Hinton
+
+* <!-- .element: class="fragment" --> 1982 - **Backpropagation applied to Multi-Layer Perceptrons** 
+* <!-- .element: class="fragment" --> 2012 - **ImageNet (ILSVRC) Won by AlexNet (5 Layers, 60 Million parameters)** 
+
 
 ---
+
+<div style="width: 100%; overflow: hidden;">
+<div style="width: 600px; float: left;">
+
+<h3> It works!
+<ul>
+<li> Major impact:
+<ul>
+    <li> image recognition
+    <li> speech to text/ text to speech 
+    <li> natural language processing
+    <li> Robotics and automation
+    <li> ...
+</ul></ul>
+</div>
+<div style="float: right;">
 
 ![tech-landscape](Seminar/ai-landscape.jpg)
 
----
-
-### The motivation to use NN
-
-![why-deep-learning](Seminar/Why-Deep-Learning.png)
+</div>
+</div>
 
 
 ---
 
-### It works!
-* Major impact:
-    * image recognition
-    * speech to text
-    * natural language processing
-    * ...
-
-### It grows!
-* New architectures and topologies spring constantly
-* New fields of application
+### Section 1.2
+# Advancing Performance of Neural Networks
 
 ---
 
 ### How are Performance Improvements Achieved?
-* Additional training examples <!-- .element: class="fragment" data-fragment-index="1" -->
-* Deeper, wider networks <!-- .element: class="fragment" data-fragment-index="1" -->
-* Combining various submodules into a single architecture <!-- .element: class="fragment" data-fragment-index="1" -->
+* Parameter tuning <!-- .element: class="fragment" data-fragment-index="1" -->
+* More data + Larger networks <!-- .element: class="fragment" data-fragment-index="2" -->
 
-&dArr; <!-- .element: class="fragment" data-fragment-index="2" -->
-
-**Constant increase in network sizes** <!-- .element: class="fragment" data-fragment-index="2" -->
+![why-deep-learning](Seminar/Why-Deep-Learning1.png) <!-- .element: class="fragment" data-fragment-index="2" -->
 
 ---
 
+### The _size_ superiority assumption
+
 ![network-year-size](Seminar/parameter-number-growth-by-year.jpg)
+
 
 ---
 
 ### AlphaGo - 2017
-![alphago](Seminar/alphago.jpeg)
+* Machine built and trained by Google defeats the best Go player in the world
 
-He must be thinking about the $25 Million in hardware cost...
+![alphago](Seminar/alphago.jpeg) <!-- .element: class="fragment" data-fragment-index="1" -->
 
----
-
-### Can we do the same with less?
-If we can, we will...
-* Reduce operational costs
-* Reduce energy consumption
-* Open the way for wider use
-* Accelerate development of new solutions
-
----
-
-### After intese theoretical analysis...
-![yok](Seminar/mr-bean-scratching.jpg) <!-- .element: class="fragment" -->
-
----
-
-### Summary
-* Technological evolution towards more sophisticated networks
-* More efficient networks "are out there"
-* Demand for methods that will either: 
-    * Train compact networks more efficiently
-    * Compress networks post-training
+<p class="fragment" data-fragment-index="1" data-markdown> 
+It took **&dollar;30 Million** <br> to achieve this...
+</p>
 
 ---
 
 ### Section 2
-# A few compression techniques
+# Compression
+
+---
+
+
+### Compression - motivation
+* Reduce operational costs
+* <font color ="#80F080"> Less energy </font>
+* Run on smaller platforms &#128241; <!-- smartphone symbol --> 
+* Accelerate development
+
+---
+
+### Compression - idea
+* Keep number of neurons
+* Reduce learnable parameters in transition matrices
+* Use simple maths or algos
+* Everything goes (you get points on effort) <!-- .element: class="fragment" -->
+
+---
+
+### Compression - methods
+1. Optimal brain damage
+1. Matrix decomposition
+1. Hashing  
+
 
 ---
 
@@ -125,7 +134,7 @@ and/or
 
 ---
 
-### Matrix dimension trick
+### Matrix decomposition 
 * Layer $\mathcal{l}$ has $m$ neurons
 * Layer $\mathcal{l}+1$ has $n$ neurons
 * How many multiplications operations will we carry out?
@@ -144,7 +153,7 @@ if $r=1$ we require just $m+n$ operations <!-- .element: class="fragment" -->
 
 ---
 
-### Matrix dimension trick
+### Matrix decomposition
 * Pros:
     * Truely reduces number of operation
     * "Scalable" compression (with $r=1,2,\ldots$)
@@ -154,43 +163,124 @@ if $r=1$ we require just $m+n$ operations <!-- .element: class="fragment" -->
 
 ---
 
-### Bit-depth reduction
-* Take the _k_ most signficant bits (MSBs) of each weight 
-
----
-
-* Pros:
-    * Virtually no loss of accuracy
-* Cons:
-    * Need custom kernel to enjoy computational benefits
-
----
-
 ### Section 3
 # The Hashing Trick
 
 ---
 
-### What is a Hash?
-
-$\mathcal{H}:\ \mathbb{N}^d \to \\{1, \ldots k\\}$ 
-
-* Outputs are uniformly distirbuted
-
----
-
-### Principle
-* Replace $W_{n \times m}$ with $V_k$
-
-`$$W_{i,j} = V_{\mathcal{H}(i,j)}$$`
+## The Hashing Trick
+### Topics
+1. Hash Functions and hash generators
+1. Proposed method
+1. Forward pass calculation
+1. Backward pass calculation
+1. Takeaways from implementation
+1. Experimental results
+1. Thoughts
 
 ---
 
-### Benefits
-* Fast to compute
-* Storage free (?)
+<section style="text-align: left;">
 
-![hashing_trick](Seminar/Hashing_trick_illustration.png)
+### Hash Functions 
+
+$\mathcal{H}:\ \mathbb{N}^d \to \\{1, \ldots k\\}$ <!-- .element: align:left -->
+
+A hash-function should gives all the outputs "equal chances"
+<p style="margin-bottom:1cm;"></p>
+
+### Hash Generators <!-- .element: class="fragment" data-fragment-index="1" -->
+
+`$\mathcal{G}: \mathbb{N} \to \{ \mathbb{N}^d \to \{1, \ldots k\} \}$` <!-- .element: class="fragment" data-fragment-index="1" -->
+* Create as many $\mathcal{H}$'s as we need <!-- .element: class="fragment" data-fragment-index="1" -->
+* <!-- .element: class="fragment" data-fragment-index="1" --> The outputs of any two $\mathcal{H}$'s are _statistically independent_. 
+
+
+---
+
+### Proposed method
+
+* Reduce layer size 
+by _reusing_ elements within a connection matrix 
+by using a hash-function to map weights to values 
+
+<div style="width: 100%; display: table;">
+    <div style="width: 100%; overflow: hidden;">
+        <div style="width: 600px; float: left;">
+<p style="margin-bottom:1cm;"></p>
+
+`$V_{i,j} := w_{\mathcal{H}(i,j)}$`
+
+<p style="margin-bottom:0.7cm;"></p>
+
+<ul>
+<li> Memory: `$n \times m \rightarrow k$`
+
+<li> $V$ - _Virtual_ connection matrix </li>
+<li> $\mathbf{w}$ - actual vector in memory </li>
+</ul>
+
+
+</div>
+
+<div style="margin-left: 620px;">
+![hashing_trick](Seminar/Hashing_trick_illustration.png) 
+        </div>
+    </div>
+
+---
+
+### Forward pass
+
+How to calculate `$\mathbf{z}_{n \times 1} = V_{n\times m} \cdot \mathbf{a}_{m \times 1}$`
+
+<u>Direct</u>
+* calculate `$V_{i,j} = w_{\mathcal{H}(i,j)}$`
+* $z= Va$ 
+
+
+---
+
+
+### Forward pass
+
+How to calculate `$\mathbf{z}_{n \times 1} = V_{n\times m} \cdot \mathbf{a}_{m \times 1}$`
+
+<u>Feature-hashing</u>
+
+Collect $a_j$ into $n$ vectors $\vec{\phi_1} \ldots \vec{\phi_n}$:
+* `$S_{ik} = \{j | h(i,j) = k \}$`
+* <!-- .element: style="color: #202020" -->
+* `$\vec{\phi_i}$` = [ `$\sum\limits_{j \in S_{i1}} a_j$` | `$\sum\limits_{j \in S_{i2}} a_j$` | ... | `$\sum\limits_{{j \in S_{ik}}} a_j$`  ]
+* $z_i = \vec{w} \cdot \vec{\phi_i}$ 
+
+---
+
+### Backward pass
+
+* The gradients "originate" from elements of $V$ but need to be accumulated per element of $\mathbf{w^T}$
+* This requires the backward mapping `$S_{ik} = \{j | h(i,j) = k \}$` to be kept in memory
+* Backward calculations are memory demanding 
+* Memory access is inefficient (multiple single-cell access)
+
+---
+
+### Recreation of results
+* Used pytorch to implement
+* Couldn't read authors codes (~7000 lines of code in _Lua_ lang)
+* Needed to try a few "tactics" for backpropagation
+* Training is about 200 times slower (2 minutes &rarr; 10 hours)
+* No benefit running on GPU
+* Was only able to reach 11% accuracy
+* Did not work with $\tanh$ activation
+
+---
+
+### Experimental setup and comparison
+* Feed-forward Networks of 3 and 5 layers
+* The _Virtual_ size remains constant, $k$ varies
+* compressions factors of &half; &frac14; &frac18; ... $\frac{1}{64}$
+* Compared to other compression approaches from literature
 
 ---
 
@@ -204,66 +294,31 @@ $\mathcal{H}:\ \mathbb{N}^d \to \\{1, \ldots k\\}$
 
 ---
 
-### Comparison to other methods
+### Results - MNIST
 
-
-
----
-
-### Compression &hArr; boosting SGD performance
-![EF1](Seminar/efficient-frontier1.png)
-
----
-
-### Compression &hArr; boosting SGD performance
-![EF2](Seminar/efficient-frontier2.png)
+![mnist-sbs](Seminar/results-mnist-3layers-5layers-sbs.png)
+Note:
+* Nothing happening until 1/8
+* 5 layers is an overkill for this problem
+* The black (plain NN) and RER tell an interesting story
 
 ---
 
-### Section 2
-# Method
+### Results - MNIST ROT
 
-
-
----
-
-### Standard ANN layer (fully-connected)
-* $z = Wx+b$
-* $a = g(z)$ nonlinearity, e.g. $a=\tanh(z)$
-* dims:
-    * $x \in \mathbb{R}^{m \times 1}$
-    * $z,a \in \mathbb{R}^{n \times 1}$
-    * $V \in \mathbb{R}^{m \times n}$
-    * $b \in \mathbb{R}^{n \times 1}$
+![mnist-sbs](Seminar/results-rot-3layers-5layers-sbs.png)
 
 ---
 
-### Hashed ANN layer
+### Thoughts - why it works
+* Redundancies in feed-forward networks:
+    * "Dead paths" / duplicate paths
+    * Columns can be shuffled
+    * magnitued of vectors is not important
+    * Direction can be "jiggled"
+* Conclusion: "Weak coupling" between vectors does not interfere with SGD learning
+ 
 
-* `$w \in \mathbb{R}^{1 \times K}$`
-<p style="margin-bottom:1cm;"></p>
-* `$h:\ [1 \ldots m ] \times [1 \ldots n] \to [1 \ldots K]$`
-<p style="margin-bottom:1cm;"></p>
-* `$W_{ij} = w_{h(i,j)}$`
-<p style="margin-bottom:1cm;"></p>
-* <!-- .element: class="fragment" --> `$\frac{K}{m \cdot n}$` is the compression factor 
-* Different hash for each layer gets a different hash
-
----
-
-![hashing trick illustration](Seminar/Hasing_trick_illustration.png)
-
----
-
-### Hashing as matrix multiplication
-* Is there an $H$ such that `$W = Hw$`?
-
-`$W = H^{(1)}w \odot H^{(2)}w \odot \ldots H^{(n)}w$`
-
-`$H^{(j)} \in \mathbb{R}^{m \times K}$`
-
-`$H^{(j)}_{iq}=\cases{1 & h(i,j)=q\\
-0 & \text{otherwise}} $`
 
 ---
 
@@ -278,8 +333,6 @@ $\mathcal{H}:\ \mathbb{N}^d \to \\{1, \ldots k\\}$
 * AlphaGo player: https://www.telegraph.co.uk/science/2017/10/18/alphago-zero-google-deepmind-supercomputer-learns-3000-years/
 ![hashing_trick](Seminar/Hashing_trick_illustration.png)
 
-* Mr. bean image https://indianexpress.com/article/entertainment/television/rowan-atkinson-says-mr-bean-return-doubtful-5391451/
-
 * MNIST image By Josef Steppan - Own work, <a href="https://creativecommons.org/licenses/by-sa/4.0" title="Creative Commons Attribution-Share Alike 4.0">CC BY-SA 4.0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=64810040">Link</a>
 
 
@@ -289,27 +342,7 @@ $\mathcal{H}:\ \mathbb{N}^d \to \\{1, \ldots k\\}$
 
 ---
 
----
-
-^Note:
-### Stochastic Gradient Descent
-* <font color ="#A0F0A0"> Intuitive </font>
-* <font color ="#A0F0A0"> Generic </font>
-* <font color ="#F08080"> Depends on initial conditions </font>
-* <font color ="#F08080"> Depends on learning rate </font>
-
-
-![funky-path-SGD](Seminar/SGD-path.png)
+# Thank You!
 
 ---
-
-
-^Note:
-### Theoretical gaps - examples
-* Theory lagging far behind practice
-    * Fitness for a particular problem? 
-    * Optimal architecture for a particular problem?
-    * Optimal hyperparameters? (e.g. learning rate)
-
-![learning-rate-pitfalls](Seminar/learning-rate-too-high-or-low.png)
 

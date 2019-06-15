@@ -6,8 +6,8 @@
 
 ---
 
-### Section 1
-# Background
+### Section 1.1
+# Introduction
 
 ---
 
@@ -21,82 +21,98 @@ Who is this guy?
 ---
 
 ### Deep learning concise timeline
-* <!-- .element: class="fragment" --> 1957 - Invention of the perceptron
-* <!-- .element: class="fragment" --> 1969 - Seymour Papert, _Perceptron_ 
+* <!-- .element: class="fragment" --> 1957 - **Invention of the perceptron**
 * 1970s - "ANN winter" <!-- .element: class="fragment" -->
-* 1982 - Backpropagation applied to Multi-Layer Perceptrons <!-- .element: class="fragment" -->
+* <!-- .element: class="fragment" --> 1982 - **Backpropagation applied to Multi-Layer Perceptrons** 
 * 1990s - Active research, small models <!-- .element: class="fragment" -->
 * 2000s - Second ANN winter <!-- .element: class="fragment" -->
-* 2012 - ImageNet (ILSVRC) Won by AlexNet (5 Layers, 60 Million parameters) <!-- .element: class="fragment" -->
+* <!-- .element: class="fragment" --> 2012 - **ImageNet (ILSVRC) Won by AlexNet (5 Layers, 60 Million parameters)** 
 * 2012-present - Deep learning boom <!-- .element: class="fragment" -->
 
 ---
 
+<div style="width: 100%; overflow: hidden;">
+<div style="width: 600px; float: left;">
+
+<h3> It works!
+<ul>
+<li> Major impact:
+<ul>
+    <li> image recognition
+    <li> speech to text
+    <li> natural language processing
+    <li> Robotics and automation
+    <li> ...
+</ul></ul>
+</div>
+<div style="float: right;">
+
 ![tech-landscape](Seminar/ai-landscape.jpg)
 
----
-
-### The motivation to use NN
-
-![why-deep-learning](Seminar/Why-Deep-Learning.png)
+</div>
+</div>
 
 
 ---
 
-### It works!
-* Major impact:
-    * image recognition
-    * speech to text
-    * natural language processing
-    * ...
-
-### It grows!
-* New architectures and topologies spring constantly
-* New fields of application
+### Section 1.2
+# Advancing Performance of Neural Networks
 
 ---
 
 ### How are Performance Improvements Achieved?
-* Additional training examples <!-- .element: class="fragment" data-fragment-index="1" -->
-* Deeper, wider networks <!-- .element: class="fragment" data-fragment-index="1" -->
-* Combining various submodules into a single architecture <!-- .element: class="fragment" data-fragment-index="1" -->
+* Parameter tuning <!-- .element: class="fragment" data-fragment-index="1" -->
+* More data + Larger networks <!-- .element: class="fragment" data-fragment-index="2" -->
 
-&dArr; <!-- .element: class="fragment" data-fragment-index="2" -->
-
-**Constant increase in network sizes** <!-- .element: class="fragment" data-fragment-index="2" -->
+![why-deep-learning](Seminar/Why-Deep-Learning1.png) <!-- .element: class="fragment" data-fragment-index="2" -->
 
 ---
 
+### The _size_ superiority assumption
+
 ![network-year-size](Seminar/parameter-number-growth-by-year.jpg)
+
 
 ---
 
 ### AlphaGo - 2017
-![alphago](Seminar/alphago.jpeg)
+* Machine built and trained by Google defeats the best Go player in the world
 
-He must be thinking about the $25 Million in hardware cost...
+![alphago](Seminar/alphago.jpeg) <!-- .element: class="fragment" data-fragment-index="1" -->
 
----
-
-### Can we do the same with less?
-If we can, we will...
-* Reduce operational costs
-* Reduce energy consumption
-* Accelerate development of new solutions
-* Open the way for running on smartphones
-
----
-
-### Doing the same with less - approaches
-* Pruning trained networks
-* keep _layers_ same size but with smaller _transition matrices_ 
-
-<font color ="#A0F0A0"> How? Using "math tricks" </color> <!-- .element: class="fragment" -->
+<p class="fragment" data-fragment-index="1" data-markdown> 
+It took **&dollar;30 Million** <br> to achieve this...
+</p>
 
 ---
 
 ### Section 2
-# A few compression techniques
+# Compression
+
+---
+
+
+### Compression - motivation
+* Reduce operational costs
+* <font color ="#80F080"> Less energy </font>
+* Run on smaller platforms &#128241; <!-- smartphone symbol --> 
+* Accelerate development
+
+---
+
+### Compression - idea
+* Keep number of neurons
+* Reduce learnable parameters in transition matrices
+* Use simple maths or algos
+* Everything goes (you get points on effort) <!-- .element: class="fragment" -->
+
+---
+
+### Compression - methods
+1. Optimal brain damage
+1. Matrix decomposition
+1. Hashing  
+
 
 ---
 
@@ -119,7 +135,7 @@ and/or
 
 ---
 
-### Matrix decomposition trick
+### Matrix decomposition 
 * Layer $\mathcal{l}$ has $m$ neurons
 * Layer $\mathcal{l}+1$ has $n$ neurons
 * How many multiplications operations will we carry out?
@@ -138,25 +154,13 @@ if $r=1$ we require just $m+n$ operations <!-- .element: class="fragment" -->
 
 ---
 
-### Matrix decomposition trick
+### Matrix decomposition
 * Pros:
     * Truely reduces number of operation
     * "Scalable" compression (with $r=1,2,\ldots$)
     * Hardware already optimized
 * Cons:
     * hard to train
-
----
-
-### Bit-depth reduction
-* Take the _k_ most signficant bits (MSBs) of each weight 
-
----
-
-* Pros:
-    * Virtually no loss of accuracy
-* Cons:
-    * Need custom kernel to enjoy computational benefits
 
 ---
 
@@ -248,13 +252,14 @@ Collect $a_j$ into $n$ vectors $\vec{\phi_1} \ldots \vec{\phi_n}$:
 
 ---
 
-### Datasets
-![mnist](Seminar/MnistExamples.png)
-![conv](Seminar/convex-dataset.png)
-
-![mnist-bg](Seminar/mnist-back-random.png)
-![mnist-rot](Seminar/mnist-rot.png)
-![rect](Seminar/rect-example.png)
+### Recreation of results
+* Used pytorch to implement
+* Couldn't read authors codes (~7000 lines of code in _Lua_ lang)
+* Needed to try a few "tactics" for backpropagation
+* Training is about 200 times slower (2 minutes &rarr; 10 hours)
+* No benefit running on GPU
+* Was only able to reach 11% accuracy
+* Did not work with $\tanh$ activation
 
 ---
 
@@ -263,6 +268,16 @@ Collect $a_j$ into $n$ vectors $\vec{\phi_1} \ldots \vec{\phi_n}$:
 * The _Virtual_ size remains constant, $k$ varies
 * compressions factors of &half; &frac14; &frac18; ... $\frac{1}{64}$
 * Compared to other compression approaches from literature
+
+---
+
+### Datasets
+![mnist](Seminar/MnistExamples.png)
+![conv](Seminar/convex-dataset.png)
+
+![mnist-bg](Seminar/mnist-back-random.png)
+![mnist-rot](Seminar/mnist-rot.png)
+![rect](Seminar/rect-example.png)
 
 ---
 
@@ -291,21 +306,6 @@ Note:
 * Conclusion: "Weak coupling" between vectors does not interfere with SGD learning
  
 
----
-
-### Recreation of results
-* Used pytorch to implement
-* Couldn't read authors codes (~7000 lines of code in _Lua_ lang)
-* Needed to try a few "tactics" for backpropagation
-* Training is about 200 times slower (2 minutes &rarr; 10 hours)
-* No benefit running on GPU
-* Was only able to reach 11% accuracy
-* Did not work with $\tanh$ activation
-
-
----
-
-### Summary
 
 ---
 
@@ -320,8 +320,6 @@ Note:
 * AlphaGo player: https://www.telegraph.co.uk/science/2017/10/18/alphago-zero-google-deepmind-supercomputer-learns-3000-years/
 ![hashing_trick](Seminar/Hashing_trick_illustration.png)
 
-* Mr. bean image https://indianexpress.com/article/entertainment/television/rowan-atkinson-says-mr-bean-return-doubtful-5391451/
-
 * MNIST image By Josef Steppan - Own work, <a href="https://creativecommons.org/licenses/by-sa/4.0" title="Creative Commons Attribution-Share Alike 4.0">CC BY-SA 4.0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=64810040">Link</a>
 
 
@@ -332,7 +330,6 @@ Note:
 ---
 
 # Thank You!
-![yok](Seminar/mr-bean-scratching.jpg) 
 
 ---
 

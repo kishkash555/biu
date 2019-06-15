@@ -20,14 +20,13 @@ Who is this guy?
 
 ---
 
-### Deep learning concise timeline
-* <!-- .element: class="fragment" --> 1957 - **Invention of the perceptron**
-* 1970s - "ANN winter" <!-- .element: class="fragment" -->
+## Answer
+
+Geoffery Hinton
+
 * <!-- .element: class="fragment" --> 1982 - **Backpropagation applied to Multi-Layer Perceptrons** 
-* 1990s - Active research, small models <!-- .element: class="fragment" -->
-* 2000s - Second ANN winter <!-- .element: class="fragment" -->
 * <!-- .element: class="fragment" --> 2012 - **ImageNet (ILSVRC) Won by AlexNet (5 Layers, 60 Million parameters)** 
-* 2012-present - Deep learning boom <!-- .element: class="fragment" -->
+
 
 ---
 
@@ -39,7 +38,7 @@ Who is this guy?
 <li> Major impact:
 <ul>
     <li> image recognition
-    <li> speech to text
+    <li> speech to text/ text to speech 
     <li> natural language processing
     <li> Robotics and automation
     <li> ...
@@ -169,6 +168,18 @@ if $r=1$ we require just $m+n$ operations <!-- .element: class="fragment" -->
 
 ---
 
+## The Hashing Trick
+### Topics
+1. Hash Functions and hash generators
+1. Proposed method
+1. Forward pass calculation
+1. Backward pass calculation
+1. Takeaways from implementation
+1. Experimental results
+1. Thoughts
+
+---
+
 <section style="text-align: left;">
 
 ### Hash Functions 
@@ -187,9 +198,11 @@ A hash-function should gives all the outputs "equal chances"
 
 ---
 
-### Reducing layer size
+### Proposed method
 
-* by _reusing_ elements within a connection matrix 
+* Reduce layer size 
+by _reusing_ elements within a connection matrix 
+by using a hash-function to map weights to values 
 
 <div style="width: 100%; display: table;">
     <div style="width: 100%; overflow: hidden;">
@@ -332,11 +345,4 @@ Note:
 # Thank You!
 
 ---
-
-### Summary
-* Technological evolution towards more sophisticated networks
-* More efficient networks "are out there"
-* Demand for methods that will either: 
-    * Train compact networks more efficiently
-    * Compress networks post-training
 

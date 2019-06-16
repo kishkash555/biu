@@ -60,5 +60,8 @@ if __name__ == "__main__":
     factors0 = np.linalg.norm(mat0,2,axis=0)
     mat0 /= factors0
     b0 /= factors0
+    new_network.layers['layer02'].parameters['W'] = np.abs(new_network.layers['layer02'].parameters['W'])
+    new_network.layers['layer04'].parameters['W'] = np.abs(new_network.layers['layer04'].parameters['W'])
+
     ex3_main(new_network)
     

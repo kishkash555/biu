@@ -63,5 +63,5 @@ if __name__ == "__main__":
     new_network.layers['layer02'].parameters['W'] = np.abs(new_network.layers['layer02'].parameters['W'])
     new_network.layers['layer04'].parameters['W'] = np.abs(new_network.layers['layer04'].parameters['W'])
 
-    ex3_main(new_network)
+    ex3_main()
     

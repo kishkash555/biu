@@ -30,7 +30,7 @@ def load_data():
     return di_train, di_valid
 
 def create_network():
-    return network([linear_layer(input_len,200), relu_layer(), dropout_layer(0.3), linear_layer(200,output_len), dropout_layer(0.3), softmax_nll_layer()])
+    return network([linear_layer(input_len,200), relu_layer(), dropout_layer(0.4), linear_layer(200,output_len), dropout_layer(0.3), softmax_nll_layer()])
     #return network([linear_layer(input_len, output_len),  softmax_nll_layer()])
 
 def ex3_main(pretrained_net=None):

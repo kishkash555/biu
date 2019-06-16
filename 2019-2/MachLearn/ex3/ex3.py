@@ -30,7 +30,7 @@ def load_data():
     return di_train, di_valid
 
 def create_network():
-    return network([linear_layer(input_len,200), relu_layer(), dropout_layer(0.4), linear_layer(200,output_len), dropout_layer(0.3), softmax_nll_layer()])
+    return network([linear_layer(input_len,100), relu_layer(), linear_layer(100,output_len), softmax_nll_layer()])
     #return network([linear_layer(input_len, output_len),  softmax_nll_layer()])
 
 def ex3_main(pretrained_net=None):
@@ -40,7 +40,7 @@ def ex3_main(pretrained_net=None):
         net = create_network()
     net.to_pickle('save_model_before.pkl')
     di_train, di_valid = load_data()
-    lr = learn_rate_schedule('constant',momentum=True, eta=0.001, alpha=10, gamma=0.99)
+    lr = learn_rate_schedule('constant',momentum=True, eta=0.001, alpha=10, gamma=0.8)
     net.set_train_options(epochs=120, report_interval=250)
     net.train(di_train, lr, di_valid)
     net.to_pickle('save_model_after.pkl')
@@ -52,10 +52,13 @@ if __name__ == "__main__":
     
     new_network = create_network()
     mat0, b0 = new_network.layers['layer00'].parameters['W'], new_network.layers['layer00'].parameters['b'] 
-    mat0[:,:100]=prev_net.layers['layer00'].parameters['W']
-    b0[:100]=prev_net.layers['layer00'].parameters['b']
-    mat1, b1 = new_network.layers['layer03'].parameters['W'], new_network.layers['layer03'].parameters['b'] 
-    mat1[:100,:]=prev_net.layers['layer02'].parameters['W']
-    b1[:100]=prev_net.layers['layer02'].parameters['b']
+    mat0[:,:]=prev_net.layers['layer00'].parameters['W']
+    b0[:]=prev_net.layers['layer00'].parameters['b']
+    factors0 = np.linalg.norm(mat0,2,axis=0)
+    mat0 /= factors0
+    b0 /= factors0
+    mat1, b1 = new_network.layers['layer02'].parameters['W'], new_network.layers['layer02'].parameters['b'] 
+    mat1[:,:]=prev_net.layers['layer02'].parameters['W']
+    b1[:]=prev_net.layers['layer02'].parameters['b']
     ex3_main(new_network)
     

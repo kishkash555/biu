@@ -54,7 +54,7 @@ if __name__ == "__main__":
     mat0, b0 = new_network.layers['layer00'].parameters['W'], new_network.layers['layer00'].parameters['b'] 
     mat0[:,:100]=prev_net.layers['layer00'].parameters['W']
     b0[:100]=prev_net.layers['layer00'].parameters['b']
-    mat1, b1 = new_network.layers['layer02'].parameters['W'], new_network.layers['layer02'].parameters['b'] 
+    mat1, b1 = new_network.layers['layer03'].parameters['W'], new_network.layers['layer03'].parameters['b'] 
     mat1[:100,:]=prev_net.layers['layer02'].parameters['W']
     b1[:100]=prev_net.layers['layer02'].parameters['b']
     ex3_main(new_network)

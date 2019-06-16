@@ -78,6 +78,19 @@ class relu_layer(layer):
         return ret
 
 
+class dropout_layer(layer):
+    def __init__(self, rate):
+        super().__init__()
+        self.rate = rate
+    
+    def forward(self, x):
+        return x
+
+    def backward(self, grad_output):
+        ret = grad_output.copy()
+        ret[np.random.rand(ret.shape[0]<self.rate)] = 0.
+        return ret
+
 class softmax_nll_layer(loss_layer):
     def __init__(self):
         super().__init__()

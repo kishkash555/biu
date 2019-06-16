@@ -1,7 +1,8 @@
 import numpy as np
-from gazir import linear_layer, relu_layer, network, softmax_nll_layer
+from gazir import linear_layer, relu_layer, network, softmax_nll_layer, dropout_layer
 from data_iterator import data_iterator
 from learn_rate import learn_rate_schedule
+import pickle
 input_len = 784
 output_len =10
 train_x_file = 'train_x.npy'
@@ -29,11 +30,14 @@ def load_data():
     return di_train, di_valid
 
 def create_network():
-    return network([linear_layer(input_len,100), relu_layer(), linear_layer(100,output_len), softmax_nll_layer()])
+    return network([linear_layer(input_len,200), relu_layer(), dropout_layer(0.3), linear_layer(200,output_len), dropout_layer(0.3), softmax_nll_layer()])
     #return network([linear_layer(input_len, output_len),  softmax_nll_layer()])
 
-def ex3_main():
-    net = create_network()
+def ex3_main(pretrained_net=None):
+    if pretrained_net is not None:
+        net = pretrained_net
+    else:
+        net = create_network()
     net.to_pickle('save_model_before.pkl')
     di_train, di_valid = load_data()
     lr = learn_rate_schedule('constant',momentum=True, eta=0.001, alpha=10, gamma=0.8)
@@ -42,5 +46,16 @@ def ex3_main():
     net.to_pickle('save_model_after.pkl')
 
 if __name__ == "__main__":
-    ex3_main()
+    fname = 'submit_100_100.pkl'
+    with open(fname,'rb') as f:
+        prev_net = pickle.load(f)
+    
+    new_network = create_network()
+    mat0, b0 = new_network.layers['layer00'].parameters['W'], new_network.layers['layer00'].parameters['b'] 
+    mat0[:,:100]=prev_net.layers['layer00'].parameters['W']
+    b0[:100]=prev_net.layers['layer00'].parameters['b']
+    mat1, b1 = new_network.layers['layer02'].parameters['W'], new_network.layers['layer02'].parameters['b'] 
+    mat1[:100,:]=prev_net.layers['layer02'].parameters['W']
+    b1[:100]=prev_net.layers['layer02'].parameters['b']
+    ex3_main(new_network)
     

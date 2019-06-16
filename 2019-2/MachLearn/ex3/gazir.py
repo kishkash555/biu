@@ -84,16 +84,17 @@ class dropout_layer(layer):
         self.rate = rate
     
     def forward(self, x):
-        self.ctx['mask'] = np.random.rand(x.shape[0]) < self.rate
-        self.ctx['factor'] = x.shape[0] / (x.shape[0]- self.ctx['mask'].sum())
+        self.ctx['mask'] = np.random.rand(x.shape[1]) > self.rate
+        self.ctx['factor'] = x.shape[1] / self.ctx['mask'].sum()
         ret = x.copy()
-        ret[self.ctx['mask']] = 0
+        ret[:,np.logical_not(self.ctx['mask'])] = 0.
         ret *= self.ctx['factor']
         return ret
  
     def backward(self, grad_output):
         ret = grad_output.copy()
-        ret[self.ctx['mask']] = 0.
+        ret[:,np.logical_not(self.ctx['mask'])] = 0.
+        ret *= self.ctx['factor']
         return ret
 
 class softmax_nll_layer(loss_layer):

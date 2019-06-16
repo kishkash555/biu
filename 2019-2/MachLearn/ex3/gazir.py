@@ -12,6 +12,7 @@ def time2str(st):
 class layer:
     def __init__(self):
         self.ctx = {}
+        self.is_test_mode = False
 
     def forward(self, x):
         raise NotImplementedError()
@@ -21,6 +22,9 @@ class layer:
 
     def update(self, stepsize):
         pass # creates a default of not doing anything
+
+    def test_mode(self, test_mode=True):
+        self.is_test_mode = bool(test_mode)
 
 class loss_layer(layer):
     def __init__(self):
@@ -84,17 +88,22 @@ class dropout_layer(layer):
         self.rate = rate
     
     def forward(self, x):
-        self.ctx['mask'] = np.random.rand(x.shape[1]) > self.rate
-        self.ctx['factor'] = x.shape[1] / self.ctx['mask'].sum()
         ret = x.copy()
-        ret[:,np.logical_not(self.ctx['mask'])] = 0.
-        ret *= self.ctx['factor']
+        if not self.is_test_mode:
+            again = True
+            while again:
+                self.ctx['mask'] = np.random.rand(x.shape[1]) > self.rate
+                again = self.ctx['mask'].sum() < self.rate*x.shape[1]*0.5
+            self.ctx['factor'] = x.shape[1] / self.ctx['mask'].sum()
+            ret[:,np.logical_not(self.ctx['mask'])] = 0.
+            ret *= self.ctx['factor']
         return ret
  
     def backward(self, grad_output):
         ret = grad_output.copy()
-        ret[:,np.logical_not(self.ctx['mask'])] = 0.
-        ret *= self.ctx['factor']
+        if not self.is_test_mode:
+            ret[:,np.logical_not(self.ctx['mask'])] = 0.
+            ret *= self.ctx['factor']
         return ret
 
 class softmax_nll_layer(loss_layer):
@@ -157,6 +166,10 @@ class network(loss_layer):
     
     def get_loss(self):
         return next(reversed(self.layers.values())).get_loss()
+
+    def test_mode(self, test_mode=True):
+        for layer in self.layers.values():
+            layer.test_mode(test_mode)
         
     def train(self, train_set, lr, validation_set = None):
         """
@@ -183,12 +196,14 @@ class network(loss_layer):
                     end = time.time()
                     report_validation = ""
                     if validation_set is not None:
+                        self.test_mode(True)
                         val_good = val_cases = 0
                         for x,y in iter(validation_set):
                             y_hats = np.argmax(self.forward(x), axis=1)
                             val_good += (y_hats==y).sum()
                             val_cases += len(y)
                             report_validation = " dev acc {:.1%}, ".format(val_good/ val_cases)
+                        self.test_mode(False)
                     report_header = "{}: epoch {} iter {} ({}):".format(time2str(end), ep, i, cases)
                     report_tr = " loss {:.4} tr_acc {:.1%}, st {:.3}".format(
                             curr_loss/cases, good/cases, st_cum / to['report_interval'])

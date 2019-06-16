@@ -55,10 +55,15 @@ if __name__ == "__main__":
     mat0[:,:]=prev_net.layers['layer00'].parameters['W']
     b0[:]=prev_net.layers['layer00'].parameters['b']
     factors0 = np.linalg.norm(mat0,2,axis=0)
-    mat0 /= 4
-    b0 /= 4
+    mat0 /= factors0
+    b0 /= factors0
     mat1, b1 = new_network.layers['layer02'].parameters['W'], new_network.layers['layer02'].parameters['b'] 
     mat1[:,:]=prev_net.layers['layer02'].parameters['W']
     b1[:]=prev_net.layers['layer02'].parameters['b']
+    
+
+    factors1 = np.linalg.norm(mat1,2,axis=0)
+    mat1 /= factors1
+    b1 /= factors1
     ex3_main(new_network)
     

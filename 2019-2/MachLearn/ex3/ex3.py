@@ -30,7 +30,10 @@ def load_data():
     return di_train, di_valid
 
 def create_network():
-    return network([linear_layer(input_len,100), relu_layer(), linear_layer(100,output_len), softmax_nll_layer()])
+    return network([linear_layer(input_len,100), relu_layer(), 
+        linear_layer(100,50), relu_layer(), 
+        linear_layer(50,10), relu_layer(),
+    softmax_nll_layer()])
     #return network([linear_layer(input_len, output_len),  softmax_nll_layer()])
 
 def ex3_main(pretrained_net=None):
@@ -57,13 +60,5 @@ if __name__ == "__main__":
     factors0 = np.linalg.norm(mat0,2,axis=0)
     mat0 /= factors0
     b0 /= factors0
-    mat1, b1 = new_network.layers['layer02'].parameters['W'], new_network.layers['layer02'].parameters['b'] 
-    mat1[:,:]=prev_net.layers['layer02'].parameters['W']
-    b1[:]=prev_net.layers['layer02'].parameters['b']
-    
-
-    factors1 = np.linalg.norm(mat1,2,axis=0)
-    mat1 /= factors1
-    b1 /= factors1
     ex3_main(new_network)
     

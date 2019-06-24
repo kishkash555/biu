@@ -43,25 +43,15 @@ def ex3_main(pretrained_net=None):
         net = create_network()
     net.to_pickle('save_model_before.pkl')
     di_train, di_valid = load_data()
-    lr = learn_rate_schedule('constant',momentum=True, eta=0.001, alpha=10, gamma=0.8)
+    lr = learn_rate_schedule('constant',momentum=True, eta=0.001, alpha=10, gamma=0.2)
     net.set_train_options(epochs=120, report_interval=250)
     net.train(di_train, lr, di_valid)
     net.to_pickle('save_model_after.pkl')
 
 if __name__ == "__main__":
-    fname = 'submit_100_100.pkl'
+    fname = 'retrain_100_100.pkl'
     with open(fname,'rb') as f:
         prev_net = pickle.load(f)
     
-    new_network = create_network()
-    mat0, b0 = new_network.layers['layer00'].parameters['W'], new_network.layers['layer00'].parameters['b'] 
-    mat0[:,:]=prev_net.layers['layer00'].parameters['W']
-    b0[:]=prev_net.layers['layer00'].parameters['b']
-    factors0 = np.linalg.norm(mat0,2,axis=0)
-    mat0 /= factors0
-    b0 /= factors0
-    new_network.layers['layer02'].parameters['W'] = np.abs(new_network.layers['layer02'].parameters['W'])
-    new_network.layers['layer04'].parameters['W'] = np.abs(new_network.layers['layer04'].parameters['W'])
-
-    ex3_main()
+    ex3_main(prev_net)
     

@@ -23,10 +23,11 @@ class cv1:
 class convnet(nn.Module):
     def __init__(self, min_acc=0.75, epochs=20, logging_interval=50, save_fname='model_file'):
         super().__init__()
-        self.bn1 = nn.BatchNorm1d(31)
+        self.bn1 = nn.BatchNorm1d(80)
         self.conv1 = nn.Conv1d(IN_CHANNELS, cv1.out_channels, cv1.kernel_size, cv1.stride)
         self.pool = nn.MaxPool1d(cv1.pooling_width)
-        self.fc1 = nn.Linear(cv1.linear_input_width,N_CLASSES)
+        self.fc1 = nn.Linear(cv1.linear_input_width,80)
+        self.fc2 = nn.Linear(80,N_CLASSES)
         self.revision = gu.get_sha()
         self.options = {
             'min_acc': min_acc,
@@ -45,8 +46,9 @@ class convnet(nn.Module):
 #        print("after pool: {}".format(x.size()))
         x = x.view(-1,cv1.linear_input_width)
 #        print("after view: {}".format(x.size()))
-        x = self.bn1(self.fc1(x))
+        x = self.bn1(tanh(self.fc1(x)))
 #        print("final: {}".format(x.size()))
+        x = self.fc2(x)
         return x
 
 

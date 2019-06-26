@@ -23,6 +23,7 @@ class cv1:
 class convnet(nn.Module):
     def __init__(self, min_acc=0.8, epochs=20, logging_interval=50, save_fname='model_file'):
         super().__init__()
+        self.bn1 = nn.BatchNorm1d(IN_CHANNELS)
         self.conv1 = nn.Conv1d(IN_CHANNELS, cv1.out_channels, cv1.kernel_size, cv1.stride)
         self.pool = nn.MaxPool1d(cv1.pooling_width)
         self.fc1 = nn.Linear(360,N_CLASSES)
@@ -36,11 +37,11 @@ class convnet(nn.Module):
 
     def forward(self, x):
 #        print("input size: {}".format(x.size()))
-        x = x.squeeze()
+        x = self.bn1(x.squeeze())
 #        print("after squeeze: {}".format(x.size()))
-        x = self.conv1(x)
+        x = tanh(self.conv1(x))
 #        print("after conv1: {}".format(x.size()))
-        x = self.pool(tanh(x))
+        x = self.pool(x)
 #        print("after pool: {}".format(x.size()))
         x = x.view(-1,360)
 #        print("after view: {}".format(x.size()))

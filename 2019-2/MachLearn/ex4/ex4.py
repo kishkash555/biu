@@ -7,18 +7,29 @@ import gitutils.gitutils as gu
 
 criterion = nn.CrossEntropyLoss()
 
+IN_CHANNELS = 161
+SIGNAL_LENGTH = 101
+N_CLASSES = 31
+
+class cv1:
+    out_channels = 40
+    kernel_size = 12
+    pooling_width = 10
+    stride = 1
+    linear_input_width = out_channels*(SIGNAL_LENGTH-kernel_size+1)/(pooling_width*stride)
+
 class convnet(nn.Module):
     def __init__(self, min_acc=0.8, epochs=20, logging_interval=50, save_fname='model_file'):
         super().__init__()
-        self.conv1 = nn.Conv1d(161,40,12)
-        self.pool = nn.MaxPool1d(10)
-        self.fc1 = nn.Linear(360,31)
+        self.conv1 = nn.Conv1d(IN_CHANNELS, cv1.out_channels, cv1.kernel_size, cv1.stride)
+        self.pool = nn.MaxPool1d(cv1.pooling_width)
+        self.fc1 = nn.Linear(360,N_CLASSES)
         self.revision = gu.get_sha()
         self.options = {
             'min_acc': min_acc,
             'epochs': epochs,
             'logging_interval': logging_interval,
-            'save_fname': save_fname + self.revision[:6]
+            'save_fname': save_fname + '_' + self.revision[:6]
         }
 
     def forward(self, x):
@@ -36,7 +47,8 @@ class convnet(nn.Module):
         return x
 
 
-    def train(self, trainloader, validloader):
+    def perform_training(self, trainloader, validloader):
+        self.train()
         optimizer = optim.Adam(self.parameters())
         good = bad = 0
 
@@ -71,24 +83,25 @@ class convnet(nn.Module):
                         valid_good += int(sum(valid_guess == valid_labels))
                         valid_bad += int(sum(valid_guess != valid_labels))
                     valid_acc =  valid_good/(valid_good+valid_bad)
-                    print('[{}, {:5}] loss: {:.3f} train acc: {}/{} ({:.1%}), valid acc:  {}/{} ({:.1%})'.format(
+                    save = '*' if valid_acc > self.options['min_acc'] else ''
+                    print('[{}, {:5}] loss: {:.3f} train acc: {}/{} ({:.1%}), valid acc:  {}/{} ({:.1%}){}'.format(
                         epoch + 1, i + 1, 
                         running_loss / 50,
                         good, good+bad, good/(good+bad),
-                        valid_good, valid_good+valid_bad, valid_acc
+                        valid_good, valid_good+valid_bad, valid_acc,
+                        save
                         ))
                     good = bad = 0
                     running_loss = 0.0
-                    if valid_acc > self.options['min_acc']:
-                        print("saving")
-                        self.save()
+                    if save == '*':
+                        self.save(self.options['save_fname'])
                         self.options['min_acc'] = valid_acc
 
         print('Finished Training')
 
 
-        def save(self, fname):
-            torch.save(self,fname)
+    def save(self, fname):
+        torch.save(self,fname)
 
 
 def main():
@@ -106,7 +119,7 @@ def main():
             sampler=None )
     
     net = convnet()
-    net.train(train_loader,valid_loader)
+    net.perform_training(train_loader,valid_loader)
 
 if __name__ == "__main__":
     main()

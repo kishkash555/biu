@@ -18,15 +18,15 @@ class cv1:
     kernel_size = 12
     pooling_width = 10
     stride = 1
-    linear_input_width = out_channels*(SIGNAL_LENGTH-kernel_size+1)/(pooling_width*stride)
+    linear_input_width = int(out_channels*(SIGNAL_LENGTH-kernel_size+1)/(pooling_width*stride))
 
 class convnet(nn.Module):
     def __init__(self, min_acc=0.8, epochs=20, logging_interval=50, save_fname='model_file'):
         super().__init__()
-        self.bn1 = nn.BatchNorm1d(IN_CHANNELS)
+        self.bn1 = nn.BatchNorm1d(31)
         self.conv1 = nn.Conv1d(IN_CHANNELS, cv1.out_channels, cv1.kernel_size, cv1.stride)
         self.pool = nn.MaxPool1d(cv1.pooling_width)
-        self.fc1 = nn.Linear(360,N_CLASSES)
+        self.fc1 = nn.Linear(cv1.linear_input_width,N_CLASSES)
         self.revision = gu.get_sha()
         self.options = {
             'min_acc': min_acc,
@@ -37,15 +37,15 @@ class convnet(nn.Module):
 
     def forward(self, x):
 #        print("input size: {}".format(x.size()))
-        x = self.bn1(x.squeeze())
+        x = x.squeeze()
 #        print("after squeeze: {}".format(x.size()))
         x = tanh(self.conv1(x))
 #        print("after conv1: {}".format(x.size()))
         x = self.pool(x)
 #        print("after pool: {}".format(x.size()))
-        x = x.view(-1,360)
+        x = x.view(-1,cv1.linear_input_width)
 #        print("after view: {}".format(x.size()))
-        x = self.fc1(x)
+        x = self.bn1(self.fc1(x))
 #        print("final: {}".format(x.size()))
         return x
 
@@ -114,14 +114,14 @@ def main():
     
     train_loader = torch.utils.data.DataLoader(
             train_set, batch_size=100, shuffle=True,
-            num_workers=20, pin_memory=True, sampler=None)
+            num_workers=5, pin_memory=True, sampler=None)
     
     valid_loader = torch.utils.data.DataLoader(
             valid_set, batch_size=100, shuffle=None,
-            num_workers=20, pin_memory=True, 
+            num_workers=5, pin_memory=True, 
             sampler=None )
     
-    net = convnet()
+    net = convnet(logging_interval=200)
     net.perform_training(train_loader,valid_loader)
 
 if __name__ == "__main__":

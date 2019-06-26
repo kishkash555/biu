@@ -21,7 +21,7 @@ class cv1:
     linear_input_width = int(out_channels*(SIGNAL_LENGTH-kernel_size+1)/(pooling_width*stride))
 
 class convnet(nn.Module):
-    def __init__(self, min_acc=0.8, epochs=20, logging_interval=50, save_fname='model_file'):
+    def __init__(self, min_acc=0.75, epochs=20, logging_interval=50, save_fname='model_file'):
         super().__init__()
         self.bn1 = nn.BatchNorm1d(31)
         self.conv1 = nn.Conv1d(IN_CHANNELS, cv1.out_channels, cv1.kernel_size, cv1.stride)
@@ -81,15 +81,17 @@ class convnet(nn.Module):
                 running_loss += loss.item()
                 if i % log_interval == log_interval -1:    
                     valid_good = valid_bad = 0
+                    self.eval()
                     for valid_input, valid_labels in validloader:
                         valid_guess = torch.argmax(self(valid_input),1)
                         valid_good += int(sum(valid_guess == valid_labels))
                         valid_bad += int(sum(valid_guess != valid_labels))
+                    self.train()
                     valid_acc =  valid_good/(valid_good+valid_bad)
                     save = '*' if valid_acc > self.options['min_acc'] else ''
                     print('[{}, {:5}] loss: {:.3f} train acc: {}/{} ({:.1%}), valid acc:  {}/{} ({:.1%}){}'.format(
                         epoch + 1, i + 1, 
-                        running_loss / 50,
+                        running_loss / log_interval,
                         good, good+bad, good/(good+bad),
                         valid_good, valid_good+valid_bad, valid_acc,
                         save
@@ -121,7 +123,7 @@ def main():
             num_workers=5, pin_memory=True, 
             sampler=None )
     
-    net = convnet(logging_interval=200)
+    net = convnet(logging_interval=150)
     net.perform_training(train_loader,valid_loader)
 
 if __name__ == "__main__":

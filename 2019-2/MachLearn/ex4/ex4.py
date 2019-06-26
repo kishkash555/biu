@@ -11,6 +11,8 @@ IN_CHANNELS = 161
 SIGNAL_LENGTH = 101
 N_CLASSES = 31
 
+tanh = nn.Tanh()
+
 class cv1:
     out_channels = 40
     kernel_size = 12
@@ -38,7 +40,7 @@ class convnet(nn.Module):
 #        print("after squeeze: {}".format(x.size()))
         x = self.conv1(x)
 #        print("after conv1: {}".format(x.size()))
-        x = self.pool(F.relu(x))
+        x = self.pool(tanh(x))
 #        print("after pool: {}".format(x.size()))
         x = x.view(-1,360)
 #        print("after view: {}".format(x.size()))

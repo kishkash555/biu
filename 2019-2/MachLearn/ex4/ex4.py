@@ -14,20 +14,54 @@ N_CLASSES = 31
 tanh = nn.Tanh()
 
 class cv1:
-    out_channels = 40
-    kernel_size = 12
-    pooling_width = 10
+    input_size = (SIGNAL_LENGTH, IN_CHANNELS)
+    in_channels = 1
+    out_channels = 80
+    kernel_size = 30
     stride = 1
-    linear_input_width = int(out_channels*(SIGNAL_LENGTH-kernel_size+1)/(pooling_width*stride))
+    output_size = ( int((input_size[0] - kernel_size + 1)/stride),
+        int((input_size[1] - kernel_size + 1)/stride),
+        out_channels)
+
+
+class cv2:
+    input_size = (cv1.output_size[0], cv1.output_size[1])
+    in_channels = cv1.out_channels
+    out_channels = 40
+    kernel_size = 30
+    stride = 1
+    output_size = (out_channels,
+        int((input_size[1] - kernel_size + 1)/stride),
+         int((input_size[0] - kernel_size + 1)/stride))
+
+class pl1:
+    input_size = cv2.output_size
+    kernel_size = 40
+    stride = kernel_size
+    output_size = ( 
+        input_size[0], 
+        int((input_size[1] - kernel_size)/stride + 1),
+        int((input_size[2] - kernel_size)/stride + 1),
+    )
+
+class fc1:
+    input_size = pl1.output_size[0]*pl1.output_size[1]*pl1.output_size[2]
+    output_size = 80
+
+class fc2: 
+    input_size = fc1.input_size
+    output_size = N_CLASSES
+
 
 class convnet(nn.Module):
     def __init__(self, min_acc=0.75, epochs=20, logging_interval=50, save_fname='model_file'):
         super().__init__()
-        self.bn1 = nn.BatchNorm1d(80)
-        self.conv1 = nn.Conv1d(IN_CHANNELS, cv1.out_channels, cv1.kernel_size, cv1.stride)
-        self.pool = nn.AvgPool1d(cv1.pooling_width)
-        self.fc1 = nn.Linear(cv1.linear_input_width,80)
-        self.fc2 = nn.Linear(80,N_CLASSES)
+        # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
+        self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size)
+        self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size)
+        self.pool = nn.AvgPool2d(pl1.kernel_size)
+        #self.fc1 = nn.Linear(fc1.input_size,fc1.output_size)
+        self.fc2 = nn.Linear(fc2.input_size,fc2.output_size)
         self.revision = gu.get_sha()
         self.options = {
             'min_acc': min_acc,
@@ -37,17 +71,15 @@ class convnet(nn.Module):
         }
 
     def forward(self, x):
-#        print("input size: {}".format(x.size()))
-        x = x.squeeze()
-#        print("after squeeze: {}".format(x.size()))
-        x = tanh(self.conv1(x))
-#        print("after conv1: {}".format(x.size()))
+        x = F.relu(self.conv1(x))
+        # print("after conv1 {}".format(x.size()))
+        x = F.relu(self.conv2(x))
+        print("after conv2 {}".format(x.size()))
         x = self.pool(x)
-#        print("after pool: {}".format(x.size()))
-        x = x.view(-1,cv1.linear_input_width)
-#        print("after view: {}".format(x.size()))
-        x = tanh(self.bn1(self.fc1(x)))
-#        print("final: {}".format(x.size()))
+        print("after pool {}".format(x.size()))
+        x = x.view(-1,fc1.input_size)
+        print("after view {}".format(x.size()))
+        # x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return x
 

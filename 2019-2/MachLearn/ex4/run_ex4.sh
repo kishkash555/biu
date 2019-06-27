@@ -9,6 +9,5 @@ else
     python ex4.py > $rev6 &
     echo pid: $!
     sleep 3
-    tail -f $rev6 &
-    wait
-fi
+    tail -f $rev6
+ fi

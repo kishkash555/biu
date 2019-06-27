@@ -54,7 +54,7 @@ class convnet(nn.Module):
 
     def perform_training(self, trainloader, validloader):
         self.train()
-        optimizer = optim.Adam(self.parameters())
+        optimizer = optim.Adam(self.parameters(),lr=5e-3)
         good = bad = 0
 
         ep = self.options['epochs']

@@ -17,8 +17,8 @@ class cv1:
     input_size = (SIGNAL_LENGTH, IN_CHANNELS)
     in_channels = 1
     out_channels = 20
-    kernel_size = 4
-    stride = 1
+    kernel_size = 12
+    stride = 4
     output_size = ( int((input_size[0] - kernel_size + 1)/stride),
         int((input_size[1] - kernel_size + 1)/stride),
         out_channels)
@@ -46,11 +46,11 @@ class pl1:
 
 class fc1:
     input_size = pl1.output_size[0]*pl1.output_size[1]*pl1.output_size[2]
-    output_size = 40
-
-class fc2: 
-    input_size = fc1.output_size
     output_size = N_CLASSES
+
+# class fc2: 
+#     input_size = fc1.output_size
+#     output_size = N_CLASSES
 
 
 class convnet(nn.Module):
@@ -61,7 +61,7 @@ class convnet(nn.Module):
         self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size)
         self.pool = nn.AvgPool2d(pl1.kernel_size)
         self.fc1 = nn.Linear(fc1.input_size,fc1.output_size)
-        self.fc2 = nn.Linear(fc2.input_size,fc2.output_size)
+        # self.fc2 = nn.Linear(fc2.input_size,fc2.output_size)
         self.revision = gu.get_sha()
         self.options = {
             'min_acc': min_acc,
@@ -79,8 +79,8 @@ class convnet(nn.Module):
 #        print("after pool {}".format(x.size()),flush=True)
         x = x.view(-1,fc1.input_size)
 #        print("after view {}".format(x.size()),flush=True)
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
+        # x = F.relu(self.fc1(x))
+        x = self.fc1(x)
         return x
 
 
@@ -148,7 +148,7 @@ def main():
     
     train_loader = torch.utils.data.DataLoader(
             train_set, batch_size=100, shuffle=True,
-            num_workers=5, pin_memory=True, sampler=None)
+            num_workers=30, pin_memory=True, sampler=None)
     
     valid_loader = torch.utils.data.DataLoader(
             valid_set, batch_size=100, shuffle=None,

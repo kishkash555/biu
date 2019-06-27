@@ -147,11 +147,11 @@ def main():
     valid_set = GCommandLoader('./data/valid')
     
     train_loader = torch.utils.data.DataLoader(
-            train_set, batch_size=20, shuffle=True,
+            train_set, batch_size=100, shuffle=True,
             num_workers=5, pin_memory=True, sampler=None)
     
     valid_loader = torch.utils.data.DataLoader(
-            valid_set, batch_size=20, shuffle=None,
+            valid_set, batch_size=100, shuffle=None,
             num_workers=5, pin_memory=True, 
             sampler=None )
     

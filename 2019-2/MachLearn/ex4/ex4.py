@@ -11,17 +11,17 @@ IN_CHANNELS = 161
 SIGNAL_LENGTH = 101
 N_CLASSES = 31
 
-tanh = nn.Tanh()
 
 class cv1:
     input_size = (SIGNAL_LENGTH, IN_CHANNELS)
     in_channels = 1
-    out_channels = 20
-    kernel_size = 4
+    out_channels = 5
+    kernel_size = 6
     stride = 1
-    output_size = ( int((input_size[0] - kernel_size + 1)/stride),
-        int((input_size[1] - kernel_size + 1)/stride),
-        out_channels)
+    output_size = ( out_channels, 
+        int((input_size[0] - kernel_size + 1)/stride),
+        int((input_size[1] - kernel_size + 1)/stride)
+        )
 
 
 class cv2:
@@ -35,8 +35,8 @@ class cv2:
          int((input_size[0] - kernel_size + 1)/stride))
 
 class pl1:
-    input_size = cv2.output_size
-    kernel_size = 4
+    input_size = cv1.output_size
+    kernel_size = 12
     stride = kernel_size
     output_size = ( 
         input_size[0], 
@@ -46,22 +46,17 @@ class pl1:
 
 class fc1:
     input_size = pl1.output_size[0]*pl1.output_size[1]*pl1.output_size[2]
-    output_size = 40
-
-class fc2: 
-    input_size = fc1.output_size
     output_size = N_CLASSES
 
 
 class convnet(nn.Module):
-    def __init__(self, min_acc=0.75, epochs=20, logging_interval=50, save_fname='model_file'):
+    def __init__(self, min_acc=0.75, epochs=20, logging_interval=150, save_fname='model_file'):
         super().__init__()
         # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
         self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size)
-        self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size)
+        # self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size)
         self.pool = nn.AvgPool2d(pl1.kernel_size)
         self.fc1 = nn.Linear(fc1.input_size,fc1.output_size)
-        self.fc2 = nn.Linear(fc2.input_size,fc2.output_size)
         self.revision = gu.get_sha()
         self.options = {
             'min_acc': min_acc,
@@ -71,16 +66,16 @@ class convnet(nn.Module):
         }
 
     def forward(self, x):
+#        print("before conv1 {}".format(x.size()), flush=True)
         x = F.relu(self.conv1(x))
-        # print("after conv1 {}".format(x.size()))
-        x = F.relu(self.conv2(x))
+#        print("after conv1 {}".format(x.size()), flush=True)
+        # x = F.relu(self.conv2(x))
 #        print("after conv2 {}".format(x.size()),flush=True)
         x = self.pool(x)
 #        print("after pool {}".format(x.size()),flush=True)
         x = x.view(-1,fc1.input_size)
 #        print("after view {}".format(x.size()),flush=True)
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
+        x = self.fc1(x)
         return x
 
 
@@ -147,15 +142,15 @@ def main():
     valid_set = GCommandLoader('./data/valid')
     
     train_loader = torch.utils.data.DataLoader(
-            train_set, batch_size=100, shuffle=True,
-            num_workers=5, pin_memory=True, sampler=None)
+            train_set, batch_size=100, shuffle=False,
+            num_workers=30, pin_memory=False, sampler=None)
     
     valid_loader = torch.utils.data.DataLoader(
             valid_set, batch_size=100, shuffle=None,
             num_workers=5, pin_memory=True, 
             sampler=None )
     
-    net = convnet(logging_interval=150)
+    net = convnet()
     net.perform_training(train_loader,valid_loader)
 
 if __name__ == "__main__":

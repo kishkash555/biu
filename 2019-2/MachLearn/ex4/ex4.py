@@ -16,8 +16,8 @@ tanh = nn.Tanh()
 class cv1:
     input_size = (SIGNAL_LENGTH, IN_CHANNELS)
     in_channels = 1
-    out_channels = 40
-    kernel_size = 20
+    out_channels = 10
+    kernel_size = 8
     stride = 1
     output_size = ( int((input_size[0] - kernel_size + 1)/stride),
         int((input_size[1] - kernel_size + 1)/stride),
@@ -28,7 +28,7 @@ class cv2:
     input_size = (cv1.output_size[0], cv1.output_size[1])
     in_channels = cv1.out_channels
     out_channels = 10
-    kernel_size = 20
+    kernel_size = 8
     stride = 1
     output_size = (out_channels,
         int((input_size[1] - kernel_size + 1)/stride),
@@ -36,7 +36,7 @@ class cv2:
 
 class pl1:
     input_size = cv2.output_size
-    kernel_size = 40
+    kernel_size = 4
     stride = kernel_size
     output_size = ( 
         input_size[0], 
@@ -46,7 +46,7 @@ class pl1:
 
 class fc1:
     input_size = pl1.output_size[0]*pl1.output_size[1]*pl1.output_size[2]
-    output_size = 80
+    output_size = 40
 
 class fc2: 
     input_size = fc1.output_size

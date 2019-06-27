@@ -16,8 +16,8 @@ tanh = nn.Tanh()
 class cv1:
     input_size = (SIGNAL_LENGTH, IN_CHANNELS)
     in_channels = 1
-    out_channels = 10
-    kernel_size = 8
+    out_channels = 20
+    kernel_size = 4
     stride = 1
     output_size = ( int((input_size[0] - kernel_size + 1)/stride),
         int((input_size[1] - kernel_size + 1)/stride),

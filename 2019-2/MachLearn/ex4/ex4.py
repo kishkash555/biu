@@ -46,7 +46,7 @@ class convnet(nn.Module):
 #        print("after pool: {}".format(x.size()))
         x = x.view(-1,cv1.linear_input_width)
 #        print("after view: {}".format(x.size()))
-        x = self.bn1(tanh(self.fc1(x)))
+        x = tanh(self.bn1(self.fc1(x)))
 #        print("final: {}".format(x.size()))
         x = self.fc2(x)
         return x

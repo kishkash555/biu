@@ -25,7 +25,7 @@ class convnet(nn.Module):
         super().__init__()
         self.bn1 = nn.BatchNorm1d(80)
         self.conv1 = nn.Conv1d(IN_CHANNELS, cv1.out_channels, cv1.kernel_size, cv1.stride)
-        self.pool = nn.MaxPool1d(cv1.pooling_width)
+        self.pool = nn.AvgPool1d(cv1.pooling_width)
         self.fc1 = nn.Linear(cv1.linear_input_width,80)
         self.fc2 = nn.Linear(80,N_CLASSES)
         self.revision = gu.get_sha()
@@ -54,7 +54,7 @@ class convnet(nn.Module):
 
     def perform_training(self, trainloader, validloader):
         self.train()
-        optimizer = optim.Adam(self.parameters(),lr=5e-3)
+        optimizer = optim.Adam(self.parameters())
         good = bad = 0
 
         ep = self.options['epochs']

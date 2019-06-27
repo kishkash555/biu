@@ -16,8 +16,8 @@ tanh = nn.Tanh()
 class cv1:
     input_size = (SIGNAL_LENGTH, IN_CHANNELS)
     in_channels = 1
-    out_channels = 80
-    kernel_size = 30
+    out_channels = 40
+    kernel_size = 20
     stride = 1
     output_size = ( int((input_size[0] - kernel_size + 1)/stride),
         int((input_size[1] - kernel_size + 1)/stride),
@@ -27,8 +27,8 @@ class cv1:
 class cv2:
     input_size = (cv1.output_size[0], cv1.output_size[1])
     in_channels = cv1.out_channels
-    out_channels = 40
-    kernel_size = 30
+    out_channels = 10
+    kernel_size = 20
     stride = 1
     output_size = (out_channels,
         int((input_size[1] - kernel_size + 1)/stride),
@@ -49,7 +49,7 @@ class fc1:
     output_size = 80
 
 class fc2: 
-    input_size = fc1.input_size
+    input_size = fc1.output_size
     output_size = N_CLASSES
 
 
@@ -60,7 +60,7 @@ class convnet(nn.Module):
         self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size)
         self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size)
         self.pool = nn.AvgPool2d(pl1.kernel_size)
-        #self.fc1 = nn.Linear(fc1.input_size,fc1.output_size)
+        self.fc1 = nn.Linear(fc1.input_size,fc1.output_size)
         self.fc2 = nn.Linear(fc2.input_size,fc2.output_size)
         self.revision = gu.get_sha()
         self.options = {
@@ -74,12 +74,12 @@ class convnet(nn.Module):
         x = F.relu(self.conv1(x))
         # print("after conv1 {}".format(x.size()))
         x = F.relu(self.conv2(x))
-        print("after conv2 {}".format(x.size()))
+#        print("after conv2 {}".format(x.size()),flush=True)
         x = self.pool(x)
-        print("after pool {}".format(x.size()))
+#        print("after pool {}".format(x.size()),flush=True)
         x = x.view(-1,fc1.input_size)
-        print("after view {}".format(x.size()))
-        # x = F.relu(self.fc1(x))
+#        print("after view {}".format(x.size()),flush=True)
+        x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return x
 
@@ -103,15 +103,13 @@ class convnet(nn.Module):
                 # forward + backward + optimize
                 outputs = self(inputs)
                 guess = torch.argmax(outputs,1)
+
                 # print("guess size: {}, label size: {}".format(guess.size(), labels.size()))            
                 good += int(sum(guess==labels))
                 bad += int(sum(guess!=labels))
-
                 loss = criterion(outputs, labels)
                 loss.backward()
                 optimizer.step()
-
-                # print statistics
                 running_loss += loss.item()
                 if i % log_interval == log_interval -1:    
                     valid_good = valid_bad = 0
@@ -149,11 +147,11 @@ def main():
     valid_set = GCommandLoader('./data/valid')
     
     train_loader = torch.utils.data.DataLoader(
-            train_set, batch_size=100, shuffle=True,
+            train_set, batch_size=20, shuffle=True,
             num_workers=5, pin_memory=True, sampler=None)
     
     valid_loader = torch.utils.data.DataLoader(
-            valid_set, batch_size=100, shuffle=None,
+            valid_set, batch_size=20, shuffle=None,
             num_workers=5, pin_memory=True, 
             sampler=None )
     

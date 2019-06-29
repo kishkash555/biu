@@ -4,6 +4,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import gitutils.gitutils as gu
+import time
+
+def time2str(st):
+    return time.strftime('%H:%M:%S',time.localtime(st))
 
 criterion = nn.CrossEntropyLoss()
 
@@ -35,7 +39,7 @@ class cv2:
          int((input_size[0] - kernel_size + 1)/stride))
 
 class pl1:
-    input_size = cv1.output_size
+    input_size = cv2.output_size
     kernel_size = 12
     stride = kernel_size
     output_size = ( 
@@ -46,6 +50,10 @@ class pl1:
 
 class fc1:
     input_size = pl1.output_size[0]*pl1.output_size[1]*pl1.output_size[2]
+    output_size = 100
+
+class fc2:
+    input_size = fc1.output_size
     output_size = N_CLASSES
 
 
@@ -54,9 +62,11 @@ class convnet(nn.Module):
         super().__init__()
         # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
         self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size)
-        # self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size)
-        self.pool = nn.AvgPool2d(pl1.kernel_size)
+        self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size)
+        self.pool = nn.MaxPool2d(pl1.kernel_size)
         self.fc1 = nn.Linear(fc1.input_size,fc1.output_size)
+        self.fc2 = nn.Linear(fc2.input_size,fc2.output_size)
+        
         self.revision = gu.get_sha()
         self.options = {
             'min_acc': min_acc,
@@ -69,13 +79,14 @@ class convnet(nn.Module):
 #        print("before conv1 {}".format(x.size()), flush=True)
         x = F.relu(self.conv1(x))
 #        print("after conv1 {}".format(x.size()), flush=True)
-        # x = F.relu(self.conv2(x))
+        x = F.relu(self.conv2(x))
 #        print("after conv2 {}".format(x.size()),flush=True)
         x = self.pool(x)
 #        print("after pool {}".format(x.size()),flush=True)
         x = x.view(-1,fc1.input_size)
 #        print("after view {}".format(x.size()),flush=True)
-        x = self.fc1(x)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
         return x
 
 
@@ -83,6 +94,7 @@ class convnet(nn.Module):
         self.train()
         optimizer = optim.Adam(self.parameters())
         good = bad = 0
+        start = time.time()
 
         ep = self.options['epochs']
         log_interval = self.options['logging_interval']
@@ -116,7 +128,8 @@ class convnet(nn.Module):
                     self.train()
                     valid_acc =  valid_good/(valid_good+valid_bad)
                     save = '*' if valid_acc > self.options['min_acc'] else ''
-                    print('[{}, {:5}] loss: {:.3f} train acc: {}/{} ({:.1%}), valid acc:  {}/{} ({:.1%}){}'.format(
+                    print('{} [{}, {:5}] loss: {:.3f} train acc: {}/{} ({:.1%}), valid acc:  {}/{} ({:.1%}){}'.format(
+                        time2str(time.time()-start)
                         epoch + 1, i + 1, 
                         running_loss / log_interval,
                         good, good+bad, good/(good+bad),

@@ -15,7 +15,7 @@ N_CLASSES = 31
 class cv1:
     input_size = (SIGNAL_LENGTH, IN_CHANNELS)
     in_channels = 1
-    out_channels = 5
+    out_channels = 20
     kernel_size = 12
     stride = 1
     output_size = ( out_channels, 
@@ -27,7 +27,7 @@ class cv1:
 class cv2:
     input_size = (cv1.output_size[0], cv1.output_size[1])
     in_channels = cv1.out_channels
-    out_channels = 10
+    out_channels = 5
     kernel_size = 8
     stride = 1
     output_size = (out_channels,

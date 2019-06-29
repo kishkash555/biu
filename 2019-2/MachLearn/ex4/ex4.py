@@ -28,8 +28,10 @@ class cv1:
         )
 
 
+print("cv1 output: {}".format(cv1.output_size))
+
 class cv2:
-    input_size = (cv1.output_size[0], cv1.output_size[1])
+    input_size = (cv1.output_size[1], cv1.output_size[2])
     in_channels = cv1.out_channels
     out_channels = 5
     kernel_size = 8
@@ -37,6 +39,8 @@ class cv2:
     output_size = (out_channels,
         int((input_size[1] - kernel_size + 1)/stride),
          int((input_size[0] - kernel_size + 1)/stride))
+
+print("cv2 output: {}".format(cv2.output_size))
 
 class pl1:
     input_size = cv2.output_size
@@ -51,6 +55,8 @@ class pl1:
 class fc1:
     input_size = pl1.output_size[0]*pl1.output_size[1]*pl1.output_size[2]
     output_size = 100
+
+print("fc1 input {}".format(fc1.input_size))
 
 class fc2:
     input_size = fc1.output_size
@@ -129,7 +135,7 @@ class convnet(nn.Module):
                     valid_acc =  valid_good/(valid_good+valid_bad)
                     save = '*' if valid_acc > self.options['min_acc'] else ''
                     print('{} [{}, {:5}] loss: {:.3f} train acc: {}/{} ({:.1%}), valid acc:  {}/{} ({:.1%}){}'.format(
-                        time2str(time.time()-start)
+                        time2str(time.time()-start),
                         epoch + 1, i + 1, 
                         running_loss / log_interval,
                         good, good+bad, good/(good+bad),

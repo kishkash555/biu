@@ -19,32 +19,19 @@ N_CLASSES = 31
 class cv1:
     input_size = (SIGNAL_LENGTH, IN_CHANNELS)
     in_channels = 1
-    out_channels = 20
-    kernel_size = 12
-    stride = 1
+    out_channels = 32
+    kernel_size = 3
+    stride = 2
     output_size = ( out_channels, 
         int((input_size[0] - kernel_size + 1)/stride),
         int((input_size[1] - kernel_size + 1)/stride)
         )
 
-
 print("cv1 output: {}".format(cv1.output_size))
 
-class cv2:
-    input_size = (cv1.output_size[1], cv1.output_size[2])
-    in_channels = cv1.out_channels
-    out_channels = 5
-    kernel_size = 8
-    stride = 1
-    output_size = (out_channels,
-        int((input_size[1] - kernel_size + 1)/stride),
-         int((input_size[0] - kernel_size + 1)/stride))
-
-print("cv2 output: {}".format(cv2.output_size))
-
 class pl1:
-    input_size = cv2.output_size
-    kernel_size = 12
+    input_size = cv1.output_size
+    kernel_size = 3
     stride = kernel_size
     output_size = ( 
         input_size[0], 
@@ -52,8 +39,34 @@ class pl1:
         int((input_size[2] - kernel_size)/stride + 1),
     )
 
+class cv2:
+    input_size = (cv1.output_size[1], cv1.output_size[2])
+    in_channels = pl1.output_size[0]
+    out_channels = 32
+    kernel_size = 3
+    stride = 2
+    output_size = (out_channels,
+        int((input_size[1] - kernel_size + 1)/stride),
+         int((input_size[0] - kernel_size + 1)/stride))
+
+print("cv2 output: {}".format(cv2.output_size))
+
+
+class pl2:
+    input_size = cv2.output_size
+    kernel_size = 3
+    stride = kernel_size
+    output_size = ( 
+        input_size[0], 
+        int((input_size[1] - kernel_size)/stride + 1),
+        int((input_size[2] - kernel_size)/stride + 1),
+    )
+
+print("pl2 output: {}".format(pl2.output_size))
+
+
 class fc1:
-    input_size = pl1.output_size[0]*pl1.output_size[1]*pl1.output_size[2]
+    input_size = pl2.output_size[0]*pl2.output_size[1]*pl2.output_size[2]
     output_size = 100
 
 print("fc1 input {}".format(fc1.input_size))
@@ -68,8 +81,11 @@ class convnet(nn.Module):
         super().__init__()
         # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
         self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size)
+        self.pool1 = nn.MaxPool2d(pl1.kernel_size)
+        
         self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size)
-        self.pool = nn.MaxPool2d(pl1.kernel_size)
+        self.pool2 = nn.MaxPool2d(pl2.kernel_size)
+        
         self.fc1 = nn.Linear(fc1.input_size,fc1.output_size)
         self.fc2 = nn.Linear(fc2.input_size,fc2.output_size)
         
@@ -82,17 +98,22 @@ class convnet(nn.Module):
         }
 
     def forward(self, x):
-#        print("before conv1 {}".format(x.size()), flush=True)
         x = F.relu(self.conv1(x))
-#        print("after conv1 {}".format(x.size()), flush=True)
+        x = self.pool1(x)
+        print("after pool1 {}".format(x.shape))
+
         x = F.relu(self.conv2(x))
-#        print("after conv2 {}".format(x.size()),flush=True)
-        x = self.pool(x)
-#        print("after pool {}".format(x.size()),flush=True)
+        x = self.pool2(x)
+        print("after pool2 {}".format(x.shape))
+        
+
         x = x.view(-1,fc1.input_size)
-#        print("after view {}".format(x.size()),flush=True)
+
+        print("after flat {}".format(x.shape))
+
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
+
         return x
 
 

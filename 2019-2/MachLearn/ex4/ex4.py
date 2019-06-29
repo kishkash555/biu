@@ -16,7 +16,7 @@ class cv1:
     input_size = (SIGNAL_LENGTH, IN_CHANNELS)
     in_channels = 1
     out_channels = 5
-    kernel_size = 6
+    kernel_size = 12
     stride = 1
     output_size = ( out_channels, 
         int((input_size[0] - kernel_size + 1)/stride),

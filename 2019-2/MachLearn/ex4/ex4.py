@@ -5,9 +5,11 @@ import torch.nn.functional as F
 import torch.optim as optim
 import gitutils.gitutils as gu
 import time
+from datetime import timedelta
 
 def time2str(st):
-    return time.strftime('%H:%M:%S',time.localtime(st))
+    return str(timedelta(seconds=round(st)))
+
 
 criterion = nn.CrossEntropyLoss()
 
@@ -41,7 +43,7 @@ class cv1(conv_default):
     input_size = (1, SIGNAL_LENGTH, IN_CHANNELS)
     in_channels = 1
     out_channels = 32
-    kernel_size = 3
+    kernel_size = 6
     stride = 2
     padding = 1
 cv1.output_size = conv_output_size(cv1)
@@ -60,7 +62,7 @@ class cv2(conv_default):
     input_size = pl1.output_size
     in_channels = pl1.output_size[0]
     out_channels = 16
-    kernel_size = 3
+    kernel_size = 6
     stride = 3
     output_size = (out_channels,
         int((input_size[1] - kernel_size)/stride + 1),
@@ -163,7 +165,6 @@ class convnet(nn.Module):
         self.train()
         optimizer = optim.Adam(self.parameters())
         good = bad = 0
-        start = time.time()
 
         ep = self.options['epochs']
         log_interval = self.options['logging_interval']
@@ -237,4 +238,5 @@ def main():
     net.perform_training(train_loader,valid_loader)
 
 if __name__ == "__main__":
+    start = time.time()
     main()

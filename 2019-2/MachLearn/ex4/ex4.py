@@ -124,12 +124,12 @@ class convnet(nn.Module):
         self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size, cv1.stride, cv1.padding)
         self.pool1 = nn.MaxPool2d(pl1.kernel_size)
         self.bn1 = nn.BatchNorm2d(pl1.output_size[0])
-        self.do1 = nn.Dropout2d(0.25)
+        self.do1 = nn.Dropout2d(0.15)
 
         self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size, cv2.stride, cv2.padding)
         self.pool2 = nn.MaxPool2d(pl2.kernel_size)
         self.bn2 = nn.BatchNorm2d(pl2.output_size[0])
-        self.do2 = nn.Dropout2d(0.25)
+        self.do2 = nn.Dropout2d(0.15)
         
         #self.conv3 = nn.Conv2d(cv3.in_channels, cv3.out_channels, cv3.kernel_size)
         #self.pool3 = nn.MaxPool2d(pl3.kernel_size)

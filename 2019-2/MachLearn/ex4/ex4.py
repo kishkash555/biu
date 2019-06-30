@@ -115,6 +115,11 @@ print("fc1 input {}".format(fc1.input_size))
 
 class fc2:
     input_size = fc1.output_size
+    output_size = 80
+
+
+class fc3:
+    input_size = fc2.output_size
     output_size = N_CLASSES
 
 
@@ -133,6 +138,7 @@ class convnet(nn.Module):
         
         self.fc1 = nn.Linear(fc1.input_size,fc1.output_size)
         self.fc2 = nn.Linear(fc2.input_size,fc2.output_size)
+        self.fc3 = nn.Linear(fc3.input_size,fc3.output_size)
         
         self.revision = gu.get_sha()
         self.options = {
@@ -156,7 +162,8 @@ class convnet(nn.Module):
         # print("after flat {}".format(x.shape))
 
         x = F.relu(self.fc1(x))
-        x = self.fc2(x)
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
 
         return x
 

@@ -62,8 +62,8 @@ class cv2(conv_default):
     input_size = pl1.output_size
     in_channels = pl1.output_size[0]
     out_channels = 16
-    kernel_size = 6
-    stride = 1
+    kernel_size = 8
+    stride = 2
     padding = 1
 cv2.output_size = conv_output_size(cv2)
 

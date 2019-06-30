@@ -108,7 +108,7 @@ class pl3:
 
 class fc1:
     input_size = mult(pl2.output_size) 
-    output_size = 100
+    output_size = 200
 
 print("fc1 input {}".format(fc1.input_size))
 

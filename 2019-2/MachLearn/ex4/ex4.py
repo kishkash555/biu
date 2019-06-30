@@ -108,7 +108,7 @@ class pl3:
 
 class fc1:
     input_size = mult(pl2.output_size) 
-    output_size = 200
+    output_size = 100
 
 print("fc1 input {}".format(fc1.input_size))
 
@@ -133,7 +133,9 @@ class convnet(nn.Module):
         #self.pool3 = nn.MaxPool2d(pl3.kernel_size)
         
         self.fc1 = nn.Linear(fc1.input_size,fc1.output_size)
+        self.do1 = nn.Dropout2d(0.2)
         self.fc2 = nn.Linear(fc2.input_size,fc2.output_size)
+        self.do2 = nn.Dropout2d(0.2)
         
         self.revision = gu.get_sha()
         self.options = {
@@ -158,7 +160,9 @@ class convnet(nn.Module):
         # print("after flat {}".format(x.shape))
 
         x = F.relu(self.fc1(x))
+        x = self.do1(x)
         x = self.fc2(x)
+        x = self.do2(x)
 
         return x
 

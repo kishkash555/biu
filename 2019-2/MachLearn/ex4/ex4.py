@@ -61,7 +61,7 @@ print("pl1 output: {}".format(pl1.output_size))
 class cv2(conv_default):
     input_size = pl1.output_size
     in_channels = pl1.output_size[0]
-    out_channels = 16
+    out_channels = 32
     kernel_size = 6
     stride = 3
     output_size = (out_channels,
@@ -73,7 +73,7 @@ print("cv2 output: {} ({})".format(cv2.output_size, mult(cv2.output_size)))
 
 class pl2(pl_default):
     input_size = cv2.output_size
-    kernel_size = 2
+    kernel_size = 4
     stride = kernel_size
 pl2.output_size = conv_output_size(pl2)
 

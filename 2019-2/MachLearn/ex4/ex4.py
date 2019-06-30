@@ -124,18 +124,18 @@ class convnet(nn.Module):
         self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size, cv1.stride, cv1.padding)
         self.pool1 = nn.MaxPool2d(pl1.kernel_size)
         self.bn1 = nn.BatchNorm2d(pl1.output_size[0])
+        self.do1 = nn.Dropout2d(0.2)
 
         self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size, cv2.stride, cv2.padding)
         self.pool2 = nn.MaxPool2d(pl2.kernel_size)
         self.bn2 = nn.BatchNorm2d(pl2.output_size[0])
+        self.do2 = nn.Dropout2d(0.2)
         
         #self.conv3 = nn.Conv2d(cv3.in_channels, cv3.out_channels, cv3.kernel_size)
         #self.pool3 = nn.MaxPool2d(pl3.kernel_size)
         
         self.fc1 = nn.Linear(fc1.input_size,fc1.output_size)
-        self.do1 = nn.Dropout2d(0.2)
         self.fc2 = nn.Linear(fc2.input_size,fc2.output_size)
-        self.do2 = nn.Dropout2d(0.2)
         
         self.revision = gu.get_sha()
         self.options = {
@@ -149,10 +149,12 @@ class convnet(nn.Module):
         x = F.relu(self.conv1(x))
         x = self.pool1(x)
         x = self.bn1(x)
+        x = self.do1(x)
 
         x = F.relu(self.conv2(x))
         x = self.pool2(x)
         x = self.bn2(x)
+        x = self.do2(x)
         # print("after pool2 {}".format(x.shape))
         
         x = x.view(-1,fc1.input_size)
@@ -160,9 +162,7 @@ class convnet(nn.Module):
         # print("after flat {}".format(x.shape))
 
         x = F.relu(self.fc1(x))
-        x = self.do1(x)
         x = self.fc2(x)
-        x = self.do2(x)
 
         return x
 

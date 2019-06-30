@@ -91,7 +91,7 @@ class cv3:
         int((input_size[1] - kernel_size)/stride + 1),
         int((input_size[2] - kernel_size)/stride + 1))
 
-print("cv3 output: {}".format(cv3.output_size))
+# print("cv3 output: {}".format(cv3.output_size))
 
 
 class pl3:
@@ -104,7 +104,7 @@ class pl3:
         int((input_size[2] - kernel_size)/stride + 1),
     )
 
-print("pl3 output: {}".format(pl3.output_size))
+# print("pl3 output: {}".format(pl3.output_size))
 
 
 class fc1:
@@ -115,11 +115,6 @@ print("fc1 input {}".format(fc1.input_size))
 
 class fc2:
     input_size = fc1.output_size
-    output_size = 80
-
-
-class fc3:
-    input_size = fc2.output_size
     output_size = N_CLASSES
 
 
@@ -129,16 +124,17 @@ class convnet(nn.Module):
         # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
         self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size, cv1.stride, cv1.padding)
         self.pool1 = nn.MaxPool2d(pl1.kernel_size)
-        
+        self.bn1 = nn.BatchNorm2d(pl1.output_size[0])
+
         self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size, cv2.stride, cv2.padding)
         self.pool2 = nn.MaxPool2d(pl2.kernel_size)
+        self.bn2 = nn.BatchNorm2d(pl2.output_size[0])
         
         #self.conv3 = nn.Conv2d(cv3.in_channels, cv3.out_channels, cv3.kernel_size)
         #self.pool3 = nn.MaxPool2d(pl3.kernel_size)
         
         self.fc1 = nn.Linear(fc1.input_size,fc1.output_size)
         self.fc2 = nn.Linear(fc2.input_size,fc2.output_size)
-        self.fc3 = nn.Linear(fc3.input_size,fc3.output_size)
         
         self.revision = gu.get_sha()
         self.options = {
@@ -151,10 +147,11 @@ class convnet(nn.Module):
     def forward(self, x):
         x = F.relu(self.conv1(x))
         x = self.pool1(x)
-        # print("after pool1 {}".format(x.shape))
+        x = self.bn1(x)
 
         x = F.relu(self.conv2(x))
         x = self.pool2(x)
+        x = self.bn2(x)
         # print("after pool2 {}".format(x.shape))
         
         x = x.view(-1,fc1.input_size)
@@ -162,8 +159,7 @@ class convnet(nn.Module):
         # print("after flat {}".format(x.shape))
 
         x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
+        x = self.fc2(x)
 
         return x
 

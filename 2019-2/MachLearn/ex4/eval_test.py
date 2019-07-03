@@ -4,7 +4,7 @@ import numpy as np
 from ex4 import convnet
 from os import path
 
-model_fname = 'model_file_5717e5'
+model_fname = 'model_file_f54077'
 labels_fname = 'test_y'
 
 def main():

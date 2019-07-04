@@ -23,7 +23,7 @@ def main():
             print(inputs.shape, guess.shape)
             result = zip(fnames,guess)
             result_str = '\n'.join(['{}, {}'.format(path.basename(f),g) for f, g in result])
-            f.write(result_str)
+            f.write(result_str+'\n')
     print('finished writing output')
 
 

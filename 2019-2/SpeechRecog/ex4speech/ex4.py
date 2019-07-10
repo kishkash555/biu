@@ -19,7 +19,7 @@ criterion = nn.CTCLoss()
 BATCH_SIZE = 100
 IN_CHANNELS = 161
 SIGNAL_LENGTH = 101
-N_CHARS = 23
+N_CHARS = 10
 
 def n_out(input_size, padding, kernel_size, stride, dilation):
     return int((input_size + 2*padding - dilation*(kernel_size - 1) -1)/stride +1 )
@@ -46,8 +46,8 @@ class pl_default:
 class cv1(conv_default):
     input_size = (1, SIGNAL_LENGTH, IN_CHANNELS) # ignoring the batch dimension
     in_channels = 1
-    out_channels = 4
-    kernel_size = 4
+    out_channels = 8
+    kernel_size = 8
     stride = 2
     padding = 1
 cv1.output_size = conv_output_size(cv1)
@@ -67,15 +67,17 @@ class cv2(conv_default):
     in_channels = pl1.output_size[0]
     out_channels = 4
     kernel_size = 4
-    stride = 1
+    stride = 2
     padding = 1
 cv2.output_size = conv_output_size(cv2)
 
 print("cv2 output: {} ({})".format(cv2.output_size, mult(cv2.output_size)))
 
 
-
 sequence_lengths = torch.full(size=(BATCH_SIZE,), fill_value = cv2.output_size[1], dtype=torch.long)
+
+print("sequence length: {}".format(sequence_lengths[0]))
+
 
 class lstm1:
     input_size = IN_CHANNELS
@@ -88,11 +90,11 @@ class lstm1:
     h0 = torch.zeros(num_layers * (2 if bidi else 1), BATCH_SIZE, hidden_size)
     output_size = hidden_size * (2 if bidi else 1)
 
-print("lstm1 input: {}, sequence length: {}".format(lstm1.input_size, lstm1.seq_len))
+#print("lstm1 input: {}, sequence length: {}".format(lstm1.input_size, lstm1.seq_len))
 
 class fc1:
-    input_size = lstm1.output_size 
-    output_size = 50
+    input_size = cv2.output_size[0]*cv2.output_size[2]
+    output_size = 100
 
 print("fc1 input {}".format(fc1.input_size))
 
@@ -105,11 +107,18 @@ class convnet(nn.Module):
     def __init__(self, min_acc=0.75, epochs=20, logging_interval=50, save_fname='model_file'):
         super().__init__()
         
+        # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
+        self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size, cv1.stride, cv1.padding)
+        self.pool1 = nn.MaxPool2d(pl1.kernel_size)
+        self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size, cv2.stride, cv2.padding)
+
+        """
         self.rnn = nn.LSTM(input_size=lstm1.input_size, 
             hidden_size=lstm1.hidden_size, 
             num_layers=lstm1.num_layers, 
             batch_first=lstm1.batch_first, 
             bidirectional=lstm1.bidi)
+        """
 
         self.fc1 = nn.Linear(fc1.input_size, fc1.output_size)
         self.fc2 = nn.Linear(fc2.input_size, fc2.output_size)
@@ -123,9 +132,15 @@ class convnet(nn.Module):
         }
 
     def forward(self, x):
-        x = x.reshape(BATCH_SIZE, lstm1.seq_len, lstm1.input_size)
+        x = F.relu(self.conv1(x))
+        x = self.pool1(x)        
+        x = F.relu(self.conv2(x))
+        
+        x = torch.transpose(x,1,2)
+#        x = x.reshape(BATCH_SIZE, lstm1.seq_len, lstm1.input_size)
+        x = x.reshape(BATCH_SIZE, -1, fc1.input_size)
 
-        x, _ = self.rnn(x, (lstm1.h0, lstm1.c0))
+        # x, _ = self.rnn(x, (lstm1.h0, lstm1.c0))
         # output: torch.Size([100, 9, 20])
         
         x = self.fc1(F.relu(x))
@@ -218,7 +233,7 @@ def calc_cer(guess, labels, word_lengths, class_to_idx):
 
 def main():
 
-    train_set = GCommandLoader('./data/train')
+    train_set = GCommandLoader('./data/train2')
     valid_set = GCommandLoader('./data/valid')
     
     train_loader = torch.utils.data.DataLoader(

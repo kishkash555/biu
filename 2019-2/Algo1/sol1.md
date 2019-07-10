@@ -26,8 +26,7 @@ let $M=\begin{pmatrix}
 3\\
 2\\
 1\\
-\end{pmatrix} 
-$
+\end{pmatrix}$
 
 
     calc_g(n):
@@ -41,7 +40,7 @@ Where the exponent $M^{n-3}$ is calculated using the exponentiation algorithm le
 
 ## Question 2
 #### Observations
-* An array with 0 flips is a sorted array because $\forall i \lt j A[i] \lt A[j]$
+* An array with 0 flips is a sorted array because $\forall i \lt j:  A[i] \lt A[j]$
 * Let's say we have two sorted sub-arrays $R[-n_1], \ldots R[0],\ L[1], \ldots L[n_2]$ (such as we have during an intermediate step of _merge-sort_). Then the number of flips can be counted in $O(n_1+n_2)$: When sorting the array, each time the cursor on the left is in position $-j$ (i.e. on the j'th element from the right) and we pick an element $R[k]$ as the next smallest element, it is an indication of $k$ flips involving $R[-j]$ and each of $R[1] \ldots R[k]$.
 * If we split the array to two sub-arrays, the number of flip-pairs where one member is from the left array and the other is from the right array does not depend on the internal order of the left or right arrays.
 
@@ -126,33 +125,37 @@ Notes:
 
 
 ## Question 4
-#### Observation
-* The array $A+A$ will have at most $20n^{1.5}$ elements, the elements between 2 and twice the maximum of $A$. 
-* The number of elements in $A+A$ is $n^2 - T(A)$ Where $T$ is the number of triplets of equally spaced elements in $A$. 
+#### Observations
+* Since the possible members are positive integers limited by $10n^{1.5}$, we could construct the output as a binary group-membership array.
+* We could then traverse the array in a double loop, calculating $a+b$ (the sum of the current elements). Cell $a+b$ in the binary membership array is set to 1 (to represent $a+b \in A+A$). If the entry is already 1 it is left untouched.
+* Finally, we traverse the output array, outputing the index of each set bit.
+
+BUT this is $O(n^2)$, due to the double loop. We can actually do better using the FFT algo learned in class:
+
+* We observe that when multiplying two polynomials, an element $x^w$ has a nonzero coefficient if there was at least one pair of elements $x^y,\ x^z$ in the original polynomials with nonzero coefficients such that $w=y+z$ 
+* If more than one such pair exists, and we still want to be sure that $x^w$ has a positive coefficient, we can do that by assuring the original arrays have no negative coefficients (to avoid possible cancellations when summing positive and negative components). This means that if the original coefficients are not negative, a non-zero coefficient in the output will exist if (and only if) there was at least one corresponding pair in the inputs.
+* we can represent group membership (of a group $A$ of positive integers) by a polynomial as follows:
+
+$P = \sum \limits_{p \in A} 1\cdot x^p$
+
+i.e coefficients of 1 or 0 depending on whether $p \in A$
 
 
-I wasn't sure if "optimal time" is defined as  different for each case. The worst-case complexity is $O(n^2)$ and cannot be improved since this is the number of elements that need to be written to the output.
-
-However, in the case of $n$ consecutive elements (for instance), the number of elements in the output is $2n-1$. 
 
 #### Algo
+    group_self_addition(A):
+        B = initialize an array of size 10*n^1.5
+        for a in A:
+            set B[a] = 1 
+        C = B*B # polynomial multiplication using FFT
 
-    addition_group(A):
-        sort(A)
-        intialize two cursors r1, r2 to index 1
-        R = new empty group
-        while r1 < len(A) or r2 < len(A):
-            R.append(A[r1]+A[r2])
-            r1c = r1 + 1
-            while A[r1c]==A[r1] and r2c <= len(A): r1c = r1c + 1
-            r2c = r2 + 1
-            while A[r2c]==A[r2] and r2c <= len(A): r1c = r1c + 1
-            
-            if A[r1c] - A[r1] > A[r2c]- A[r2] or r2c == len(A):
-                r1 = r1c
-            else:
-                r2 = r2c
-        
-Notes:
-    W                
-            
+        R = new empty list
+        for i=1 to len(C):
+            if C[i] > 0:
+                R.append(i)
+        return R
+
+
+The most time consuming line of code is the FFT. it is $O(n^{1.5}\log n)$. The two loops are $O(n)$ and $O(n^{1.5})$.
+
+

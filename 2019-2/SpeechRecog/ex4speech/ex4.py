@@ -1,4 +1,4 @@
-from gcommand_loader import GCommandLoader
+from gcommand_loader import GCommandLoader, MAX_WORD_LEN
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -11,11 +11,12 @@ def time2str(st):
     return str(timedelta(seconds=round(st)))
 
 
-criterion = nn.CrossEntropyLoss()
+criterion = nn.CTCLoss()
 
+BATCH_SIZE = 100
 IN_CHANNELS = 161
 SIGNAL_LENGTH = 101
-N_CLASSES = 31
+N_CHARS = 23
 
 def n_out(input_size, padding, kernel_size, stride, dilation):
     return int((input_size + 2*padding - dilation*(kernel_size - 1) -1)/stride +1 )
@@ -40,7 +41,7 @@ class pl_default:
     padding = 0
 
 class cv1(conv_default):
-    input_size = (1, SIGNAL_LENGTH, IN_CHANNELS)
+    input_size = (1, SIGNAL_LENGTH, IN_CHANNELS) # ignoring the batch dimension
     in_channels = 1
     out_channels = 32
     kernel_size = 6
@@ -78,66 +79,45 @@ pl2.output_size = conv_output_size(pl2)
 
 print("pl2 output: {} ({})".format(pl2.output_size, mult(pl2.output_size)))
 
+sequence_lengths = torch.full(size=(BATCH_SIZE,), fill_value = pl2.output_size[1], dtype=torch.long)
 
+class lstm1:
+    input_size = pl2.output_size[0]*pl2.output_size[2]
+    hidden_size = 20
+    num_layers = 1
+    batch_first = True
+    bidi = False
+    c0 = h0 = torch.zeros(1, BATCH_SIZE, hidden_size)
 
-class cv3:
-    input_size = pl2.output_size
-    in_channels = pl2.output_size[0]
-    out_channels = 32
-    kernel_size = 3
-    stride = 1
-    output_size = (out_channels,
-        int((input_size[1] - kernel_size)/stride + 1),
-        int((input_size[2] - kernel_size)/stride + 1))
-
-# print("cv3 output: {}".format(cv3.output_size))
-
-
-class pl3:
-    input_size = cv3.output_size
-    kernel_size = 3
-    stride = kernel_size
-    output_size = ( 
-        input_size[0], 
-        int((input_size[1] - kernel_size +1 )/stride - 1),
-        int((input_size[2] - kernel_size)/stride + 1),
-    )
-
-# print("pl3 output: {}".format(pl3.output_size))
-
+print("lstm1 input: {} ".format(lstm1.input_size))
 
 class fc1:
-    input_size = mult(pl2.output_size) 
-    output_size = 100
+    input_size = lstm1.hidden_size 
+    output_size = N_CHARS
 
 print("fc1 input {}".format(fc1.input_size))
 
-class fc2:
-    input_size = fc1.output_size
-    output_size = N_CLASSES
 
 
 class convnet(nn.Module):
-    def __init__(self, min_acc=0.75, epochs=20, logging_interval=150, save_fname='model_file'):
+    def __init__(self, min_acc=0.75, epochs=20, logging_interval=50, save_fname='model_file'):
         super().__init__()
         # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
         self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size, cv1.stride, cv1.padding)
         self.pool1 = nn.MaxPool2d(pl1.kernel_size)
-        self.bn1 = nn.BatchNorm2d(pl1.output_size[0])
-        self.do1 = nn.Dropout2d(0.15)
-
+        
         self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size, cv2.stride, cv2.padding)
         self.pool2 = nn.MaxPool2d(pl2.kernel_size)
-        self.bn2 = nn.BatchNorm2d(pl2.output_size[0])
-        self.do2 = nn.Dropout2d(0.15)
         
-        #self.conv3 = nn.Conv2d(cv3.in_channels, cv3.out_channels, cv3.kernel_size)
-        #self.pool3 = nn.MaxPool2d(pl3.kernel_size)
+        self.rnn = nn.LSTM(input_size=lstm1.input_size, 
+            hidden_size=lstm1.hidden_size, 
+            num_layers=lstm1.num_layers, 
+            batch_first=lstm1.batch_first, 
+            bidirectional=lstm1.bidi)
+
+        self.fc1 = nn.Linear(fc1.input_size, fc1.output_size)
         
-        self.fc1 = nn.Linear(fc1.input_size,fc1.output_size)
-        self.fc2 = nn.Linear(fc2.input_size,fc2.output_size)
-        
-        #self.revision = gu.get_sha()
+        self.revision = "0.0.1" #gu.get_sha()
         self.options = {
             'min_acc': min_acc,
             'epochs': epochs,
@@ -148,23 +128,19 @@ class convnet(nn.Module):
     def forward(self, x):
         x = F.relu(self.conv1(x))
         x = self.pool1(x)
-        x = self.bn1(x)
-        x = self.do1(x)
 
         x = F.relu(self.conv2(x))
         x = self.pool2(x)
-        x = self.bn2(x)
-        x = self.do2(x)
-        # print("after pool2 {}".format(x.shape))
         
-        x = x.view(-1,fc1.input_size)
+        x = x.view(BATCH_SIZE, -1, lstm1.input_size)
+        output, _ = self.rnn(x, (lstm1.h0, lstm1.c0))
+        # output: torch.Size([100, 9, 20])
+        char_seq = F.log_softmax(self.fc1(F.relu(output)), 2)
 
-        # print("after flat {}".format(x.shape))
+        return char_seq
+            
 
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
-
-        return x
+#        print("output: {}\nhn: {}\ncn: {}".format(output.size(),hn.size(), cn.size()))
 
 
     def perform_training(self, trainloader, validloader):
@@ -177,46 +153,31 @@ class convnet(nn.Module):
         for epoch in range(ep):
             running_loss = 0.0
             for i, data in enumerate(trainloader, 0):
-                # get the inputs; data is a list of [inputs, labels]
-                inputs, labels = data
+                # unpack the batch. labels: BATCH_SIZE*MAX_WORD_LEN. word_lengths: BATCH_SIZE*1
+                inputs, (labels, word_lengths) = data
+                #print("label: {}".format(labels[0]))
 
                 # zero the parameter gradients
                 optimizer.zero_grad()
 
                 # forward + backward + optimize
                 outputs = self(inputs)
-                guess = torch.argmax(outputs,1)
+                guess = torch.argmax(outputs,2)
 
-                # print("guess size: {}, label size: {}".format(guess.size(), labels.size()))            
-                good += int(sum(guess==labels))
-                bad += int(sum(guess!=labels))
-                loss = criterion(outputs, labels)
+                # print("guess size: {}, outputs: {}, label size: {}".format(guess.size(), outputs.size(), labels.size()))            
+#                good += int(sum(guess==labels))
+#                bad += int(sum(guess!=labels))
+                loss = criterion(torch.transpose(outputs,0,1), labels, sequence_lengths, word_lengths)
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
                 if i % log_interval == log_interval -1:    
-                    valid_good = valid_bad = 0
-                    self.eval()
-                    for valid_input, valid_labels in validloader:
-                        valid_guess = torch.argmax(self(valid_input),1)
-                        valid_good += int(sum(valid_guess == valid_labels))
-                        valid_bad += int(sum(valid_guess != valid_labels))
-                    self.train()
-                    valid_acc =  valid_good/(valid_good+valid_bad)
-                    save = '*' if valid_acc > self.options['min_acc'] else ''
-                    print('{} [{}, {:5}] loss: {:.3f} train acc: {}/{} ({:.1%}), valid acc:  {}/{} ({:.1%}){}'.format(
+                    print('{} [{}, {:5}] loss: {:.3f}'.format(
                         time2str(time.time()-start),
                         epoch + 1, i + 1, 
                         running_loss / log_interval,
-                        good, good+bad, good/(good+bad),
-                        valid_good, valid_good+valid_bad, valid_acc,
-                        save
                         ))
-                    good = bad = 0
-                    running_loss = 0.0
-                    if save == '*':
-                        self.save(self.options['save_fname'])
-                        self.options['min_acc'] = valid_acc
+                    running_loss = 0.
 
         print('Finished Training')
 
@@ -231,7 +192,7 @@ def main():
     valid_set = GCommandLoader('./data/valid')
     
     train_loader = torch.utils.data.DataLoader(
-            train_set, batch_size=100, shuffle=True,
+            train_set, batch_size=BATCH_SIZE, shuffle=True,
             num_workers=30, pin_memory=False, sampler=None)
     
     train_loader = list(train_loader)
@@ -246,3 +207,25 @@ def main():
 if __name__ == "__main__":
     start = time.time()
     main()
+
+
+'''
+valid_good = valid_bad = 0
+                    self.eval()
+                    for valid_input, valid_labels in validloader:
+                        valid_guess = torch.argmax(self(valid_input),1)
+                        valid_good += int(sum(valid_guess == valid_labels))
+                        valid_bad += int(sum(valid_guess != valid_labels))
+                    self.train()
+                    valid_acc =  valid_good/(valid_good+valid_bad)
+                    save = '*' if valid_acc > self.options['min_acc'] else ''
+                    
+                    print('{} [{}, {:5}] loss: {:.3f} train acc: {}/{} ({:.1%}), valid acc:  {}/{} ({:.1%}){}'.format(
+                        time2str(time.time()-start),
+                        epoch + 1, i + 1, 
+                        running_loss / log_interval,
+                        good, good+bad, good/(good+bad),
+                        valid_good, valid_good+valid_bad, valid_acc,
+                        save
+                        ))
+'''

@@ -11,6 +11,8 @@ AUDIO_EXTENSIONS = [
     '.wav', '.WAV',
 ]
 
+MAX_WORD_LEN = 7
+
 
 def is_audio_file(filename):
     return any(filename.endswith(extension) for extension in AUDIO_EXTENSIONS)
@@ -18,9 +20,10 @@ def is_audio_file(filename):
 
 def find_classes(dir):
     classes = [d for d in os.listdir(dir) if os.path.isdir(os.path.join(dir, d))]
-    classes.sort()
-    class_to_idx = {classes[i]: i for i in range(len(classes))}
-    return classes, class_to_idx
+    characters = sorted(set(''.join(classes)))
+    class_to_idx = {c: i for i,c in enumerate(characters,1)}
+    class_to_idx[' '] = 0
+    return characters, class_to_idx
 
 
 def make_dataset(dir, class_to_idx):
@@ -35,7 +38,10 @@ def make_dataset(dir, class_to_idx):
             for fname in sorted(fnames):
                 if is_audio_file(fname):
                     path = os.path.join(root, fname)
-                    item = (path, class_to_idx[target])
+                    item = (path, (
+                        torch.as_tensor(np.array([class_to_idx[t] for t in target.ljust(MAX_WORD_LEN)], dtype=np.long)), 
+                        torch.full(size=(1,),fill_value=len(target), dtype=torch.long)
+                        ))
                     spects.append(item)
     return spects
 
@@ -129,14 +135,14 @@ class GCommandLoader(data.Dataset):
         Returns:
             tuple: (spect, target) where target is class_index of the target class.
         """
-        path, target = self.spects[index]
+        path, (target, target_len) = self.spects[index]
         spect = self.loader(path, self.window_size, self.window_stride, self.window_type, self.normalize, self.max_len)
         if self.transform is not None:
             spect = self.transform(spect)
         if self.target_transform is not None:
             target = self.target_transform(target)
 
-        return spect, target
+        return spect, (target, target_len)
 
     def __len__(self):
         return len(self.spects)

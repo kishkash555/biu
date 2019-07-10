@@ -1,11 +1,12 @@
+from cer import cer
+from datetime import timedelta
 from gcommand_loader import GCommandLoader, MAX_WORD_LEN
+import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 #import gitutils.gitutils as gu
-import time
-from datetime import timedelta
 
 def time2str(st):
     return str(timedelta(seconds=round(st)))
@@ -143,10 +144,11 @@ class convnet(nn.Module):
 #        print("output: {}\nhn: {}\ncn: {}".format(output.size(),hn.size(), cn.size()))
 
 
-    def perform_training(self, trainloader, validloader):
+    def perform_training(self, trainloader, validloader, class_to_idx):
         self.train()
         optimizer = optim.Adam(self.parameters())
-        good = bad = 0
+        cum_cer_error = 0.
+        batch_count = 0
 
         ep = self.options['epochs']
         log_interval = self.options['logging_interval']
@@ -163,8 +165,10 @@ class convnet(nn.Module):
                 # forward + backward + optimize
                 outputs = self(inputs)
                 guess = torch.argmax(outputs,2)
-
-                # print("guess size: {}, outputs: {}, label size: {}".format(guess.size(), outputs.size(), labels.size()))            
+                cer_error = calc_cer(guess, labels, word_lengths, class_to_idx)
+                # print("guess size: {}, outputs: {}, label size: {}".format(guess.size(), outputs.size(), labels.size())) 
+                cum_cer_error += cer_error
+                batch_count += 1           
 #                good += int(sum(guess==labels))
 #                bad += int(sum(guess!=labels))
                 loss = criterion(torch.transpose(outputs,0,1), labels, sequence_lengths, word_lengths)
@@ -172,18 +176,49 @@ class convnet(nn.Module):
                 optimizer.step()
                 running_loss += loss.item()
                 if i % log_interval == log_interval -1:    
-                    print('{} [{}, {:5}] loss: {:.3f}'.format(
+                    print('{} [{}, {:5}] loss: {:.3f} cer: {.2%}'.format(
                         time2str(time.time()-start),
                         epoch + 1, i + 1, 
                         running_loss / log_interval,
+                        cum_cer_error / batch_count
                         ))
                     running_loss = 0.
+                    cum_cer_error = 0.
+                    batch_count = 0
 
         print('Finished Training')
 
 
     def save(self, fname):
         torch.save(self,fname)
+
+def calc_cer(guess, labels, word_lengths, class_to_idx):
+    idx_to_class = list(class_to_idx.keys())
+    
+    label_words = [
+        ''.join(
+            idx_to_class[labels[i,c]] 
+            for c in range(word_lengths[i])
+            )
+        for i in range(BATCH_SIZE)
+        ]
+
+    cers = []
+
+    for i in range(BATCH_SIZE):
+        last_char = 0
+        guess_word = []
+        for c in range(guess.shape[1]):
+            if guess[i,c] != last_char and guess[i,c] != 0:
+                guess_word.append(idx_to_class[guess[i,c]])
+            last_char = guess[i,c]
+        cers.append(cer(label_words[i],''.join(guess_word)))
+    m = torch.mean(torch.Tensor(cers))
+    return m
+
+
+
+        
 
 
 def main():
@@ -193,16 +228,16 @@ def main():
     
     train_loader = torch.utils.data.DataLoader(
             train_set, batch_size=BATCH_SIZE, shuffle=True,
-            num_workers=30, pin_memory=False, sampler=None)
+            num_workers=0, pin_memory=False, sampler=None)
     
     train_loader = list(train_loader)
     valid_loader = torch.utils.data.DataLoader(
             valid_set, batch_size=100, shuffle=None,
-            num_workers=5, pin_memory=False, 
+            num_workers=0, pin_memory=False, 
             sampler=None )
     
     net = convnet()
-    net.perform_training(train_loader,valid_loader)
+    net.perform_training(train_loader,valid_loader, train_set.class_to_idx)
 
 if __name__ == "__main__":
     start = time.time()

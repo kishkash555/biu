@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import os
 import os.path
 
@@ -21,8 +22,10 @@ def is_audio_file(filename):
 def find_classes(dir):
     classes = [d for d in os.listdir(dir) if os.path.isdir(os.path.join(dir, d))]
     characters = sorted(set(''.join(classes)))
-    class_to_idx = {c: i for i,c in enumerate(characters,1)}
+    class_to_idx = OrderedDict()
     class_to_idx[' '] = 0
+    for i,c in enumerate(characters,1):
+        class_to_idx[c] = i
     return characters, class_to_idx
 
 

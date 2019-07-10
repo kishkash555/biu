@@ -81,13 +81,15 @@ class lstm1:
     hidden_size = 50
     num_layers = 1
     batch_first = True
-    bidi = False
-    c0 = h0 = torch.zeros(1, BATCH_SIZE, hidden_size)
+    bidi = True
+    c0 = torch.zeros(num_layers * (2 if bidi else 1), BATCH_SIZE, hidden_size)
+    h0 = torch.zeros(num_layers * (2 if bidi else 1), BATCH_SIZE, hidden_size)
+    output_size = hidden_size * (2 if bidi else 1)
 
 print("lstm1 input: {}, sequence length: {}".format(lstm1.input_size, lstm1.seq_len))
 
 class fc1:
-    input_size = lstm1.hidden_size 
+    input_size = lstm1.output_size 
     output_size = 50
 
 print("fc1 input {}".format(fc1.input_size))

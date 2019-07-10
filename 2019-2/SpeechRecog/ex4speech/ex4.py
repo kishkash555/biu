@@ -44,8 +44,8 @@ class pl_default:
 class cv1(conv_default):
     input_size = (1, SIGNAL_LENGTH, IN_CHANNELS) # ignoring the batch dimension
     in_channels = 1
-    out_channels = 32
-    kernel_size = 6
+    out_channels = 4
+    kernel_size = 4
     stride = 2
     padding = 1
 cv1.output_size = conv_output_size(cv1)
@@ -63,8 +63,8 @@ print("pl1 output: {}".format(pl1.output_size))
 class cv2(conv_default):
     input_size = pl1.output_size
     in_channels = pl1.output_size[0]
-    out_channels = 16
-    kernel_size = 8
+    out_channels = 4
+    kernel_size = 4
     stride = 1
     padding = 1
 cv2.output_size = conv_output_size(cv2)
@@ -72,32 +72,29 @@ cv2.output_size = conv_output_size(cv2)
 print("cv2 output: {} ({})".format(cv2.output_size, mult(cv2.output_size)))
 
 
-class pl2(pl_default):
-    input_size = cv2.output_size
-    kernel_size = 2
-    stride = kernel_size
-pl2.output_size = conv_output_size(pl2)
 
-print("pl2 output: {} ({})".format(pl2.output_size, mult(pl2.output_size)))
-
-sequence_lengths = torch.full(size=(BATCH_SIZE,), fill_value = pl2.output_size[1], dtype=torch.long)
+sequence_lengths = torch.full(size=(BATCH_SIZE,), fill_value = pl1.output_size[1], dtype=torch.long)
 
 class lstm1:
-    input_size = pl2.output_size[0]*pl2.output_size[2]
-    hidden_size = 20
+    input_size = cv2.output_size[0]*cv2.output_size[2]
+    seq_len = cv2.output_size[1]
+    hidden_size = 50
     num_layers = 1
     batch_first = True
     bidi = False
     c0 = h0 = torch.zeros(1, BATCH_SIZE, hidden_size)
 
-print("lstm1 input: {} ".format(lstm1.input_size))
+print("lstm1 input: {}, sequence length: {}".format(lstm1.input_size, lstm1.seq_len))
 
 class fc1:
     input_size = lstm1.hidden_size 
-    output_size = N_CHARS
+    output_size = 50
 
 print("fc1 input {}".format(fc1.input_size))
 
+class fc2:
+    input_size = fc1.output_size 
+    output_size = N_CHARS
 
 
 class convnet(nn.Module):
@@ -107,8 +104,9 @@ class convnet(nn.Module):
         self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size, cv1.stride, cv1.padding)
         self.pool1 = nn.MaxPool2d(pl1.kernel_size)
         
+
         self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size, cv2.stride, cv2.padding)
-        self.pool2 = nn.MaxPool2d(pl2.kernel_size)
+        #self.pool2 = nn.MaxPool2d(pl2.kernel_size)
         
         self.rnn = nn.LSTM(input_size=lstm1.input_size, 
             hidden_size=lstm1.hidden_size, 
@@ -117,6 +115,7 @@ class convnet(nn.Module):
             bidirectional=lstm1.bidi)
 
         self.fc1 = nn.Linear(fc1.input_size, fc1.output_size)
+        self.fc2 = nn.Linear(fc2.input_size, fc2.output_size)
         
         self.revision = "0.0.1" #gu.get_sha()
         self.options = {
@@ -129,14 +128,18 @@ class convnet(nn.Module):
     def forward(self, x):
         x = F.relu(self.conv1(x))
         x = self.pool1(x)
-
-        x = F.relu(self.conv2(x))
-        x = self.pool2(x)
         
-        x = x.view(BATCH_SIZE, -1, lstm1.input_size)
-        output, _ = self.rnn(x, (lstm1.h0, lstm1.c0))
+        x = F.relu(self.conv2(x))
+        
+        x = torch.transpose(x,1,2)
+        x = x.view(BATCH_SIZE, lstm1.seq_len, lstm1.input_size)
+
+        x, _ = self.rnn(x, (lstm1.h0, lstm1.c0))
         # output: torch.Size([100, 9, 20])
-        char_seq = F.log_softmax(self.fc1(F.relu(output)), 2)
+        
+        x = self.fc1(F.relu(x))
+        x = self.fc2(F.relu(x))
+        char_seq = F.log_softmax(x, 2)
 
         return char_seq
             
@@ -169,8 +172,6 @@ class convnet(nn.Module):
                 # print("guess size: {}, outputs: {}, label size: {}".format(guess.size(), outputs.size(), labels.size())) 
                 cum_cer_error += cer_error
                 batch_count += 1           
-#                good += int(sum(guess==labels))
-#                bad += int(sum(guess!=labels))
                 loss = criterion(torch.transpose(outputs,0,1), labels, sequence_lengths, word_lengths)
                 loss.backward()
                 optimizer.step()

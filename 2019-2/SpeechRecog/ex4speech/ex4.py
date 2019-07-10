@@ -73,7 +73,7 @@ print("cv2 output: {} ({})".format(cv2.output_size, mult(cv2.output_size)))
 
 
 
-sequence_lengths = torch.full(size=(BATCH_SIZE,), fill_value = pl1.output_size[1], dtype=torch.long)
+sequence_lengths = torch.full(size=(BATCH_SIZE,), fill_value = cv2.output_size[1], dtype=torch.long)
 
 class lstm1:
     input_size = cv2.output_size[0]*cv2.output_size[2]
@@ -132,7 +132,7 @@ class convnet(nn.Module):
         x = F.relu(self.conv2(x))
         
         x = torch.transpose(x,1,2)
-        x = x.view(BATCH_SIZE, lstm1.seq_len, lstm1.input_size)
+        x = x.reshape(BATCH_SIZE, lstm1.seq_len, lstm1.input_size)
 
         x, _ = self.rnn(x, (lstm1.h0, lstm1.c0))
         # output: torch.Size([100, 9, 20])
@@ -177,7 +177,7 @@ class convnet(nn.Module):
                 optimizer.step()
                 running_loss += loss.item()
                 if i % log_interval == log_interval -1:    
-                    print('{} [{}, {:5}] loss: {:.3f} cer: {.2%}'.format(
+                    print('{} [{}, {:5}] loss: {:.3f} cer: {:.2%}'.format(
                         time2str(time.time()-start),
                         epoch + 1, i + 1, 
                         running_loss / log_interval,
@@ -213,7 +213,7 @@ def calc_cer(guess, labels, word_lengths, class_to_idx):
             if guess[i,c] != last_char and guess[i,c] != 0:
                 guess_word.append(idx_to_class[guess[i,c]])
             last_char = guess[i,c]
-        cers.append(cer(label_words[i],''.join(guess_word)))
+        cers.append(cer(''.join(guess_word),label_words[i]))
     m = torch.mean(torch.Tensor(cers))
     return m
 
@@ -229,7 +229,7 @@ def main():
     
     train_loader = torch.utils.data.DataLoader(
             train_set, batch_size=BATCH_SIZE, shuffle=True,
-            num_workers=0, pin_memory=False, sampler=None)
+            num_workers=10, pin_memory=False, sampler=None, drop_last=True)
     
     train_loader = list(train_loader)
     valid_loader = torch.utils.data.DataLoader(

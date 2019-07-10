@@ -6,6 +6,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import random
+
 #import gitutils.gitutils as gu
 
 def time2str(st):
@@ -76,9 +78,9 @@ print("cv2 output: {} ({})".format(cv2.output_size, mult(cv2.output_size)))
 sequence_lengths = torch.full(size=(BATCH_SIZE,), fill_value = cv2.output_size[1], dtype=torch.long)
 
 class lstm1:
-    input_size = cv2.output_size[0]*cv2.output_size[2]
-    seq_len = cv2.output_size[1]
-    hidden_size = 50
+    input_size = IN_CHANNELS
+    seq_len = SIGNAL_LENGTH
+    hidden_size = 80
     num_layers = 1
     batch_first = True
     bidi = True
@@ -102,13 +104,6 @@ class fc2:
 class convnet(nn.Module):
     def __init__(self, min_acc=0.75, epochs=20, logging_interval=50, save_fname='model_file'):
         super().__init__()
-        # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
-        self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size, cv1.stride, cv1.padding)
-        self.pool1 = nn.MaxPool2d(pl1.kernel_size)
-        
-
-        self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size, cv2.stride, cv2.padding)
-        #self.pool2 = nn.MaxPool2d(pl2.kernel_size)
         
         self.rnn = nn.LSTM(input_size=lstm1.input_size, 
             hidden_size=lstm1.hidden_size, 
@@ -128,12 +123,6 @@ class convnet(nn.Module):
         }
 
     def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = self.pool1(x)
-        
-        x = F.relu(self.conv2(x))
-        
-        x = torch.transpose(x,1,2)
         x = x.reshape(BATCH_SIZE, lstm1.seq_len, lstm1.input_size)
 
         x, _ = self.rnn(x, (lstm1.h0, lstm1.c0))
@@ -151,7 +140,7 @@ class convnet(nn.Module):
 
     def perform_training(self, trainloader, validloader, class_to_idx):
         self.train()
-        optimizer = optim.Adam(self.parameters())
+        optimizer = optim.Adam(self.parameters(), lr=0.001)
         cum_cer_error = 0.
         batch_count = 0
 
@@ -208,6 +197,7 @@ def calc_cer(guess, labels, word_lengths, class_to_idx):
 
     cers = []
 
+    len_guesses = 0
     for i in range(BATCH_SIZE):
         last_char = 0
         guess_word = []
@@ -215,7 +205,9 @@ def calc_cer(guess, labels, word_lengths, class_to_idx):
             if guess[i,c] != last_char and guess[i,c] != 0:
                 guess_word.append(idx_to_class[guess[i,c]])
             last_char = guess[i,c]
+        len_guesses += len(guess_word)
         cers.append(cer(''.join(guess_word),label_words[i]))
+    if random.random() < 0.1: print(len_guesses)
     m = torch.mean(torch.Tensor(cers))
     return m
 

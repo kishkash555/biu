@@ -46,7 +46,7 @@ class cv1(conv_default):
     input_size = (1, SIGNAL_LENGTH, IN_CHANNELS) # ignoring the batch dimension
     in_channels = 1
     out_channels = 12
-    kernel_size = 8
+    kernel_size = 12
     stride = 2
     padding = 1
 cv1.output_size = conv_output_size(cv1)

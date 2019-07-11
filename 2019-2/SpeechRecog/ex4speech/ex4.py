@@ -155,7 +155,7 @@ class convnet(nn.Module):
 
     def perform_training(self, trainloader, validloader, class_to_idx):
         self.train()
-        optimizer = optim.Adam(self.parameters(), lr=0.001)
+        optimizer = optim.Adam(self.parameters(), lr=0.01)
         cum_cer_error = 0.
         batch_count = 0
 

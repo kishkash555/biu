@@ -188,7 +188,7 @@ class convnet(nn.Module):
                         epoch + 1, i + 1, 
                         running_loss / log_interval,
                         cum_cer_error / batch_count
-                        ))
+                        ), flush=True)
                     running_loss = 0.
                     cum_cer_error = 0.
                     batch_count = 0

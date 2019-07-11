@@ -64,26 +64,16 @@ print("pl1 output: {}".format(pl1.output_size))
 class cv2(conv_default):
     input_size = pl1.output_size
     in_channels = pl1.output_size[0]
-    out_channels = 4
+    out_channels = 2
     kernel_size = 4
-    stride = 1
+    stride = 2
     padding = 1
 cv2.output_size = conv_output_size(cv2)
 
 print("cv2 output: {} ({})".format(cv2.output_size, mult(cv2.output_size)))
 
-class pl2(pl_default):
-    input_size = cv2.output_size
-    kernel_size = 2
-    stride = kernel_size
-pl2.output_size = conv_output_size(pl2)
 
-print("pl2 output: {}".format(pl2.output_size))
-
-
-
-
-sequence_lengths = torch.full(size=(BATCH_SIZE,), fill_value = pl2.output_size[1], dtype=torch.long)
+sequence_lengths = torch.full(size=(BATCH_SIZE,), fill_value = cv2.output_size[1], dtype=torch.long)
 
 print("sequence length: {}".format(sequence_lengths[0]))
 

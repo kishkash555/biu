@@ -122,6 +122,7 @@ class GCommandLoader(data.Dataset):
         self.spects = spects
         self.classes = classes
         self.class_to_idx = class_to_idx
+        self.n_chars = len(class_to_idx)
         self.transform = transform
         self.target_transform = target_transform
         self.loader = spect_loader

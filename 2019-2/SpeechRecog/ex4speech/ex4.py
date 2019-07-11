@@ -19,7 +19,6 @@ criterion = nn.CTCLoss()
 BATCH_SIZE = 100
 IN_CHANNELS = 161
 SIGNAL_LENGTH = 101
-N_CHARS = 10
 
 def n_out(input_size, padding, kernel_size, stride, dilation):
     return int((input_size + 2*padding - dilation*(kernel_size - 1) -1)/stride +1 )
@@ -100,11 +99,11 @@ print("fc1 input {}".format(fc1.input_size))
 
 class fc2:
     input_size = fc1.output_size 
-    output_size = N_CHARS
+    output_size = None
 
 
 class convnet(nn.Module):
-    def __init__(self, min_acc=0.75, epochs=20, logging_interval=50, save_fname='model_file'):
+    def __init__(self, n_chars=None, min_acc=0.75, epochs=20, logging_interval=50, save_fname='model_file'):
         super().__init__()
         
         # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
@@ -121,7 +120,7 @@ class convnet(nn.Module):
         """
 
         self.fc1 = nn.Linear(fc1.input_size, fc1.output_size)
-        self.fc2 = nn.Linear(fc2.input_size, fc2.output_size)
+        self.fc2 = nn.Linear(fc2.input_size, n_chars)
         
         self.revision = "0.0.1" #gu.get_sha()
         self.options = {
@@ -232,8 +231,10 @@ def calc_cer(guess, labels, word_lengths, class_to_idx):
 
 
 def main():
+    train_path='./data/train'
 
-    train_set = GCommandLoader('./data/train2')
+    train_set = GCommandLoader(train_path)
+    print("train_path: {}".format(train_path))
     valid_set = GCommandLoader('./data/valid')
     
     train_loader = torch.utils.data.DataLoader(
@@ -246,7 +247,8 @@ def main():
             num_workers=0, pin_memory=False, 
             sampler=None )
     
-    net = convnet()
+    net = convnet(train_set.n_chars)
+    print("n chars {}".format(train_set.n_chars))
     net.perform_training(train_loader,valid_loader, train_set.class_to_idx)
 
 if __name__ == "__main__":

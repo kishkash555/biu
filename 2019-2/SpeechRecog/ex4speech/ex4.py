@@ -23,7 +23,7 @@ SIGNAL_LENGTH = 101
 def n_out(input_size, padding, kernel_size, stride, dilation):
     return int((input_size + 2*padding - dilation*(kernel_size - 1) -1)/stride +1 )
 
-def conv_output_size(conv):
+def conv_output_size(conv): # ignores the BATCH dimension (dimension 0)
     return (
         conv.out_channels if hasattr(conv,'out_channels') else conv.input_size[0], 
         n_out(conv.input_size[1], conv.padding, conv.kernel_size, conv.stride, conv.dilation),
@@ -82,12 +82,13 @@ class lstm1:
     input_size = cv2.output_size[0]*cv2.output_size[2]
     seq_len = sequence_lengths[0]
     hidden_size = 30
-    num_layers = 1
+    num_layers = 3
     batch_first = False
     bidi = True
     c0 = torch.zeros(num_layers * (2 if bidi else 1), BATCH_SIZE, hidden_size)
     h0 = torch.zeros(num_layers * (2 if bidi else 1), BATCH_SIZE, hidden_size)
     output_size = hidden_size * (2 if bidi else 1)
+    dropout = 0.25
 
 print("lstm1 input: {}, sequence length: {}".format(lstm1.input_size, lstm1.seq_len))
 
@@ -109,14 +110,17 @@ class convnet(nn.Module):
         # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
         self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size, cv1.stride, cv1.padding)
         self.pool1 = nn.MaxPool2d(pl1.kernel_size)
-        self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size, cv2.stride, cv2.padding)
+        self.batch_norm1 = nn.BatchNorm2d(pl1.output_size[0])
 
+        self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size, cv2.stride, cv2.padding)
+        self.batch_norm2 = nn.BatchNorm2d(cv2.output_size[0])
         
-        self.rnn = nn.RNN(input_size=lstm1.input_size, 
+        self.rnn = nn.LSTM(input_size=lstm1.input_size, 
             hidden_size=lstm1.hidden_size, 
             num_layers=lstm1.num_layers, 
             batch_first=lstm1.batch_first, 
-            bidirectional=lstm1.bidi)
+            bidirectional=lstm1.bidi,
+            dropout=lstm1.dropout)
         
 
         self.fc1 = nn.Linear(fc1.input_size, fc1.output_size)
@@ -135,11 +139,10 @@ class convnet(nn.Module):
         x = self.pool1(x)        
         x = F.relu(self.conv2(x))
         
-        x = torch.transpose(x,1,2) # moves the sequence dimension from 2 to 1
-        x = torch.transpose(x,0,1) # moves the sequence dimension from 1 to 0, placing the batch dimension in 1
+        x = x.permute(2,0,1,3) 
         x = x.reshape((lstm1.seq_len, BATCH_SIZE, lstm1.input_size))
 
-        x, _ = self.rnn(x, lstm1.h0)
+        x, _ = self.rnn(x, (lstm1.h0, lstm1.c0))
 
         x = torch.transpose(x,0,1) # moves the batch back to dimension 0
         assert(all([a==b for a,b in zip(x.shape,[BATCH_SIZE, lstm1.seq_len, lstm1.output_size])]))        

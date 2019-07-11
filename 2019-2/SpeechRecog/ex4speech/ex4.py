@@ -81,7 +81,7 @@ print("sequence length: {}".format(sequence_lengths[0]))
 class lstm1:
     input_size = cv2.output_size[0]*cv2.output_size[2]
     seq_len = sequence_lengths[0]
-    hidden_size = 80
+    hidden_size = 20
     num_layers = 1
     batch_first = False
     bidi = True
@@ -103,7 +103,7 @@ class fc2:
 
 
 class convnet(nn.Module):
-    def __init__(self, n_chars=None, min_acc=0.75, epochs=20, logging_interval=50, save_fname='model_file'):
+    def __init__(self, n_chars=None, min_acc=0.75, epochs=60, logging_interval=50, save_fname='model_file'):
         super().__init__()
         
         # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')

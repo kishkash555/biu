@@ -81,7 +81,7 @@ print("sequence length: {}".format(sequence_lengths[0]))
 class lstm1:
     input_size = cv2.output_size[0]*cv2.output_size[2]
     seq_len = sequence_lengths[0]
-    hidden_size = 20
+    hidden_size = 30
     num_layers = 1
     batch_first = False
     bidi = True
@@ -112,7 +112,7 @@ class convnet(nn.Module):
         self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size, cv2.stride, cv2.padding)
 
         
-        self.rnn = nn.LSTM(input_size=lstm1.input_size, 
+        self.rnn = nn.RNN(input_size=lstm1.input_size, 
             hidden_size=lstm1.hidden_size, 
             num_layers=lstm1.num_layers, 
             batch_first=lstm1.batch_first, 
@@ -139,7 +139,7 @@ class convnet(nn.Module):
         x = torch.transpose(x,0,1) # moves the sequence dimension from 1 to 0, placing the batch dimension in 1
         x = x.reshape((lstm1.seq_len, BATCH_SIZE, lstm1.input_size))
 
-        x, _ = self.rnn(x, (lstm1.h0, lstm1.c0))
+        x, _ = self.rnn(x, lstm1.h0)
 
         x = torch.transpose(x,0,1) # moves the batch back to dimension 0
         assert(all([a==b for a,b in zip(x.shape,[BATCH_SIZE, lstm1.seq_len, lstm1.output_size])]))        

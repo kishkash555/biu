@@ -45,7 +45,7 @@ class pl_default:
 class cv1(conv_default):
     input_size = (1, SIGNAL_LENGTH, IN_CHANNELS) # ignoring the batch dimension
     in_channels = 1
-    out_channels = 12
+    out_channels = 18
     kernel_size = 12
     stride = 2
     padding = 1

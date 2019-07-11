@@ -45,7 +45,7 @@ class pl_default:
 class cv1(conv_default):
     input_size = (1, SIGNAL_LENGTH, IN_CHANNELS) # ignoring the batch dimension
     in_channels = 1
-    out_channels = 18
+    out_channels = 12
     kernel_size = 12
     stride = 2
     padding = 1
@@ -79,20 +79,20 @@ print("sequence length: {}".format(sequence_lengths[0]))
 
 
 class lstm1:
-    input_size = IN_CHANNELS
-    seq_len = SIGNAL_LENGTH
+    input_size = cv2.output_size[0]*cv2.output_size[2]
+    seq_len = sequence_lengths[0]
     hidden_size = 80
     num_layers = 1
-    batch_first = True
+    batch_first = False
     bidi = True
     c0 = torch.zeros(num_layers * (2 if bidi else 1), BATCH_SIZE, hidden_size)
     h0 = torch.zeros(num_layers * (2 if bidi else 1), BATCH_SIZE, hidden_size)
     output_size = hidden_size * (2 if bidi else 1)
 
-#print("lstm1 input: {}, sequence length: {}".format(lstm1.input_size, lstm1.seq_len))
+print("lstm1 input: {}, sequence length: {}".format(lstm1.input_size, lstm1.seq_len))
 
 class fc1:
-    input_size = cv2.output_size[0]*cv2.output_size[2]
+    input_size = lstm1.output_size
     output_size = 100
 
 print("fc1 input {}".format(fc1.input_size))
@@ -111,13 +111,13 @@ class convnet(nn.Module):
         self.pool1 = nn.MaxPool2d(pl1.kernel_size)
         self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size, cv2.stride, cv2.padding)
 
-        """
+        
         self.rnn = nn.LSTM(input_size=lstm1.input_size, 
             hidden_size=lstm1.hidden_size, 
             num_layers=lstm1.num_layers, 
             batch_first=lstm1.batch_first, 
             bidirectional=lstm1.bidi)
-        """
+        
 
         self.fc1 = nn.Linear(fc1.input_size, fc1.output_size)
         self.fc2 = nn.Linear(fc2.input_size, n_chars)
@@ -135,17 +135,17 @@ class convnet(nn.Module):
         x = self.pool1(x)        
         x = F.relu(self.conv2(x))
         
-        x = torch.transpose(x,1,2)
-#        x = x.reshape(BATCH_SIZE, lstm1.seq_len, lstm1.input_size)
-        x = x.reshape(BATCH_SIZE, -1, fc1.input_size)
+        x = torch.transpose(x,1,2) # moves the sequence dimension from 2 to 1
+        x = torch.transpose(x,0,1) # moves the sequence dimension from 1 to 0, placing the batch dimension in 1
+        x = x.reshape((lstm1.seq_len, BATCH_SIZE, lstm1.input_size))
 
-        # x, _ = self.rnn(x, (lstm1.h0, lstm1.c0))
-        # output: torch.Size([100, 9, 20])
-        
+        x, _ = self.rnn(x, (lstm1.h0, lstm1.c0))
+
+        x = torch.transpose(x,0,1) # moves the batch back to dimension 0
+        assert(all([a==b for a,b in zip(x.shape,[BATCH_SIZE, lstm1.seq_len, lstm1.output_size])]))        
         x = self.fc1(F.relu(x))
         x = self.fc2(F.relu(x))
         char_seq = F.log_softmax(x, 2)
-
         return char_seq
             
 

@@ -30,6 +30,20 @@ def conv_output_size(conv): # ignores the BATCH dimension (dimension 0)
         n_out(conv.input_size[2], conv.padding, conv.kernel_size, conv.stride, conv.dilation)
         )
 
+
+def conv2d_output_size(conv): # ignores the BATCH dimension (dimension 0)
+    one_or_twoD = lambda p: p if hasattr(p,'__length__') and len(p) > 1 else (p, p)
+    padding = one_or_twoD(conv.padding) 
+    kernel_size = one_or_twoD(conv.kernel_size)
+    stride = one_or_twoD(conv.stride)
+    dilation = one_or_twoD(conv.dilation)
+    return (
+        conv.out_channels, 
+        n_out(conv.input_size[1], padding[0], kernel_size[0], stride[0], dilation[0]),
+        n_out(conv.input_size[2], padding[1], kernel_size[1], stride[1], dilation[1])
+        )
+
+
 def mult(s):
     return s[0]*s[1]*s[2]
 
@@ -64,7 +78,7 @@ print("pl1 output: {}".format(pl1.output_size))
 class cv2(conv_default):
     input_size = pl1.output_size
     in_channels = pl1.output_size[0]
-    out_channels = 4
+    out_channels = 1
     kernel_size = 4
     stride = 1
     padding = 1
@@ -83,7 +97,7 @@ class lstm1:
     seq_len = sequence_lengths[0]
     hidden_size = 30
     num_layers = 3
-    batch_first = False
+    batch_first = True
     bidi = True
     c0 = torch.zeros(num_layers * (2 if bidi else 1), BATCH_SIZE, hidden_size)
     h0 = torch.zeros(num_layers * (2 if bidi else 1), BATCH_SIZE, hidden_size)
@@ -124,7 +138,9 @@ class convnet(nn.Module):
         
 
         self.fc1 = nn.Linear(fc1.input_size, fc1.output_size)
+        self.dofc1 = nn.Dropout(p=0.25)
         self.fc2 = nn.Linear(fc2.input_size, n_chars)
+        self.dofc2 = nn.Dropout(p=0.25)
         
         self.revision = "0.0.1" #gu.get_sha()
         self.options = {
@@ -135,24 +151,29 @@ class convnet(nn.Module):
         }
 
     def forward(self, x):
+        tanh = nn.Tanh()
         x = F.relu(self.conv1(x))
+        x = self.batch_norm1(x)
         x = self.pool1(x)        
         x = F.relu(self.conv2(x))
-        
-        x = x.permute(2,0,1,3) 
-        x = x.reshape((lstm1.seq_len, BATCH_SIZE, lstm1.input_size))
+        x = self.batch_norm2(x)
 
-        x, _ = self.rnn(x, (lstm1.h0, lstm1.c0))
+        x = x.squeeze(dim=1).permute(0,2,1)
 
-        x = torch.transpose(x,0,1) # moves the batch back to dimension 0
-        assert(all([a==b for a,b in zip(x.shape,[BATCH_SIZE, lstm1.seq_len, lstm1.output_size])]))        
-        x = self.fc1(F.relu(x))
-        x = self.fc2(F.relu(x))
+      
+        #x = x.permute(0, 2, 1, 3) 
+        #x = x.reshape((lstm1.seq_len, BATCH_SIZE, lstm1.input_size))
+
+        x, _ = self.rnn(x) #, (lstm1.h0, lstm1.c0))
+
+        assert(all([a==b for a,b in zip(x.shape[1:],[lstm1.seq_len, lstm1.output_size])]))
+
+        x = self.dofc1(tnah(self.fc1(x)))
+        x = self.dofc2(self.fc2(x))
         char_seq = F.log_softmax(x, 2)
         return char_seq
             
 
-#        print("output: {}\nhn: {}\ncn: {}".format(output.size(),hn.size(), cn.size()))
 
 
     def perform_training(self, trainloader, validloader, class_to_idx):
@@ -185,15 +206,26 @@ class convnet(nn.Module):
                 optimizer.step()
                 running_loss += loss.item()
                 if i % log_interval == log_interval -1:    
-                    print('{} [{}, {:5}] loss: {:.3f} cer: {:.2%}'.format(
+                    self.eval()
+                    v_cum_cer_error = 0.
+                    v_batch_count = 0
+                    for v_inputs, (v_labels, v_word_lengths) in validloader:
+                        v_outputs = self(v_inputs)
+                        guess = torch.argmax(v_outputs,2)
+                        cer_error = calc_cer(guess, v_labels, v_word_lengths, class_to_idx)
+                        v_cum_cer_error += cer_error
+                        v_batch_count += 1
+                    print('{} [{}, {:5}] loss: {:.3f} cer: {:.2%} validation cer: {:.2%}'.format(
                         time2str(time.time()-start),
                         epoch + 1, i + 1, 
                         running_loss / log_interval,
-                        cum_cer_error / batch_count
+                        cum_cer_error / batch_count,
+                        v_cum_cer_error / v_batch_count
                         ), flush=True)
                     running_loss = 0.
                     cum_cer_error = 0.
                     batch_count = 0
+                    self.train()
 
         print('Finished Training')
 
@@ -202,6 +234,7 @@ class convnet(nn.Module):
         torch.save(self,fname)
 
 def calc_cer(guess, labels, word_lengths, class_to_idx):
+    batch_size = guess.shape[0]
     idx_to_class = list(class_to_idx.keys())
     
     label_words = [
@@ -209,20 +242,20 @@ def calc_cer(guess, labels, word_lengths, class_to_idx):
             idx_to_class[labels[i,c]] 
             for c in range(word_lengths[i])
             )
-        for i in range(BATCH_SIZE)
+        for i in range(batch_size)
         ]
 
     cers = []
 
-    len_guesses = 0
-    for i in range(BATCH_SIZE):
+#    len_guesses = 0
+    for i in range(batch_size):
         last_char = 0
         guess_word = []
         for c in range(guess.shape[1]):
             if guess[i,c] != last_char and guess[i,c] != 0:
                 guess_word.append(idx_to_class[guess[i,c]])
             last_char = guess[i,c]
-        len_guesses += len(guess_word)
+#        len_guesses += len(guess_word)
         cers.append(cer(''.join(guess_word),label_words[i]))
     # if random.random() < 0.1: print(len_guesses)
     m = torch.mean(torch.Tensor(cers))
@@ -246,7 +279,7 @@ def main():
     
     train_loader = list(train_loader)
     valid_loader = torch.utils.data.DataLoader(
-            valid_set, batch_size=100, shuffle=None,
+            valid_set, batch_size=BATCH_SIZE, shuffle=None,
             num_workers=0, pin_memory=False, 
             sampler=None )
     

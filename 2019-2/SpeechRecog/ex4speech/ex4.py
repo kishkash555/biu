@@ -168,7 +168,7 @@ class convnet(nn.Module):
 
         assert(all([a==b for a,b in zip(x.shape[1:],[lstm1.seq_len, lstm1.output_size])]))
 
-        x = self.dofc1(tnah(self.fc1(x)))
+        x = self.dofc1(tanh(self.fc1(x)))
         x = self.dofc2(self.fc2(x))
         char_seq = F.log_softmax(x, 2)
         return char_seq

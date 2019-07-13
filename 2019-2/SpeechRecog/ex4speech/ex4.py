@@ -78,7 +78,7 @@ print("pl1 output: {}".format(pl1.output_size))
 class cv2(conv_default):
     input_size = pl1.output_size
     in_channels = pl1.output_size[0]
-    out_channels = 1
+    out_channels = 4
     kernel_size = 4
     stride = 1
     padding = 1
@@ -158,11 +158,11 @@ class convnet(nn.Module):
         x = F.relu(self.conv2(x))
         x = self.batch_norm2(x)
 
-        x = x.squeeze(dim=1).permute(0,2,1)
+        # x = x.squeeze(dim=1).permute(0,2,1)
 
       
-        #x = x.permute(0, 2, 1, 3) 
-        #x = x.reshape((lstm1.seq_len, BATCH_SIZE, lstm1.input_size))
+        x = x.permute(0, 2, 1, 3) 
+        x = x.reshape((-1, lstm1.seq_len, lstm1.input_size))
 
         x, _ = self.rnn(x) #, (lstm1.h0, lstm1.c0))
 

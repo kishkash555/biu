@@ -150,3 +150,12 @@ class GCommandLoader(data.Dataset):
 
     def __len__(self):
         return len(self.spects)
+
+class GCommandLoaderTest(GCommandLoader):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __getitem__(self,index):
+        spect, _ = super().__getitem__(index)
+        fname, _ = self.spects[index]
+        return spect, fname

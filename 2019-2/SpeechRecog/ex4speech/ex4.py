@@ -1,6 +1,8 @@
 from cer import cer
 from datetime import timedelta
-from gcommand_loader import GCommandLoader, MAX_WORD_LEN
+from gcommand_loader import GCommandLoader, GCommandLoaderTest, MAX_WORD_LEN
+from os import path
+import sys
 import time
 import torch
 import torch.nn as nn
@@ -95,8 +97,8 @@ print("sequence length: {}".format(sequence_lengths[0]))
 class lstm1:
     input_size = cv2.output_size[0]*cv2.output_size[2]
     seq_len = sequence_lengths[0]
-    hidden_size = 30
-    num_layers = 3
+    hidden_size = 40
+    num_layers = 2
     batch_first = True
     bidi = True
     c0 = torch.zeros(num_layers * (2 if bidi else 1), BATCH_SIZE, hidden_size)
@@ -118,7 +120,7 @@ class fc2:
 
 
 class convnet(nn.Module):
-    def __init__(self, n_chars=None, min_acc=0.75, epochs=60, logging_interval=50, save_fname='model_file'):
+    def __init__(self, n_chars=None, min_acc=0.99, epochs=60, logging_interval=50, save_fname='model_file'):
         super().__init__()
         
         # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
@@ -168,7 +170,7 @@ class convnet(nn.Module):
 
         assert(all([a==b for a,b in zip(x.shape[1:],[lstm1.seq_len, lstm1.output_size])]))
 
-        x = self.dofc1(tnah(self.fc1(x)))
+        x = self.dofc1(tanh(self.fc1(x)))
         x = self.dofc2(self.fc2(x))
         char_seq = F.log_softmax(x, 2)
         return char_seq
@@ -176,7 +178,7 @@ class convnet(nn.Module):
 
 
 
-    def perform_training(self, trainloader, validloader, class_to_idx):
+    def perform_training(self, trainloader, validloader, testloader, class_to_idx):
         self.train()
         optimizer = optim.Adam(self.parameters(), lr=0.01)
         cum_cer_error = 0.
@@ -184,6 +186,7 @@ class convnet(nn.Module):
 
         ep = self.options['epochs']
         log_interval = self.options['logging_interval']
+        min_cer_error = self.options['min_acc'] + 1e-5
         for epoch in range(ep):
             running_loss = 0.0
             for i, data in enumerate(trainloader, 0):
@@ -215,13 +218,28 @@ class convnet(nn.Module):
                         cer_error = calc_cer(guess, v_labels, v_word_lengths, class_to_idx)
                         v_cum_cer_error += cer_error
                         v_batch_count += 1
-                    print('{} [{}, {:5}] loss: {:.3f} cer: {:.2%} validation cer: {:.2%}'.format(
+                    eval_test = '*' if v_cum_cer_error/ v_batch_count < min_cer_error else ''
+                    print('{} [{}, {:5}] loss: {:.3f} cer: {:.2%} validation cer: {:.2%}{}'.format(
                         time2str(time.time()-start),
-                        epoch + 1, i + 1, 
+                        epoch + 1, 
+                        i + 1, 
                         running_loss / log_interval,
                         cum_cer_error / batch_count,
-                        v_cum_cer_error / v_batch_count
-                        ), flush=True)
+                        v_cum_cer_error / v_batch_count,
+                        eval_test
+                        ))
+                    print("",end='',flush=True)
+
+                    if eval_test=='*' and testloader is not None and len(test_file):
+                        min_cer_error = v_cum_cer_error/ v_batch_count
+                        with open(test_file,'wt') as a:
+                            for t_inputs, fnames in testloader:
+                                t_outputs = self(t_inputs)
+                                guess = torch.argmax(t_outputs,2)
+                                for f,g in zip(fnames, generate_guess_strings(guess,class_to_idx)):
+                                    test_file.write("{}, {}\n".format(path.basename(f),g))
+
+
                     running_loss = 0.
                     cum_cer_error = 0.
                     batch_count = 0
@@ -245,9 +263,18 @@ def calc_cer(guess, labels, word_lengths, class_to_idx):
         for i in range(batch_size)
         ]
 
-    cers = []
+    cers = [
+        cer(guess_word,label_words[i]) 
+        for i, guess_word 
+        in enumerate(generate_guess_strings(guess, class_to_idx))
+        ]
 
-#    len_guesses = 0
+    m = torch.mean(torch.Tensor(cers))
+    return m
+
+def generate_guess_strings(guess, class_to_idx):
+    batch_size = guess.shape[0]
+    idx_to_class = list(class_to_idx.keys())
     for i in range(batch_size):
         last_char = 0
         guess_word = []
@@ -255,12 +282,7 @@ def calc_cer(guess, labels, word_lengths, class_to_idx):
             if guess[i,c] != last_char and guess[i,c] != 0:
                 guess_word.append(idx_to_class[guess[i,c]])
             last_char = guess[i,c]
-#        len_guesses += len(guess_word)
-        cers.append(cer(''.join(guess_word),label_words[i]))
-    # if random.random() < 0.1: print(len_guesses)
-    m = torch.mean(torch.Tensor(cers))
-    return m
-
+        yield ''.join(guess_word)
 
 
         
@@ -268,10 +290,11 @@ def calc_cer(guess, labels, word_lengths, class_to_idx):
 
 def main():
     train_path='./data/train'
-
-    train_set = GCommandLoader(train_path)
-    print("train_path: {}".format(train_path))
     valid_set = GCommandLoader('./data/valid')
+    test_set = GCommandLoaderTest('./data/test')
+    train_set = GCommandLoader(train_path)
+
+    print("train_path: {}".format(train_path))
     
     train_loader = torch.utils.data.DataLoader(
             train_set, batch_size=BATCH_SIZE, shuffle=True,
@@ -283,32 +306,17 @@ def main():
             num_workers=0, pin_memory=False, 
             sampler=None )
     
+    test_loader = torch.utils.data.DataLoader(
+            test_set, batch_size=BATCH_SIZE, shuffle=None,
+            num_workers=0, pin_memory=False, 
+            sampler=None )
     net = convnet(train_set.n_chars)
     print("n chars {}".format(train_set.n_chars))
-    net.perform_training(train_loader,valid_loader, train_set.class_to_idx)
+    net.perform_training(train_loader, valid_loader, test_loader, train_set.class_to_idx)
 
 if __name__ == "__main__":
     start = time.time()
+    test_file = sys.argv[1] if len(sys.argv) >= 2 else ''
     main()
 
 
-'''
-valid_good = valid_bad = 0
-                    self.eval()
-                    for valid_input, valid_labels in validloader:
-                        valid_guess = torch.argmax(self(valid_input),1)
-                        valid_good += int(sum(valid_guess == valid_labels))
-                        valid_bad += int(sum(valid_guess != valid_labels))
-                    self.train()
-                    valid_acc =  valid_good/(valid_good+valid_bad)
-                    save = '*' if valid_acc > self.options['min_acc'] else ''
-                    
-                    print('{} [{}, {:5}] loss: {:.3f} train acc: {}/{} ({:.1%}), valid acc:  {}/{} ({:.1%}){}'.format(
-                        time2str(time.time()-start),
-                        epoch + 1, i + 1, 
-                        running_loss / log_interval,
-                        good, good+bad, good/(good+bad),
-                        valid_good, valid_good+valid_bad, valid_acc,
-                        save
-                        ))
-'''

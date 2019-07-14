@@ -126,6 +126,7 @@ class convnet(nn.Module):
         # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
         self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size, cv1.stride, cv1.padding)
         self.pool1 = nn.MaxPool2d(pl1.kernel_size)
+        self.p1dropout = nn.Dropout(p=0.25)
         self.batch_norm1 = nn.BatchNorm2d(pl1.output_size[0])
 
         
@@ -141,10 +142,10 @@ class convnet(nn.Module):
     
 
         self.fc1 = nn.Linear(fc1.input_size, fc1.output_size)
-        self.dofc1 = nn.Dropout(p=0.25)
+        #self.dofc1 = nn.Dropout(p=0.25)
         
         self.fc2 = nn.Linear(fc2.input_size, n_chars)
-        self.dofc2 = nn.Dropout(p=0.25)
+        #self.dofc2 = nn.Dropout(p=0.25)
         
 
         self.revision = "0.0.1" #gu.get_sha()
@@ -158,11 +159,11 @@ class convnet(nn.Module):
 
     def forward(self, x):
         #tanh = nn.Tanh()
-        x = F.relu(self.conv1(x))
-        x = self.batch_norm1(x)
-        x = self.pool1(x)        
-        x = F.relu(self.conv2(x))
-        x = self.batch_norm2(x)
+        x = self.batch_norm1(self.conv1(x))
+        x = F.relu(x)
+        x = self.p1dropout(self.pool1(x))
+        x = self.conv2(x)
+        x = F.relu(self.batch_norm2(x))
 
         x = x.permute(0, 3, 1, 2) 
         x = x.reshape([x.shape[0], x.shape[1], -1])
@@ -176,12 +177,12 @@ class convnet(nn.Module):
         x, _ = self.rnn(x)
 
 #        assert(all([a==b for a,b in zip(x.shape[1:],[pl1.output_size[2], pl1.output_size[0]*pl1.output_size[1] ])]))
-        x = self.dofc1(F.relu(self.fc1(x)))
-        x = self.dofc2(F.relu(self.fc2(x)))
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
         
         assert(x.shape[2] == self.options['n_chars'])
  #       x = self.dofc2(self.fc2(x))
-        char_seq = F.log_softmax(x, 2)
+        char_seq = F.log_softmax(x, dim=2)
         return char_seq
             
 

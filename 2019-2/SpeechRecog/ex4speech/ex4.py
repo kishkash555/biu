@@ -61,9 +61,9 @@ class pl_default:
 class cv1(conv_default):
     input_size = (1, IN_CHANNELS, SIGNAL_LENGTH) # ignoring the batch dimension
     in_channels = 1
-    out_channels = 15
-    kernel_size = 10
-    stride = 1
+    out_channels = 12
+    kernel_size = 8
+    stride = 2
     padding = 0
 cv1.output_size = conv2d_output_size(cv1)
 
@@ -80,8 +80,8 @@ print("pl1 output: {}".format(pl1.output_size))
 class cv2(conv_default):
     input_size = pl1.output_size
     in_channels = pl1.output_size[0]
-    out_channels = 1
-    kernel_size = 5
+    out_channels = 4
+    kernel_size = 4
     stride = 1
     padding = 0
 cv2.output_size = conv2d_output_size(cv2)
@@ -97,20 +97,20 @@ print("sequence length: {}".format(sequence_lengths[0]))
 class lstm1:
     input_size = cv2.output_size[0]*cv2.output_size[1]
     seq_len = sequence_lengths[0]
-    hidden_size = 72
-    num_layers = 3
+    hidden_size = 80
+    num_layers = 2
     batch_first = True
     bidi = True
     c0 = torch.zeros(num_layers * (2 if bidi else 1), BATCH_SIZE, hidden_size)
     h0 = torch.zeros(num_layers * (2 if bidi else 1), BATCH_SIZE, hidden_size)
     output_size = hidden_size * (2 if bidi else 1)
-    dropout = 0.25
+    dropout = 0.3
 
 print("lstm1 input: {}, sequence length: {}".format(lstm1.input_size, lstm1.seq_len))
 
 class fc1:
     input_size = lstm1.output_size
-    output_size = 144
+    output_size = 120
 
 print("fc1 input {}".format(fc1.input_size))
 
@@ -126,7 +126,7 @@ class convnet(nn.Module):
         # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
         self.conv1 = nn.Conv2d(cv1.in_channels, cv1.out_channels, cv1.kernel_size, cv1.stride, cv1.padding)
         self.pool1 = nn.MaxPool2d(pl1.kernel_size)
-        self.p1dropout = nn.Dropout(p=0.25)
+        #self.p1dropout = nn.Dropout(p=0.25)
         self.batch_norm1 = nn.BatchNorm2d(pl1.output_size[0])
 
         
@@ -142,10 +142,10 @@ class convnet(nn.Module):
     
 
         self.fc1 = nn.Linear(fc1.input_size, fc1.output_size)
-        #self.dofc1 = nn.Dropout(p=0.25)
+        self.dofc1 = nn.Dropout(p=0.25)
         
         self.fc2 = nn.Linear(fc2.input_size, n_chars)
-        #self.dofc2 = nn.Dropout(p=0.25)
+        self.dofc2 = nn.Dropout(p=0.25)
         
 
         self.revision = "0.0.1" #gu.get_sha()
@@ -161,7 +161,8 @@ class convnet(nn.Module):
         #tanh = nn.Tanh()
         x = self.batch_norm1(self.conv1(x))
         x = F.relu(x)
-        x = self.p1dropout(self.pool1(x))
+        #x = self.p1dropout(self.pool1(x))
+        x = self.pool1(x)
         x = self.conv2(x)
         x = F.relu(self.batch_norm2(x))
 
@@ -177,11 +178,11 @@ class convnet(nn.Module):
         x, _ = self.rnn(x)
 
 #        assert(all([a==b for a,b in zip(x.shape[1:],[pl1.output_size[2], pl1.output_size[0]*pl1.output_size[1] ])]))
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
+        x = self.dofc1(self.fc1(x))
+        # x = self.fc2(F.relu(x))
         
+        x = self.dofc2(self.fc2(x))
         assert(x.shape[2] == self.options['n_chars'])
- #       x = self.dofc2(self.fc2(x))
         char_seq = F.log_softmax(x, dim=2)
         return char_seq
             

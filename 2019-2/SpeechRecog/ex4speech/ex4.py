@@ -61,10 +61,10 @@ class pl_default:
 class cv1(conv_default):
     input_size = (1, IN_CHANNELS, SIGNAL_LENGTH) # ignoring the batch dimension
     in_channels = 1
-    out_channels = 20
-    kernel_size = (8,4)
-    stride = (2,2)
-    padding = (1,0)
+    out_channels = 15
+    kernel_size = 10
+    stride = 1
+    padding = 0
 cv1.output_size = conv2d_output_size(cv1)
 
 print("cv1 output: {}".format(cv1.output_size))
@@ -81,9 +81,9 @@ class cv2(conv_default):
     input_size = pl1.output_size
     in_channels = pl1.output_size[0]
     out_channels = 1
-    kernel_size = 4
-    stride = 2
-    padding = 2
+    kernel_size = 5
+    stride = 1
+    padding = 0
 cv2.output_size = conv2d_output_size(cv2)
 
 print("cv2 output: {} ({})".format(cv2.output_size, mult(cv2.output_size)))
@@ -97,8 +97,8 @@ print("sequence length: {}".format(sequence_lengths[0]))
 class lstm1:
     input_size = cv2.output_size[0]*cv2.output_size[1]
     seq_len = sequence_lengths[0]
-    hidden_size = 20
-    num_layers = 2
+    hidden_size = 72
+    num_layers = 3
     batch_first = True
     bidi = True
     c0 = torch.zeros(num_layers * (2 if bidi else 1), BATCH_SIZE, hidden_size)
@@ -110,7 +110,7 @@ print("lstm1 input: {}, sequence length: {}".format(lstm1.input_size, lstm1.seq_
 
 class fc1:
     input_size = lstm1.output_size
-    output_size = 50
+    output_size = 144
 
 print("fc1 input {}".format(fc1.input_size))
 

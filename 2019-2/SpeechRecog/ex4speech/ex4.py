@@ -1,6 +1,8 @@
 from cer import cer
 from datetime import timedelta
 from gcommand_loader import GCommandLoader, GCommandLoaderTest, MAX_WORD_LEN
+from os import path
+import sys
 import time
 import torch
 import torch.nn as nn
@@ -226,15 +228,16 @@ class convnet(nn.Module):
                         v_cum_cer_error / v_batch_count,
                         eval_test
                         ))
-                    if eval_test=='*' and testloader is not None:
-                        min_cer_error = v_cum_cer_error/ v_batch_count
-                        print("! ")
-                        for t_inputs, fnames in testloader:
-                            t_outputs = self(t_inputs)
-                            guess = torch.argmax(t_outputs,2)
-                            for f,g in zip(fnames, generate_guess_strings(guess,class_to_idx)):
-                                print("!{}, {}".format(f,g))
                     print("",end='',flush=True)
+
+                    if eval_test=='*' and testloader is not None and len(test_file):
+                        min_cer_error = v_cum_cer_error/ v_batch_count
+                        with open(test_file,'wt') as a:
+                            for t_inputs, fnames in testloader:
+                                t_outputs = self(t_inputs)
+                                guess = torch.argmax(t_outputs,2)
+                                for f,g in zip(fnames, generate_guess_strings(guess,class_to_idx)):
+                                    test_file.write("{}, {}\n".format(path.basename(f),g))
 
 
                     running_loss = 0.
@@ -313,6 +316,7 @@ def main():
 
 if __name__ == "__main__":
     start = time.time()
+    test_file = sys.argv[1] if len(sys.argv) >= 2 else ''
     main()
 
 

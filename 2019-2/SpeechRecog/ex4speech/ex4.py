@@ -34,13 +34,13 @@ def conv_output_size(conv): # ignores the BATCH dimension (dimension 0)
 
 
 def conv2d_output_size(conv): # ignores the BATCH dimension (dimension 0)
-    one_or_twoD = lambda p: p if hasattr(p,'__length__') and len(p) > 1 else (p, p)
+    one_or_twoD = lambda p: p if hasattr(p,'__len__') and len(p) > 1 else (p, p)
     padding = one_or_twoD(conv.padding) 
     kernel_size = one_or_twoD(conv.kernel_size)
     stride = one_or_twoD(conv.stride)
     dilation = one_or_twoD(conv.dilation)
     return (
-        conv.out_channels, 
+        conv.out_channels if hasattr(conv,'out_channels') else conv.input_size[0], # captures pooling layer use case
         n_out(conv.input_size[1], padding[0], kernel_size[0], stride[0], dilation[0]),
         n_out(conv.input_size[2], padding[1], kernel_size[1], stride[1], dilation[1])
         )
@@ -59,37 +59,38 @@ class pl_default:
     padding = 0
 
 class cv1(conv_default):
-    input_size = (1, SIGNAL_LENGTH, IN_CHANNELS) # ignoring the batch dimension
+    input_size = (1, IN_CHANNELS, SIGNAL_LENGTH) # ignoring the batch dimension
     in_channels = 1
-    out_channels = 12
-    kernel_size = 12
-    stride = 2
-    padding = 1
-cv1.output_size = conv_output_size(cv1)
+    out_channels = 20
+    kernel_size = (40,4)
+    stride = (10,2)
+    padding = (10,0)
+cv1.output_size = conv2d_output_size(cv1)
 
 print("cv1 output: {}".format(cv1.output_size))
 
 class pl1(pl_default):
     input_size = cv1.output_size
-    kernel_size = 2
+    output_channels = input_size[0]
+    kernel_size = (2,2)
     stride = kernel_size
-pl1.output_size = conv_output_size(pl1)
+pl1.output_size = conv2d_output_size(pl1)
 
 print("pl1 output: {}".format(pl1.output_size))
 
 class cv2(conv_default):
     input_size = pl1.output_size
     in_channels = pl1.output_size[0]
-    out_channels = 1
+    out_channels = 25
     kernel_size = 4
-    stride = 1
-    padding = 1
-cv2.output_size = conv_output_size(cv2)
+    stride = 2
+    padding = 2
+cv2.output_size = conv2d_output_size(cv2)
 
-print("cv2 output: {} ({})".format(cv2.output_size, mult(cv2.output_size)))
+# print("cv2 output: {} ({})".format(cv2.output_size, mult(cv2.output_size)))
 
 
-sequence_lengths = torch.full(size=(BATCH_SIZE,), fill_value = cv2.output_size[1], dtype=torch.long)
+sequence_lengths = torch.full(size=(BATCH_SIZE,), fill_value = pl1.output_size[2], dtype=torch.long)
 
 print("sequence length: {}".format(sequence_lengths[0]))
 
@@ -109,8 +110,8 @@ class lstm1:
 print("lstm1 input: {}, sequence length: {}".format(lstm1.input_size, lstm1.seq_len))
 
 class fc1:
-    input_size = lstm1.output_size
-    output_size = 100
+    input_size = pl1.output_size[0]*pl1.output_size[1]
+    output_size = None
 
 print("fc1 input {}".format(fc1.input_size))
 
@@ -128,6 +129,7 @@ class convnet(nn.Module):
         self.pool1 = nn.MaxPool2d(pl1.kernel_size)
         self.batch_norm1 = nn.BatchNorm2d(pl1.output_size[0])
 
+        """
         self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size, cv2.stride, cv2.padding)
         self.batch_norm2 = nn.BatchNorm2d(cv2.output_size[0])
         
@@ -137,41 +139,46 @@ class convnet(nn.Module):
             batch_first=lstm1.batch_first, 
             bidirectional=lstm1.bidi,
             dropout=lstm1.dropout)
-        
+        """
 
-        self.fc1 = nn.Linear(fc1.input_size, fc1.output_size)
+        self.fc1 = nn.Linear(fc1.input_size, n_chars)
         self.dofc1 = nn.Dropout(p=0.25)
+        """
         self.fc2 = nn.Linear(fc2.input_size, n_chars)
         self.dofc2 = nn.Dropout(p=0.25)
-        
+        """
+
         self.revision = "0.0.1" #gu.get_sha()
         self.options = {
             'min_acc': min_acc,
             'epochs': epochs,
             'logging_interval': logging_interval,
-            'save_fname': save_fname + '_' + self.revision[:6]
+            'save_fname': save_fname + '_' + self.revision[:6],
+            'n_chars': n_chars
         }
 
     def forward(self, x):
-        tanh = nn.Tanh()
+        #tanh = nn.Tanh()
         x = F.relu(self.conv1(x))
         x = self.batch_norm1(x)
         x = self.pool1(x)        
-        x = F.relu(self.conv2(x))
-        x = self.batch_norm2(x)
+        
 
-        x = x.squeeze(dim=1).permute(0,2,1)
-
-      
+        x = x.permute(0, 3, 1, 2) 
+        x = x.reshape([x.shape[0], x.shape[1], -1])
+        # x = x.permute(0, 2, 1)
+        
+        # x = x.squeeze(dim=1).permute(0,2,1)
         #x = x.permute(0, 2, 1, 3) 
         #x = x.reshape((lstm1.seq_len, BATCH_SIZE, lstm1.input_size))
 
-        x, _ = self.rnn(x) #, (lstm1.h0, lstm1.c0))
+        #x, _ = self.rnn(x) #, (lstm1.h0, lstm1.c0))
 
-        assert(all([a==b for a,b in zip(x.shape[1:],[lstm1.seq_len, lstm1.output_size])]))
-
-        x = self.dofc1(tanh(self.fc1(x)))
-        x = self.dofc2(self.fc2(x))
+#        assert(all([a==b for a,b in zip(x.shape[1:],[lstm1.seq_len, lstm1.output_size])]))
+        assert(all([a==b for a,b in zip(x.shape[1:],[pl1.output_size[2], pl1.output_size[0]*pl1.output_size[1] ])]))
+        x = self.dofc1(F.relu(self.fc1(x)))
+        assert(x.shape[2] == self.options['n_chars'])
+ #       x = self.dofc2(self.fc2(x))
         char_seq = F.log_softmax(x, 2)
         return char_seq
             

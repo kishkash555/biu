@@ -161,7 +161,8 @@ class convnet(nn.Module):
         x = F.relu(self.conv1(x))
         x = self.batch_norm1(x)
         x = self.pool1(x)        
-        
+        x = F.relu(self.conv2(x))
+        x = self.batch_norm2(x)
 
         x = x.permute(0, 3, 1, 2) 
         x = x.reshape([x.shape[0], x.shape[1], -1])
@@ -170,11 +171,10 @@ class convnet(nn.Module):
         #x = x.permute(0, 2, 1, 3) 
         #x = x.reshape((lstm1.seq_len, BATCH_SIZE, lstm1.input_size))
 
-        x = x.permute(0, 2, 1)
-        
+        #print("before lstm", x.shape)
+        #assert(all([a==b for a,b in zip(x.shape[1:],[lstm1.seq_len, lstm1.input_size])]))        
         x, _ = self.rnn(x)
 
-        assert(all([a==b for a,b in zip(x.shape[1:],[lstm1.seq_len, lstm1.output_size])]))
 #        assert(all([a==b for a,b in zip(x.shape[1:],[pl1.output_size[2], pl1.output_size[0]*pl1.output_size[1] ])]))
         x = self.dofc1(F.relu(self.fc1(x)))
         x = self.dofc2(F.relu(self.fc2(x)))

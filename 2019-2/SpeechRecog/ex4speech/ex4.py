@@ -71,7 +71,6 @@ print("cv1 output: {}".format(cv1.output_size))
 
 class pl1(pl_default):
     input_size = cv1.output_size
-    output_channels = input_size[0]
     kernel_size = (2,2)
     stride = kernel_size
 pl1.output_size = conv2d_output_size(pl1)
@@ -87,18 +86,18 @@ class cv2(conv_default):
     padding = 2
 cv2.output_size = conv2d_output_size(cv2)
 
-# print("cv2 output: {} ({})".format(cv2.output_size, mult(cv2.output_size)))
+print("cv2 output: {} ({})".format(cv2.output_size, mult(cv2.output_size)))
 
 
-sequence_lengths = torch.full(size=(BATCH_SIZE,), fill_value = pl1.output_size[2], dtype=torch.long)
+sequence_lengths = torch.full(size=(BATCH_SIZE,), fill_value = cv2.output_size[2], dtype=torch.long)
 
 print("sequence length: {}".format(sequence_lengths[0]))
 
 
 class lstm1:
-    input_size = cv2.output_size[0]*cv2.output_size[2]
+    input_size = cv2.output_size[0]*cv2.output_size[1]
     seq_len = sequence_lengths[0]
-    hidden_size = 40
+    hidden_size = 20
     num_layers = 2
     batch_first = True
     bidi = True
@@ -110,7 +109,7 @@ class lstm1:
 print("lstm1 input: {}, sequence length: {}".format(lstm1.input_size, lstm1.seq_len))
 
 class fc1:
-    input_size = pl1.output_size[0]*pl1.output_size[1]
+    input_size = lstm1.output_size
     output_size = 50
 
 print("fc1 input {}".format(fc1.input_size))
@@ -129,7 +128,7 @@ class convnet(nn.Module):
         self.pool1 = nn.MaxPool2d(pl1.kernel_size)
         self.batch_norm1 = nn.BatchNorm2d(pl1.output_size[0])
 
-        """
+        
         self.conv2 = nn.Conv2d(cv2.in_channels, cv2.out_channels, cv2.kernel_size, cv2.stride, cv2.padding)
         self.batch_norm2 = nn.BatchNorm2d(cv2.output_size[0])
         
@@ -139,7 +138,7 @@ class convnet(nn.Module):
             batch_first=lstm1.batch_first, 
             bidirectional=lstm1.bidi,
             dropout=lstm1.dropout)
-        """
+    
 
         self.fc1 = nn.Linear(fc1.input_size, fc1.output_size)
         self.dofc1 = nn.Dropout(p=0.25)
@@ -166,16 +165,17 @@ class convnet(nn.Module):
 
         x = x.permute(0, 3, 1, 2) 
         x = x.reshape([x.shape[0], x.shape[1], -1])
-        # x = x.permute(0, 2, 1)
         
         # x = x.squeeze(dim=1).permute(0,2,1)
         #x = x.permute(0, 2, 1, 3) 
         #x = x.reshape((lstm1.seq_len, BATCH_SIZE, lstm1.input_size))
 
-        #x, _ = self.rnn(x) #, (lstm1.h0, lstm1.c0))
+        x = x.permute(0, 2, 1)
+        
+        x, _ = self.rnn(x)
 
-#        assert(all([a==b for a,b in zip(x.shape[1:],[lstm1.seq_len, lstm1.output_size])]))
-        assert(all([a==b for a,b in zip(x.shape[1:],[pl1.output_size[2], pl1.output_size[0]*pl1.output_size[1] ])]))
+        assert(all([a==b for a,b in zip(x.shape[1:],[lstm1.seq_len, lstm1.output_size])]))
+#        assert(all([a==b for a,b in zip(x.shape[1:],[pl1.output_size[2], pl1.output_size[0]*pl1.output_size[1] ])]))
         x = self.dofc1(F.relu(self.fc1(x)))
         x = self.dofc2(F.relu(self.fc2(x)))
         

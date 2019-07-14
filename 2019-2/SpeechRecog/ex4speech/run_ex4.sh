@@ -8,7 +8,7 @@ else
     logfile="results/result_log_${rev:0:6}_$1.txt"
     testfile="results/test_y_${rev:0:6}_$1.txt"
     echo "output is $logfile"
-    python ex4.py $testfile >> $logfile 
+    python ex4.py $testfile >> $logfile &
     echo "machine: $HOSTNAME pid: $!" >> $logfile
     sleep 3
     tail -f $logfile

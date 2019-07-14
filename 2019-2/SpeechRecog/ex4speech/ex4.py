@@ -62,9 +62,9 @@ class cv1(conv_default):
     input_size = (1, IN_CHANNELS, SIGNAL_LENGTH) # ignoring the batch dimension
     in_channels = 1
     out_channels = 20
-    kernel_size = (40,4)
-    stride = (10,2)
-    padding = (10,0)
+    kernel_size = (8,4)
+    stride = (2,2)
+    padding = (1,0)
 cv1.output_size = conv2d_output_size(cv1)
 
 print("cv1 output: {}".format(cv1.output_size))
@@ -81,7 +81,7 @@ print("pl1 output: {}".format(pl1.output_size))
 class cv2(conv_default):
     input_size = pl1.output_size
     in_channels = pl1.output_size[0]
-    out_channels = 25
+    out_channels = 1
     kernel_size = 4
     stride = 2
     padding = 2
@@ -111,7 +111,7 @@ print("lstm1 input: {}, sequence length: {}".format(lstm1.input_size, lstm1.seq_
 
 class fc1:
     input_size = pl1.output_size[0]*pl1.output_size[1]
-    output_size = None
+    output_size = 50
 
 print("fc1 input {}".format(fc1.input_size))
 
@@ -141,12 +141,12 @@ class convnet(nn.Module):
             dropout=lstm1.dropout)
         """
 
-        self.fc1 = nn.Linear(fc1.input_size, n_chars)
+        self.fc1 = nn.Linear(fc1.input_size, fc1.output_size)
         self.dofc1 = nn.Dropout(p=0.25)
-        """
+        
         self.fc2 = nn.Linear(fc2.input_size, n_chars)
         self.dofc2 = nn.Dropout(p=0.25)
-        """
+        
 
         self.revision = "0.0.1" #gu.get_sha()
         self.options = {
@@ -177,6 +177,8 @@ class convnet(nn.Module):
 #        assert(all([a==b for a,b in zip(x.shape[1:],[lstm1.seq_len, lstm1.output_size])]))
         assert(all([a==b for a,b in zip(x.shape[1:],[pl1.output_size[2], pl1.output_size[0]*pl1.output_size[1] ])]))
         x = self.dofc1(F.relu(self.fc1(x)))
+        x = self.dofc2(F.relu(self.fc2(x)))
+        
         assert(x.shape[2] == self.options['n_chars'])
  #       x = self.dofc2(self.fc2(x))
         char_seq = F.log_softmax(x, 2)

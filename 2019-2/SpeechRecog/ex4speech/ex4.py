@@ -247,7 +247,7 @@ class convnet(nn.Module):
                                 t_outputs = self(t_inputs)
                                 guess = torch.argmax(t_outputs,2)
                                 for f,g in zip(fnames, generate_guess_strings(guess,class_to_idx)):
-                                    test_file.write("{}, {}\n".format(path.basename(f),g))
+                                    a.write("{}, {}\n".format(path.basename(f),g))
 
 
                     running_loss = 0.

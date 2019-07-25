@@ -1,3 +1,8 @@
+# Homework Assignment 3
+### Algorithms 1 Summer 2019
+###ID: 011862141
+---
+
 ## Question 1
 #### Naive algorithm
 Try every possible path from (1,1) to (n,n), sum the score along each path separately, then pick the path with the highest score.
@@ -106,31 +111,113 @@ The induction assumption can be applied to $B(i,k^*)$ and $B(k^*+1,j)$, so $B(i,
 ## Question 3
 #### Naive solution
 For every possible parsing, test if each word is valid in Hebrew. If a parse is found such that all words are valid, return True. otherwise return False.
+There are $2^{n-1}$ possible parses, corresponding to whether we place a word-boundary or not in each of the $n-1$ intra-letter spaces.
 
-#### Recursive
+#### Recursive formula
 
 $V(i,j)=\begin{cases}
 True & i=j\\
-\bigvee\limits_{i\le k \lt j}(V(i,k) \wedge V(k+1,j)) & otherwise
+T(S,i,j) \vee \bigvee\limits_{i\lt k \lt j}(V(i,k) \wedge V(k,j)) & otherwise
 \end{cases}$
 
-For a given sequnece of letters, it may be valid as a single word, as a split into two words, three, etc. So the recursive approach is to try a split at any position, and use disjunction (_OR_) between them since it is sufficient for one of the splits to be valid for the entire sequence to be valid. _Within_ the split, we demand conjunction (_AND_) since the entire sequnce is valid only if after a split, both parts can be resolved to a valid Hebrew word.
+Base case: T(S,i,i) is the validity of an empty string and we define it to be True. 
+(note I intereprted T(S,i,j) to refer to the sequence S[i]...S[j-1], which is empty if i=j).
+
+Recursion: For a given sequnece of letters, it may be valid as a single word, as a split into two words, three, etc. So the recursive approach is to first check its validity as a single word, then try a split at any position. note $k \in [i+1 ,j-1]$ to avoid a circular definition. The recursion will take care of the case of a split of more than two. I use disjunction (_OR_) between the different splits since it is sufficient for one of the splits to be valid for the entire sequence to be valid. _Within_ the split, we demand conjunction (_AND_) since the entire sequnce is valid only if after a split, both parts can be resolved to a valid Hebrew word.
 
 
 #### Dynamic programming
-We store V[i,j] in an n x n array (note we only use the elements from the diagonal to the right, since V[i,j] is defined for $i \le j$)
+We store V[i,j] in an (n+1) x (n+1) array (note we only use the elements from the diagonal to the right, since V[i,j] is defined for $i \le j$)
 
-We first assign $V[k,k]=True,\ \forall 1 \le k \le n$.
+##### Illustration of calculation order
+Example of calculation order for n=4. The arrow indicates dependence, i.e. the cell on the left depends on the pairs on the right. 
+* Fill the main diagonal (no dependencies): (1,1), (2,2), (3,3), (4,4), (5,5)
+* Fill the second diagonal (no dependencies): (1,2), (2,3), (3,4), (4,5)
+* Fill the third diagonal:
+(1,2) + (2,3) &rarr; (1,3)
+(2,3) + (3,4) &rarr; (2,4)
+(3,4) + (4,5) &rarr; (3,5)
+* 4th diagonal:
+(1,2) + (2,4) &or; (1,3) + (3,4) &rarr; (1,4)
+(2,3) + (3,5) &or; (2,4) + (4,5) &rarr; (2,5)
+* Final:
+(1,2) + (2,5) &or; (1,3) + (3,5) &or; (1,4) + (4,5) &rarr; (1,5)
 
-We then proceed along the secondary diagonal, calculating V[1,2], V[2,3], ..., V[n-1,n].
 
-We continue to the third, fourth and rest of the diagonals.
+The result is read from V[1,n] which is the top right entry of V. 
 
-The result is read from V[1,n] which is the top right entry of V.
-
+Once (1,k) was calculated, the rest of the column (2,k)~(n+1,k) is no longer needed, but I don't see a trivial way to enjoy memory savings based on this.
 
 
+##### Path recovery
+In this case the path is the sequence of valid words. We can find them by backtracking on the inference order. i.e. if V[1,n+1]=True it means that either there exists a _k_ such that V[1,k]=True and V[k,n+1]=True or T[S,1,n+1]=True. If such a _k_ is found, then the two positions can be likewise resolved to find splits, or they resolve to a single word themselves.
 
+##### Pseudo code
+```
+Valid_word(S):
+    n = |S|
+    Initilaize V, an (n+1) x (n+1) array
+    for d=0 to n:
+        for k = 1 to n+1-d:
+            i = k
+            j = k + d
+            if j=i:
+                V[i,j] = True
+            else if T[S,i,j]:
+                V[i,j] = True
+            else:
+                x = False
+                for w = 2 to j:
+                    if V[1,w] AND V[w,j]:
+                        x = True
+                        break
+                V[i,j] = x
+    return V[1,n+1]    
+```
+
+##### Asymptotic complexity
+There are 3 nested loops, all bound by size _n_. Therefore the overall time complexity is $O(n^3)$. The space complexity is derived from the 2d array, hence $O(n^2)$.
+
+## Question 4
+
+Throughout the answer to this question, we will assume, without loss of generality, $B_1 \ge B_2$.
+
+### Why combining doesn't yield a valid/optimal solution
+This problem is **not** the same as when having a single knapsack with capacity $B_1+B_2$. Counter-example: suppose the item list includes a single item with weight $w_1 = B_1 + 1$. If we assume a single knapsack, we can carry this item, but with two separate knapsacks, the true answer is 0 since we cannot carry this item in either.
+
+### Why incremental solution is not optimal
+The incremental solution is **not** the optimal solution, (where incremental refers to filling one knapsack then the other). Counter-example: 
+Suppose 
+$B_1=11,\ B_2=6$
+$w=[4, 6, 4, 3]$.
+$v=[100, 6, 1, 4]$
+
+Suppose we start with $B_1$. Item 1 is very valuable, so surely we will place it in $B_1$. we then have three additional items, with weights 6, 4, and 3. With a remaining capcity of just 7 in $B_1$, we choose item2 (with weight 6), since it is the most valuable. There are no more items we can place here, so we move on to $B_2$. Again we need to choose either item3 with weight 4 or item4 with weight 3, so one of these items will remain behind.
+
+If we solved the same problem greedily, but started with $B_2$, we wouldn't fair better. With a capacity of 6 we can only fit one of the items. Item1 with weight 4 is the most valuable, so we pick item1. The problem now goes to $B_1$, which doesn't have capacity for everything since $ 11 \lt 6+4+3$.
+
+However, the optimal solution is to fit item1 with weight 6 in $B_2$ and carry the rest of the items in $B_1$. This solution is clearly better than both greedy solutions since we carry everything.
+
+#### Recursive formula
+We can extend the recursive formula we saw in class, maintaining the overall structure:
+
+$f(j,b_1,b_2)=\begin{cases}
+f(j-1,b_1,b_2) & w_j \gt b1 \ge b2\\
+\\
+\max \begin{bmatrix}
+f(j-1,b_1,b_2),\\
+f(j-1,b_1-w_j,b_2)+v_j\end{bmatrix} &  b1 \ge w_j \gt b2\\
+\\ 
+\max \begin{bmatrix}
+f(j-1,b_1,b_2),\\
+f(j-1,b_1-w_j,b_2)+v_j,\\
+f(j-1,b_1,b_2-w_j)+v_j\end{bmatrix} &  b1 \ge b2 \ge w_j 
+\end{cases}$
+
+
+
+#### Dynamic programming
+The dynamic programming solution will require a 3-dimensional array $n \times B_1 \times B_2$. It will keep in cell (j, b1, b2) the optimal solution for a problem with number of items=j, remaining capacity of $B_1$=b1, remaining capacity of $B_2$=b2.
 
 
 

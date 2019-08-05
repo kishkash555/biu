@@ -1,0 +1,20 @@
+\documentclass[]{article}
+\usepackage{amsmath,amsfonts,amsthm}
+
+%opening
+\title{Reparametrization of Feedforward Networks}
+\author{Shahar Siegman}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+The update direction in gradient descent methods is known to be highly dependent on the problem parametrization. Even in the convex case, the number of steps required to reach the minimum can change significantly when rescaling some of the parameters. We extend previous work on reparametrization [1, 2]. First, we demonstrate a numerically more efficient method for maintaining a constant $L_2$ norm for each of the matrix columns, representing feature vectors. We demonstrate that convergence further improves when the bias term is added \textit{before} the linear transformation, rather than after. We suggest some new ideas about why this parametrization is superior, based on a novel geometrical/ energy-based interpretation of the processing performed in a feedforward neural network.
+
+Keywords: \textit{Reparametrization, $L_2$ Norm, Loss minimization, energy minimization}
+\end{abstract}
+
+\section{}
+
+\end{document}

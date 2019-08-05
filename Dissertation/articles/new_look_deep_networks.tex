@@ -1,0 +1,75 @@
+ \documentclass[]{article}
+ \usepackage{amsmath,amsfonts,amsthm}
+ \usepackage{ textcomp }
+ 
+ %opening
+ \title{A new look on the training of deep networks}
+ \author{Shahar Siegman}
+ 
+ \begin{document}
+ 	
+ 	\maketitle
+ 	
+ 	\begin{abstract}
+ 		In this article, we elaborate and extend a model briefly introduced in [1], which fills a longstanding gap in the theoretical understanding of feedforward and other artificial neural networks. The model posits that under certain assumptions on the nonlinear activation function, and when holding the parameters of the other layers fixed, each column represents a separation plane in a binary, weighted classification problem, and the locally-optimal solution (holding the parameters of all layers before and after fixed) can be obtained through convex optimization. 
+ 		
+ 		We discuss implications of the model, particularly the potential benefits of LASSO-like regularization of feature vectors, and provide potential explanations for the success of dropout [2] and batch normalization [3] in improving the convergence of deep neural networks.
+ 		
+ 		Keywords: \textit{Artificial neural networks, feedforward networks, LASSO, DNN}
+ 	\end{abstract}
+ 	
+ 	\section{Introduction}
+ 		In their seminal 2010 paper, Glorot and Bengio showed that deep networks employing $tanh$ as their non-linearity benefit when the distribution of the randomly-initialized parameters of the inter-layer connection matrices has limited variance, so as to avoid early onset of saturation, which leads to vanishing gradients. The successes of batch normalization [4] and the similarly-motivated weight normalization [5] suggest that allowing the norms of feature vectors to be decoupled from their orientation in space, improves convergence of deep networks. Dropout [2] is another technique enjoying widespread popularity among practitioners, due to its success in improving convergence of deep networks. However, these methods' success (and the lack of success of other methods suggested in literature) has only scant explanation. 
+ 		In this paper, we formulate an intuitive optimization problem and then show how this optimization problem is related to the training process of a deep, fully-connected neural network.
+ 		 
+ 	\section{Mathematical setup}
+ 		Our network is composed of \textsf{L} layers, each (except the last) having the following structure:
+ 		
+ 		$$x^\ell = \tanh(z^\ell) = \tanh(((x^{\ell-1}+b^l)W^\ell)\circ \gamma^\ell)$$
+ 		
+ 		Where $W^T W=\mathbf{1}$ (i.e $W$'s columns' are unit vectors), $\gamma$ is a vector of scaling parameters and $\circ$ is the Hadamard vector product. The last layer's structure is identical except for the omission of the nonlinearity. Note that the layer indices for the parameters $W$, $b$ and $\gamma$ start at one, $x$'s layer indices start at 0.
+ 		
+ 		In most cases, we will be discussing a single layer, and in that case the $\ell$ superscript will be dropped. When $(i)$ appears in the superscript e.g. $x^{(i)}$, it will denote the ordinal of a training sample. A subscript $x^{(i)}_k$ will be reserved for denoting vector components.
+ 		
+ 		
+ 		The loss function is $Loss=KL(e_{c_i}, \mathtt{softmax}(x^L))$, The Kuleback-Lieber distance between a unit vector with 1 at the index corresponding to the sample's true class. This loss is the standard negative-log-likelihood loss.
+ 		
+ 		
+ 	\section{Error terms}
+ 	\subsection{Neuron error term}
+ 		Suppose we are training a deep network on a 3-class problem. We start by evaluating $x^{(1)\ell}$ i.e. the output of the network for the first training sample. For the sake of simplicity, we will assume $x^{(1)\ell} = \left(\frac{1}{3},\frac{1}{3},\frac{1}{3}\right)$. Without loss of generality, $x^{(1)} \in C_1$, and so the neurons deltas in the last layers will be  $\left(\frac{2}{3},-\frac{1}{3},-\frac{1}{3}\right)$.
+ 		We then start back-propagation. Since $\gamma$ is initialized to a vector of 1's, we ignore the effect of $\gamma$ on backpropagation for now. The deltas are transformed using $W^{T\ell}$ and multiplied by the derivative of the nonlinearity :
+ 		
+ 		$$ \delta^{T\ell-1} = g'(z^{\ell}) \circ (W^{\ell}\delta^{T\ell})$$
+ 		
+ 		The formulas are expressed for $\delta^T$, i.e the error terms as column vectors.
+ 		We now want to look at a single component of the error term, and look at each factor on the equation's RHS:
+ 		 	$$ \delta^{T\ell-1}_k = g'(z^{\ell}_k) (W^{\ell}_{k\cdot}\delta^{T\ell})$$
+ 		 where
+ 		 	$$z_k^\ell=W^{\ell-1}_{k\cdot}(x^{\ell-1}+b^{\ell-1})$$
+ 		 	
+ 		 Note that $W^{\ell}_{k\cdot}$ denotes the k'th row of $W$.
+ 		
+
+		$g(\cdot)$ is a symmetric, bell-shaped attenuation curve:
+		\begin{itemize}
+			\item $\forall x:\ 0 \le g'(x) \le 1$
+			\item $g'(x)=1 \Leftrightarrow x=0$
+			\item $g'(-x) = g'(x)$
+			\item $\lim\limits_{x \to \pm \infty}g'(x) = 0$
+		\end{itemize} 
+ 		 we can see that for $W^{\ell-1}_{k\bullet}(x^{\ell-1}+b^{\ell-1})$ to equal zero, we need to have $(x^{\ell-1}+b^{\ell-1}) \perp W^{\ell-1}_{k\bullet}$ which can be interpreted geometrically as: \textit{the multidimensional point $x^{\ell-1}+b^{\ell-1}$ lies on an hyper-plane going through the origin with normal vector $W^{\ell-1}_{k\bullet}$ }
+  	\subsection{Matrix error term}
+  		We now continue by focusing on a single matrix column
+ 		 
+ 		 
+ \end{document}
+ 
+ 
+ \bibliography{new_look_deep_networks}
+ 
+ [1] my other paper :)
+ [2] dropout
+ [3] X. Glorot and Y. Bengio. Understanding the difficulty of training deep feedforward neural networks. In AISTATS, 2010.
+ [4] batch normalization
+ [5] weight normalization

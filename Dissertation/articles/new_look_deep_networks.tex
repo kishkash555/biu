@@ -23,45 +23,76 @@
  		In this paper, we formulate an intuitive optimization problem and then show how this optimization problem is related to the training process of a deep, fully-connected neural network.
  		 
  	\section{Mathematical setup}
- 		Our network is composed of \textsf{L} layers, each (except the last) having the following structure:
+ 		Our network is composed of \texttt{L} layers, each (except the last) having the following structure:
  		
- 		$$x^\ell = \tanh(z^\ell) = \tanh(((x^{\ell-1}+b^l)W^\ell)\circ \gamma^\ell)$$
+ 		$$x^{\ell+1} = \tanh(z^\ell) = \tanh(((x^\ell+b^l)W^\ell)\circ \gamma^\ell)$$
  		
- 		Where $W^T W=\mathbf{1}$ (i.e $W$'s columns' are unit vectors), $\gamma$ is a vector of scaling parameters and $\circ$ is the Hadamard vector product. The last layer's structure is identical except for the omission of the nonlinearity. Note that the layer indices for the parameters $W$, $b$ and $\gamma$ start at one, $x$'s layer indices start at 0.
+ 		Where $W^T W=\mathbf{1}$ (i.e $W$'s columns' are unit vectors), $\gamma$ is a vector of scaling parameters and $\circ$ is the Hadamard vector product. The last layer has \texttt{softmax} as the nonlinearity i.e. 
+ 		$x^\mathtt{L} = \mathtt{softmax}(z^{\mathtt{L}-1})$. 
+ 		Note that the layer indices for the parameters $W$, $b$ and $\gamma$ take values $1\textellipsis\mathtt{L} -1$, while $x$'s layer indices go from $1$ to $\mathtt{L}$.
  		
  		In most cases, we will be discussing a single layer, and in that case the $\ell$ superscript will be dropped. When $(i)$ appears in the superscript e.g. $x^{(i)}$, it will denote the ordinal of a training sample. A subscript $x^{(i)}_k$ will be reserved for denoting vector components.
  		
  		
- 		The loss function is $Loss=KL(e_{c_i}, \mathtt{softmax}(x^L))$, The Kuleback-Lieber distance between a unit vector with 1 at the index corresponding to the sample's true class. This loss is the standard negative-log-likelihood loss.
+ 		The loss function is $Loss=KL(\mathbf{e}_{c_i},x^\mathtt{L})$, The Kuleback-Lieber distance between a unit vector with 1 at the index corresponding to the sample's true class. This loss is the standard negative-log-likelihood loss.
  		
  		
  	\section{Error terms}
  	\subsection{Neuron error term}
- 		Suppose we are training a deep network on a 3-class problem. We start by evaluating $x^{(1)\ell}$ i.e. the output of the network for the first training sample. For the sake of simplicity, we will assume $x^{(1)\ell} = \left(\frac{1}{3},\frac{1}{3},\frac{1}{3}\right)$. Without loss of generality, $x^{(1)} \in C_1$, and so the neurons deltas in the last layers will be  $\left(\frac{2}{3},-\frac{1}{3},-\frac{1}{3}\right)$.
+ 		Suppose we are training a deep network on a 3-class problem. We start by evaluating $x^{(1)\textsf{L} }$ i.e. the output of the network for the first training sample. For the sake of simplicity, we will assume $x^{(1)\mathtt{L} } = \left(\frac{1}{3},\frac{1}{3},\frac{1}{3}\right)$. Without loss of generality, $x^{(1)} \in C_1$, and so the neurons' deltas in the last layers will be  $\left(\frac{2}{3},-\frac{1}{3},-\frac{1}{3}\right)$.
  		We then start back-propagation. Since $\gamma$ is initialized to a vector of 1's, we ignore the effect of $\gamma$ on backpropagation for now. The deltas are transformed using $W^{T\ell}$ and multiplied by the derivative of the nonlinearity :
  		
- 		$$ \delta^{T\ell-1} = g'(z^{\ell}) \circ (W^{\ell}\delta^{T\ell})$$
+ 		$$ \delta^{T\mathtt{L}-1} = g'(z^{\mathtt{L}-1}) \circ (W^{\mathtt{L}-1}\delta^{T\mathtt{L}})$$
  		
  		The formulas are expressed for $\delta^T$, i.e the error terms as column vectors.
- 		We now want to look at a single component of the error term, and look at each factor on the equation's RHS:
- 		 	$$ \delta^{T\ell-1}_k = g'(z^{\ell}_k) (W^{\ell}_{k\cdot}\delta^{T\ell})$$
- 		 where
- 		 	$$z_k^\ell=W^{\ell-1}_{k\cdot}(x^{\ell-1}+b^{\ell-1})$$
- 		 	
- 		 Note that $W^{\ell}_{k\cdot}$ denotes the k'th row of $W$.
+ 		We now want to focus our attention on a single component of the error term:
+ 		 	$$ \delta^{T\mathtt{L}-1}_k = g'(z^{\mathtt{L}-1}_k) (W^{\mathtt{L}-1}_{k\cdot}\delta^{T\mathtt{L}})$$
+ 		where $z_k^{\ell-1} = W^{\ell-1}_{k\cdot}(x^{\ell-1}+b^{\ell-1})$, and $W^{\ell}_{k\cdot}$ denotes the k'th row of $W$.
+ 		 
+ 		 
  		
-
-		$g(\cdot)$ is a symmetric, bell-shaped attenuation curve:
+		We refer to $g'(\cdot)$ as an \textit{attenuation curve}. It has the following properties: 
 		\begin{itemize}
 			\item $\forall x:\ 0 \le g'(x) \le 1$
 			\item $g'(x)=1 \Leftrightarrow x=0$
 			\item $g'(-x) = g'(x)$
 			\item $\lim\limits_{x \to \pm \infty}g'(x) = 0$
 		\end{itemize} 
- 		 we can see that for $W^{\ell-1}_{k\bullet}(x^{\ell-1}+b^{\ell-1})$ to equal zero, we need to have $(x^{\ell-1}+b^{\ell-1}) \perp W^{\ell-1}_{k\bullet}$ which can be interpreted geometrically as: \textit{the multidimensional point $x^{\ell-1}+b^{\ell-1}$ lies on an hyper-plane going through the origin with normal vector $W^{\ell-1}_{k\bullet}$ }
-  	\subsection{Matrix error term}
-  		We now continue by focusing on a single matrix column
+ 		 we can see that 
+ 		 $z^{\ell-1} =0 \Leftrightarrow (x^{\ell-1}+b^{\ell-1}) \perp W^{\ell-1}_{k\cdot}$ 
+ 		 which can be interpreted geometrically as: \textit{the point $x^{\ell-1}+b^{\ell-1}$ lies on the  hyperplane through the origin define by its normal $W^{\ell-1}_{k\cdot}$ }. We will come back to this geometric interpretation later.
  		 
+  	\subsection{Matrix error term}
+		The matrix update term is:
+  			$$ \Delta W^\ell = \frac{\partial L}{\partial W^\ell} = (g'(z^{\ell}) \circ  \delta^{T\ell}) (x^{\ell}+b^{\ell})$$
+ 		We now continue by focusing on a single matrix column. In the case of a single column, the update term is:
+	  		$$ \Delta W^\ell_{k\cdot}  = g'(z^{\ell}_k)  \delta^{T\ell+1}_k (x^{\ell}+b^{\ell})_{\perp W^\ell}$$
+		
+
+	  	The subscript $\perp W^\ell$ signifies that we take the component of $(x^{\ell}+b^{\ell})$ that is perpendicular to $W^\ell$. In other words, this operator projects to the hyperplane with normal $W^\ell$.
+	  	
+	  \subsection{Mechano-electric interpretation of the matrix error term}
+	  	
+	  	At this point it is methodical to present equation () in the context of a mechano-electric model: 
+	  	\begin{itemize}
+	  		\item $g'(z^{\ell}_k)$ is an attenuation function depending on the distance from the $W^\ell$ hyperplane
+	  		\item  $\delta^{T\ell+1}_k$ is a scalar multiplier whose value is determined by the sample's error and the subsequent layers' transformations.
+	  		\item $(x^{\ell}+b^{\ell})_{\perp W^\ell}$ is the \textit{lever arm} of the sample about the origin as a cause for the rotation of $W^\ell$.
+	  	\end{itemize}
+		
+		For the ardent mathematicians, this physics-motivated interpretation may seem superfluous, since it is external to the mathematical treatment and subsequent results in this paper. However, due to its simplicity it makes sense to include it, both for readers who are familiar with similar physical models, and may find this analogy educational, and as a way to assert the merits of the parametrization chosen.
+		 
+	\section{The physical model}
+	\subsection{training}
+		In the context of this model, the training process can be described as follows:
+		\begin{itemize}
+			\item a training sample is drawn and evaluated.
+			\item The error term on the final layer is calculated.
+			\item The "deltas" propagate to the previous layers.
+			\item The training sample exerts a force on the plane defined by $W_k$. The axis along which the force acts is determined by the position of the training sample in space, but its magnitude and sign are determined by the value of the corresponding error term.
+			\item The force is allowed to act for a short period of time, which leads to a small change in the direction of the plane. The amount of movement is proportional to the force, which has a physical equivalent of movement through a viscous medium. The lack of buildup of momentum, ensures that the system dissipates energy in each epoch.
+		\end{itemize}
+  	
  		 
  \end{document}
  

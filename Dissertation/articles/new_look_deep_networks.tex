@@ -19,7 +19,7 @@
  	\end{abstract}
  	
  	\section{Introduction}
- 		In their seminal 2010 paper, Glorot and Bengio showed that deep networks employing $tanh$ as their non-linearity benefit when the distribution of the randomly-initialized parameters of the inter-layer connection matrices has limited variance, so as to avoid early onset of saturation, which leads to vanishing gradients. The successes of batch normalization [4] and the similarly-motivated weight normalization [5] suggest that allowing the norms of feature vectors to be decoupled from their orientation in space, improves convergence of deep networks. Dropout [2] is another technique enjoying widespread popularity among practitioners, due to its success in improving convergence of deep networks. However, these methods' success (and the lack of success of other methods suggested in literature) has only scant explanation. 
+ 		In their seminal 2010 paper, Glorot and Bengio showed that deep networks employing $tanh$ as their non-linearity benefit when the variance of the distribution of the randomly-initialized parameters of the inter-layer connection matrices is limited, so as to avoid saturating the activations too early in the learning process. The successes of batch normalization [4] and the similarly-motivated weight normalization [5] suggest that allowing the norms of feature vectors to be decoupled from their orientation in space, improves convergence of deep networks. Dropout [2] is another technique enjoying widespread popularity among practitioners, due to its success in improving convergence of deep networks. However, these methods' success (and the lack of success of other methods suggested in literature) in not supported by a deeper understanding of the DNN training process. 
  		In this paper, we formulate an intuitive optimization problem and then show how this optimization problem is related to the training process of a deep, fully-connected neural network.
  		 
  	\section{Mathematical setup}
@@ -31,68 +31,112 @@
  		$x^\mathtt{L} = \mathtt{softmax}(z^{\mathtt{L}-1})$. 
  		Note that the layer indices for the parameters $W$, $b$ and $\gamma$ take values $1\textellipsis\mathtt{L} -1$, while $x$'s layer indices go from $1$ to $\mathtt{L}$.
  		
- 		In most cases, we will be discussing a single layer, and in that case the $\ell$ superscript will be dropped. When $(i)$ appears in the superscript e.g. $x^{(i)}$, it will denote the ordinal of a training sample. A subscript $x^{(i)}_k$ will be reserved for denoting vector components.
+ 		In some cases, when discussing a single layer, the $\ell$ superscript will be dropped. When $(i)$ appears in the superscript e.g. $x^{(i)}$, it will denote the ordinal of a training sample. A subscript $x^{(i)}_k$ will be reserved for denoting vector components.
  		
  		
- 		The loss function is $Loss=KL(\mathbf{e}_{c_i},x^\mathtt{L})$, The Kuleback-Lieber distance between a unit vector with 1 at the index corresponding to the sample's true class. This loss is the standard negative-log-likelihood loss.
+ 		The loss function is $Loss=KL(\mathbf{e}_{c_i},x^\mathtt{L})$, The Kullback-Leiber distance between a unit vector with 1 at the index corresponding to the sample's true class. This loss is the standard negative-log-likelihood loss.
  		
  		
  	\section{Error terms}
- 	\subsection{Neuron error term}
- 		Suppose we are training a deep network on a 3-class problem. We start by evaluating $x^{(1)\textsf{L} }$ i.e. the output of the network for the first training sample. For the sake of simplicity, we will assume $x^{(1)\mathtt{L} } = \left(\frac{1}{3},\frac{1}{3},\frac{1}{3}\right)$. Without loss of generality, $x^{(1)} \in C_1$, and so the neurons' deltas in the last layers will be  $\left(\frac{2}{3},-\frac{1}{3},-\frac{1}{3}\right)$.
- 		We then start back-propagation. Since $\gamma$ is initialized to a vector of 1's, we ignore the effect of $\gamma$ on backpropagation for now. The deltas are transformed using $W^{T\ell}$ and multiplied by the derivative of the nonlinearity :
+ 		Suppose we are training a deep network on a 3-class problem. The forward pass culminates when we evaluate $x^{(1)\textsf{L} }$ i.e. the output of the network for the first training sample. We will simply assume $x^{(1)\mathtt{L} } = \left(\frac{1}{3},\frac{1}{3},\frac{1}{3}\right)$. Without loss of generality, assume further $x^{(1)} \in C_1$, and so the neurons' deltas in the last layers will be  $\delta^{\mathtt{L}}=\left(\frac{2}{3},-\frac{1}{3},-\frac{1}{3}\right)$. 
+ 		The back-propagation process starts with this vector of error terms, and, through linear and non-linear transformations, produces the error terms of the previous layers. Our motivation in the next few sections is to understand the error propagation and the interactions with the feature vector updates throughout the network. 
+	
+	\subsection{Neuron error term}
+ 		Since $\gamma$ is initialized to a vector of 1's, we ignore (for the time being) the effect of $\gamma$ on back-propagation. We will treat layers \texttt{L-1} and \texttt{L-2} (layer \texttt{L} was treated in the preamble to this section).
  		
- 		$$ \delta^{T\mathtt{L}-1} = g'(z^{\mathtt{L}-1}) \circ (W^{\mathtt{L}-1}\delta^{T\mathtt{L}})$$
  		
- 		The formulas are expressed for $\delta^T$, i.e the error terms as column vectors.
- 		We now want to focus our attention on a single component of the error term:
- 		 	$$ \delta^{T\mathtt{L}-1}_k = g'(z^{\mathtt{L}-1}_k) (W^{\mathtt{L}-1}_{k\cdot}\delta^{T\mathtt{L}})$$
- 		where $z_k^{\ell-1} = W^{\ell-1}_{k\cdot}(x^{\ell-1}+b^{\ell-1})$, and $W^{\ell}_{k\cdot}$ denotes the k'th row of $W$.
+ 		since the \texttt{L}-th layer error 
+ 		The deltas are transformed using $W^{T\ell}$ and multiplied by the derivative of the nonlinearity :
+ 		
+ 		$$\delta^{T\mathtt{L}-2} = W^{\mathtt{L}-2} (\delta^{T\mathtt{L-1}} \circ g'(z^{\mathtt{L}-2}))$$
+ 		
+ 		The use of the transpose operator allows us to look at column vectors, which are more convenient in this context, while the $\delta$s are actually row vectors.
+ 		
+ 		We now want to focus our attention on a single component of the error term. The \texttt{L}-2\textit{th} layer has \texttt{M} neurons and the \texttt{L}-1\textit{th} layer has \texttt{N} neurons.
+ 		
+ 		
+ 		$$\delta^{T\mathtt{L}-2}_m = W^{\mathtt{L}-2}_{m \cdot} (\delta^{T\mathtt{L-1}}_n \circ g'(z^{\mathtt{L}-2}_n))$$
+ 		
+ 		$$\delta^{T\ell-1}_m = W^{\ell-1}_{m \cdot} (\delta^{T\ell}_n \circ g'(z^{\ell-1}_n))$$
+ 		
+ 		where $W_{m\cdot}$ denotes the \texttt{m}\textit{th} row of $W$.
  		 
  		 
- 		
-		We refer to $g'(\cdot)$ as an \textit{attenuation curve}. It has the following properties: 
-		\begin{itemize}
-			\item $\forall x:\ 0 \le g'(x) \le 1$
-			\item $g'(x)=1 \Leftrightarrow x=0$
-			\item $g'(-x) = g'(x)$
-			\item $\lim\limits_{x \to \pm \infty}g'(x) = 0$
-		\end{itemize} 
- 		 we can see that 
- 		 $z^{\ell-1} =0 \Leftrightarrow (x^{\ell-1}+b^{\ell-1}) \perp W^{\ell-1}_{k\cdot}$ 
- 		 which can be interpreted geometrically as: \textit{the point $x^{\ell-1}+b^{\ell-1}$ lies on the  hyperplane through the origin define by its normal $W^{\ell-1}_{k\cdot}$ }. We will come back to this geometric interpretation later.
  		 
   	\subsection{Matrix error term}
 		The matrix update term is:
   			$$ \Delta W^\ell = \frac{\partial L}{\partial W^\ell} = (g'(z^{\ell}) \circ  \delta^{T\ell}) (x^{\ell}+b^{\ell})$$
  		We now continue by focusing on a single matrix column. In the case of a single column, the update term is:
-	  		$$ \Delta W^\ell_{k\cdot}  = g'(z^{\ell}_k)  \delta^{T\ell+1}_k (x^{\ell}+b^{\ell})_{\perp W^\ell}$$
+	  		$$\Delta W^\ell_{k\cdot}  = g'(z^{\ell}_k)  \delta^{T\ell+1}_k (x^{\ell}+b^{\ell})_{\perp W^\ell_k}$$
 		
 
 	  	The subscript $\perp W^\ell$ signifies that we take the component of $(x^{\ell}+b^{\ell})$ that is perpendicular to $W^\ell$. In other words, this operator projects to the hyperplane with normal $W^\ell$.
 	  	
-	  \subsection{Mechano-electric interpretation of the matrix error term}
+	  	To reduce clutter, we drop the layer indices. We will add a special symbol, $\delta^\dagger$. This is reminder that the layer index of the $\delta$ is one more than the rest of the terms of the equation. The equation becomes
+		  		$$\Delta W_{k\cdot}  = g'(z_k)  \delta^{\dagger T}_k (x+b)_{\perp W_k}$$
+	
+
+	\section{Matrix updates and local loss function}
 	  	
-	  	At this point it is methodical to present equation () in the context of a mechano-electric model: 
+	  	To tackle the difficulty of converging to a good solution, one of the go-to tools is deep belief networks [6]. The main attribute making DBN an important pre-training tool is the fact that it works "greedily", layer by layer, making it much faster than SGD training steps that involve all layers. On the other hand, DBN is an unsupervised learning process, so it can only succeed in representing the spatial structure of the input, but not the relation between the spatial structure and the labels. 
+	  	
+	  	In this section we make an important step towards a likewise "greedy", layerwise formulation of the classification problem. We believe that with further development, the framework presented herewith can become an alternative to SGD learning. The important achievement in this work is in introducing a loss function which "works" at the layer level. This opens the way for a more algorithm-theoretical treatment of the learning process by breaking it up into sub-problems.
+	  	
+	  	This section adopts a physics-based narrative for describing the learning process. This view augments the mathematical treatment, and makes it more intuitive (for readers who have some familiarity with concepts of classical physics). In some points, the physical analogy is not perfect, so the reader is reminded to remain alert of "overshooting" the analogy, reaching conclusions that would be true in an actual physical system but do not necessarily follow mathematically.
+	  	
+	 \subsection{Geometrical interpretation of DNNs}
+	 	In order to establish the "physics of learning", we first need to establish the geometric interpretation of the classification problem.
+	 	
+	 	each training sample is a vector in $\mathbb{R}^{n^1}$, therefore it is also a point in an $n^1$-dimensional hyperspace. The first two moments (mean and variance) for each coordinate are predetermined, and the data are shifted and scaled appropriately. The rest of the moments are assumed to be all finite.
+	 	
+	 	In each layer, the input is shifted in space by $b^\ell$, and then $n^{\ell+1}$ hyperplanes are placed through the origin. The hyperplanes are represented by unit vectors which are their normals. These unit vectors form the columns of $W^\ell$.
+	 	
+	 	Multiplying $(x+b)$ by $W$ is equivalent of finding the distance of a training sample from each hyperplane. Next, the nonlinearity is applied. The effect of the \texttt{tanh} nonlinearity is to map the arbitrary distances from a potential range of $\pm \infty$ to $\pm 1$. Roughly speaking, points that are 5 units or more the plane (on either side), will map to numbers very close to $\pm1$.
+	 	
+	 	Each subsequent layer uses the (squashed) distances calculated by the previous layer as inputs, performing an additional projection in the new hyperspace (which may have more or less dimensions than the previous).
+	 	
+	 	The magnitudes (or $L_2$ norms)  of the vectors of $W$ are represented in our parametrization by the entries of $\gamma$. Larger values make the "linear regime band" around the hyperplane shrink, leading to saturated outputs ($\pm1$) at closer distances. Conversely, values of $\gamma$ \textit{closer} to 0, expand the linear regime band. Negative values do not pose a problem; They merely act as a switch to "flip" the direction of the corresponding W column. Such negative values, if they occur during training, can be made positive again whenever desired, by simply multiplying both the $\gamma$ entry and the corresponding $W$ column by -1.
+	 	
+	 \subsection{Updates as reactions to forces}
+	 	Let's go back to the equation describing the update performed on a single column of a matrix W:
+	 	
+			$$\Delta W_{k\cdot}  = g'(z_k)  \delta^{\dagger T}_k (x+b)_{\perp W_k}$$
+	 	
+	 	This equation has two scalar components and a vector component. Let's review them one by one:
+	 	
 	  	\begin{itemize}
-	  		\item $g'(z^{\ell}_k)$ is an attenuation function depending on the distance from the $W^\ell$ hyperplane
-	  		\item  $\delta^{T\ell+1}_k$ is a scalar multiplier whose value is determined by the sample's error and the subsequent layers' transformations.
-	  		\item $(x^{\ell}+b^{\ell})_{\perp W^\ell}$ is the \textit{lever arm} of the sample about the origin as a cause for the rotation of $W^\ell$.
+	  		\item $g'(z^{\ell}_k)$ is an attenuation function depending on the distance of $(x+b)$ from the $W_k$ hyperplane
+	  		\item  $\delta^{T\ell+1}_k$ is a scalar multiplier whose value is a result of the "base" error $\delta^\mathtt{L}$ and how it was transformed from the last layer up to the current layer. 
+	  		\item $(x^{\ell}+b^{\ell})_{\perp W^\ell}$ is the \textit{lever arm} of the (shifted) sample about the origin.
 	  	\end{itemize}
 		
-		For the ardent mathematicians, this physics-motivated interpretation may seem superfluous, since it is external to the mathematical treatment and subsequent results in this paper. However, due to its simplicity it makes sense to include it, both for readers who are familiar with similar physical models, and may find this analogy educational, and as a way to assert the merits of the parametrization chosen.
-		 
-	\section{The physical model}
-	\subsection{training}
-		In the context of this model, the training process can be described as follows:
-		\begin{itemize}
-			\item a training sample is drawn and evaluated.
-			\item The error term on the final layer is calculated.
-			\item The "deltas" propagate to the previous layers.
-			\item The training sample exerts a force on the plane defined by $W_k$. The axis along which the force acts is determined by the position of the training sample in space, but its magnitude and sign are determined by the value of the corresponding error term.
-			\item The force is allowed to act for a short period of time, which leads to a small change in the direction of the plane. The amount of movement is proportional to the force, which has a physical equivalent of movement through a viscous medium. The lack of buildup of momentum, ensures that the system dissipates energy in each epoch.
-		\end{itemize}
-  	
+ 		We see that each training sample in turn, exerts a torque on the hyperplane, by pushing (or pulling) the point directly "below" it. The torque is relative to a pivot point in the origin. 
+ 		When the point is farther away, the torque it exerts is smaller, due to the bell shape of the derivative of the nonlinearity. If (as observed empirically), $\gamma$ tends to increase with training time, then in every epoch we should expect to see W affected less by points farther from the separating plane.
+ 		
+ 		The direction of the force ("attraction" vs. "repulsion") is controlled by $\delta$. In a sense, $\delta$ is the "wildcard" of this equation and holds the key to understanding the dynamics of deep-learning. We shall come back later to this component of the update.
+ 		
+ 		Note that the actual update during training is $\eta \Delta W$, where $\eta$ is the learning rate. In the physical context, $\eta$ represents a time-step for which the force (calculated for a specific configuration) is "allowed" to act, until the change in system configuration is considered and a new force or torque are calculated. 
+ 	
+ 	\subsection{Equilibrium and the principal of minimal energy}	
+ 		When examining a physical dynamical system, one is usually interested in finding its state (or states) of equilibrium. In Equilibrium, the forces diminish (or, equivalently, are perfectly balanced and "cancel each other out"), and so no motion i.e. no change in configuration occurs. A system that dissipates energy as it moves through its configuration space is known as a \textit{damped} system. Such as system will converge to an equilibrium (unless its state space is unbounded). Since (total) force is the spatial derivative of energy, the point of equilibrium will also be a point of minimal energy.
+ 		
+ 		This makes energy an important analytical tool for analysis of damped dynamical systems. If a global expression for energy (as a function of the system's state parameters, or "degrees of freedom" as they are known in physics) is known, then the system's possible final states can be determined.
+ 		
+ 		Therefore, moving from a formulation based on forces to a formulation based on energies, is a due next step. Fortunately, such a formulation is straightforward. 
+ 		
+ 	\subsection{Energy formulation}
+ 		The parameters of the problem that we formulated are the magnitude and direction of the vector representing the plane. The combined forces on $W_k$, due to all training samples are 
+ 		$$\Sigma F = \sum\limits_{(i)} g'(z^{(i)}_k)  \delta^{\dagger (i) T}_k (x^{(i)}+b)_{\perp W_k}$$
+
+		Integrating on $b$ and $W_k$ leads to:
+		
+		$$E = \sum\limits_{(i)} g(z^{(i)}_k)  \delta^{\dagger (i) T}_k (x^{(i)}+b)_{\perp W_k}$$
+		
+		[I'm a little stuck on this front]
+ 		
+ 		
+ 		
+
  		 
  \end{document}
  
@@ -104,3 +148,5 @@
  [3] X. Glorot and Y. Bengio. Understanding the difficulty of training deep feedforward neural networks. In AISTATS, 2010.
  [4] batch normalization
  [5] weight normalization
+ [6] deep belief networks
+ 

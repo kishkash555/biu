@@ -1,0 +1,30 @@
+\begin{thebibliography}{1}
+
+\bibitem{Dropout:1}
+N.~Srivastava, G.~Hinton, A.~Krizhevsky, I.~Sutskever, and R.~Salakhutdinov,
+  ``Dropout: a simple way to prevent neural networks from overfitting,'' {\em
+  The journal of machine learning research}, vol.~15, no.~1, pp.~1929--1958,
+  2014.
+
+\bibitem{Batch:3}
+S.~Ioffe and C.~Szegedy, ``Batch normalization: Accelerating deep network
+  training by reducing internal covariate shift,'' {\em arXiv preprint
+  arXiv:1502.03167}, 2015.
+
+\bibitem{Glorot:2}
+X.~Glorot and Y.~Bengio, ``Understanding the difficulty of training deep
+  feedforward neural networks,'' in {\em Proceedings of the thirteenth
+  international conference on artificial intelligence and statistics},
+  pp.~249--256, 2010.
+
+\bibitem{Weightnorm:4}
+T.~Salimans and D.~P. Kingma, ``Weight normalization: A simple
+  reparameterization to accelerate training of deep neural networks,'' in {\em
+  Advances in Neural Information Processing Systems}, pp.~901--909, 2016.
+
+\bibitem{HintonDBN}
+G.~E. Hinton and R.~R. Salakhutdinov, ``Reducing the dimensionality of data
+  with neural networks,'' {\em science}, vol.~313, no.~5786, pp.~504--507,
+  2006.
+
+\end{thebibliography}

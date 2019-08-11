@@ -11,48 +11,47 @@
  	\maketitle
  	
  	\begin{abstract}
- 		In this article, we elaborate and extend a model briefly introduced in [1], which fills a longstanding gap in the theoretical understanding of feedforward and other artificial neural networks. The model posits that under certain assumptions on the nonlinear activation function, and when holding the parameters of the other layers fixed, each column represents a separation plane in a binary, weighted classification problem, and the locally-optimal solution (holding the parameters of all layers before and after fixed) can be obtained through convex optimization. 
+ 		In this article, we present a new model which fills a longstanding gap in the theoretical understanding of feedforward and other artificial neural networks. The model posits that under certain assumptions on the nonlinear activation function, and when holding the parameters of the other layers fixed, each column represents a separation plane in a binary, weighted classification problem, and the locally-optimal solution (holding the parameters of all layers before and after fixed) can be obtained through convex optimization. 
  		
- 		We discuss implications of the model, particularly the potential benefits of LASSO-like regularization of feature vectors, and provide potential explanations for the success of dropout [2] and batch normalization [3] in improving the convergence of deep neural networks.
+ 		We discuss implications of the model, particularly the potential benefits of LASSO-like regularization of feature vectors, and provide potential explanations for the success of dropout \cite{Dropout:1} and batch normalization \cite{Batch:3} in improving the convergence of deep neural networks.
  		
  		Keywords: \textit{Artificial neural networks, feedforward networks, LASSO, DNN}
  	\end{abstract}
  	
  	\section{Introduction}
- 		In their seminal 2010 paper, Glorot and Bengio showed that deep networks employing $tanh$ as their non-linearity benefit when the variance of the distribution of the randomly-initialized parameters of the inter-layer connection matrices is limited, so as to avoid saturating the activations too early in the learning process. The successes of batch normalization [4] and the similarly-motivated weight normalization [5] suggest that allowing the norms of feature vectors to be decoupled from their orientation in space, improves convergence of deep networks. Dropout [2] is another technique enjoying widespread popularity among practitioners, due to its success in improving convergence of deep networks. However, these methods' success (and the lack of success of other methods suggested in literature) in not supported by a deeper understanding of the DNN training process. 
- 		In this paper, we formulate an intuitive optimization problem and then show how this optimization problem is related to the training process of a deep, fully-connected neural network.
+ 		In their seminal 2010 paper \cite{Glorot:2}, Glorot and Bengio showed that deep networks employing $tanh$ as their non-linearity benefit when the variance of the distribution of the randomly-initialized parameters of the inter-layer connection matrices is limited, so as to avoid saturating the activations too early in the learning process. The successes of batch normalization \cite{Batch:3} and the similarly-motivated weight normalization \cite{Weightnorm:4} suggest that allowing the norms of feature vectors to be decoupled from their orientation in space, improves convergence of deep networks. Dropout \cite{Dropout:1} is another technique enjoying widespread popularity among practitioners, due to its success in improving convergence of deep networks. However, these methods' success and popularity is not supported by a deeper understanding of the DNN training process. 
+ 		In this paper, we demonstrate that the process of learning through SGD can be formulated as a linear optimization problem performed in each layer and then use this understanding to present some general open questions about the learning process in a new light.
  		 
- 	\section{Mathematical setup}
+ 	\section{Mathematical setup and nomenclature}
  		Our network is composed of \texttt{L} layers, each (except the last) having the following structure:
  		
  		$$x^{\ell+1} = \tanh(z^\ell) = \tanh(((x^\ell+b^l)W^\ell)\circ \gamma^\ell)$$
  		
- 		Where $W^T W=\mathbf{1}$ (i.e $W$'s columns' are unit vectors), $\gamma$ is a vector of scaling parameters and $\circ$ is the Hadamard vector product. The last layer has \texttt{softmax} as the nonlinearity i.e. 
+ 		Where $W^T W=\mathbf{1}$ (i.e $W$'s columns' are unit vectors), $\gamma$ is a vector of scaling parameters and $\circ$ is the Hadamard vector product. This parametrization follows \cite{Weightnorm:4}. The last layer has \texttt{softmax} as the nonlinearity i.e. 
  		$x^\mathtt{L} = \mathtt{softmax}(z^{\mathtt{L}-1})$. 
  		Note that the layer indices for the parameters $W$, $b$ and $\gamma$ take values $1\textellipsis\mathtt{L} -1$, while $x$'s layer indices go from $1$ to $\mathtt{L}$.
  		
- 		In some cases, when discussing a single layer, the $\ell$ superscript will be dropped. When $(i)$ appears in the superscript e.g. $x^{(i)}$, it will denote the ordinal of a training sample. A subscript $x^{(i)}_k$ will be reserved for denoting vector components.
+ 		In some cases, when discussing a single layer, the $\ell$ superscript will be dropped. When $(i)$ appears in the superscript e.g. $x^{(i)}$, it will denote the ordinal of a training sample. A subscript $x_k$ will be reserved for denoting vector components.
+ 		We use $n^\ell$ as the width (number of neurons) in the $\ell$\textit{th} layer
  		
  		
  		The loss function is $Loss=KL(\mathbf{e}_{c_i},x^\mathtt{L})$, The Kullback-Leiber distance between a unit vector with 1 at the index corresponding to the sample's true class. This loss is the standard negative-log-likelihood loss.
  		
  		
  	\section{Error terms}
- 		Suppose we are training a deep network on a 3-class problem. The forward pass culminates when we evaluate $x^{(1)\textsf{L} }$ i.e. the output of the network for the first training sample. We will simply assume $x^{(1)\mathtt{L} } = \left(\frac{1}{3},\frac{1}{3},\frac{1}{3}\right)$. Without loss of generality, assume further $x^{(1)} \in C_1$, and so the neurons' deltas in the last layers will be  $\delta^{\mathtt{L}}=\left(\frac{2}{3},-\frac{1}{3},-\frac{1}{3}\right)$. 
+ 		Suppose we are training a deep network on a 3-class problem. The forward pass culminates when we evaluate $x^{(1)\mathtt{L} }$ i.e. the output of the network for the first training sample. We will simply assume $x^{(1)\mathtt{L} } = \left(\frac{1}{3},\frac{1}{3},\frac{1}{3}\right)$. Without loss of generality, assume further $x^{(1)} \in C_1$, and so the neurons' deltas in the last layers will be  $\delta^{\mathtt{L}}=\left(\frac{2}{3},-\frac{1}{3},-\frac{1}{3}\right)$. 
  		The back-propagation process starts with this vector of error terms, and, through linear and non-linear transformations, produces the error terms of the previous layers. Our motivation in the next few sections is to understand the error propagation and the interactions with the feature vector updates throughout the network. 
 	
 	\subsection{Neuron error term}
- 		Since $\gamma$ is initialized to a vector of 1's, we ignore (for the time being) the effect of $\gamma$ on back-propagation. We will treat layers \texttt{L-1} and \texttt{L-2} (layer \texttt{L} was treated in the preamble to this section).
+ 		Assume $\gamma$ is initialized to a vector of 1's, and so we ignore (for the time being) the effect of $\gamma$ on back-propagation. We will treat layers \texttt{L-1} and \texttt{L-2} (layer \texttt{L} was treated in the preamble to this section).
  		
- 		
- 		since the \texttt{L}-th layer error 
  		The deltas are transformed using $W^{T\ell}$ and multiplied by the derivative of the nonlinearity :
  		
  		$$\delta^{T\mathtt{L}-2} = W^{\mathtt{L}-2} (\delta^{T\mathtt{L-1}} \circ g'(z^{\mathtt{L}-2}))$$
  		
- 		The use of the transpose operator allows us to look at column vectors, which are more convenient in this context, while the $\delta$s are actually row vectors.
+ 		The use of the transpose operator allows us to look at column vectors, which are more convenient in this context, while the $\delta$'s are actually row vectors.
  		
- 		We now want to focus our attention on a single component of the error term. The \texttt{L}-2\textit{th} layer has \texttt{M} neurons and the \texttt{L}-1\textit{th} layer has \texttt{N} neurons.
+ 		We now want to focus our attention on a single component of the error term. The \texttt{L}-2\textit{th} layer has $n^{\ell-2}=\mathtt{M}$ neurons and the \texttt{L}-1\textit{th} layer has $n^{\ell-1}=\mathtt{N}$  neurons.
  		
  		
  		$$\delta^{T\mathtt{L}-2}_m = W^{\mathtt{L}-2}_{m \cdot} (\delta^{T\mathtt{L-1}}_n \circ g'(z^{\mathtt{L}-2}_n))$$
@@ -72,32 +71,28 @@
 
 	  	The subscript $\perp W^\ell$ signifies that we take the component of $(x^{\ell}+b^{\ell})$ that is perpendicular to $W^\ell$. In other words, this operator projects to the hyperplane with normal $W^\ell$.
 	  	
-	  	To reduce clutter, we drop the layer indices. We will add a special symbol, $\delta^\dagger$. This is reminder that the layer index of the $\delta$ is one more than the rest of the terms of the equation. The equation becomes
+	  	To reduce clutter, we drop the layer indices, but since the layer index of $\delta$ is $\ell+1$, we use $\delta^\dagger$. as a reminder that the layer index is "plus one" relative to the rest of the terms in the equation. The equation becomes
 		  		$$\Delta W_{k\cdot}  = g'(z_k)  \delta^{\dagger T}_k (x+b)_{\perp W_k}$$
 	
 
 	\section{Matrix updates and local loss function}
 	  	
-	  	To tackle the difficulty of converging to a good solution, one of the go-to tools is deep belief networks [6]. The main attribute making DBN an important pre-training tool is the fact that it works "greedily", layer by layer, making it much faster than SGD training steps that involve all layers. On the other hand, DBN is an unsupervised learning process, so it can only succeed in representing the spatial structure of the input, but not the relation between the spatial structure and the labels. 
+	  	To tackle the difficulty of converging to a good solution, one of the practitioner's  go-to tools is deep belief networks \cite{HintonDBN}. The main attribute making DBN an important pre-training tool is the fact that it works "greedily", layer by layer, making it much faster than SGD training steps that involve all layers. On the other hand, DBN is an unsupervised learning process, so it can only succeed in representing the spatial structure of the input, but not the relation between the spatial structure and the labels. 
 	  	
-	  	In this section we make an important step towards a likewise "greedy", layerwise formulation of the classification problem. We believe that with further development, the framework presented herewith can become an alternative to SGD learning. The important achievement in this work is in introducing a loss function which "works" at the layer level. This opens the way for a more algorithm-theoretical treatment of the learning process by breaking it up into sub-problems.
+	  	In this section we make an important step towards a likewise "greedy", layerwise formulation of the classification problem. We believe that with further development, the framework presented herewith can similarly serve as a pre-training tool. The important achievement in this work is in introducing a loss function which "works" at the layer level. This opens the way for a more algorithm-theoretical treatment of the learning process by breaking it up into sub-problems.
 	  	
-	  	This section adopts a physics-based narrative for describing the learning process. This view augments the mathematical treatment, and makes it more intuitive (for readers who have some familiarity with concepts of classical physics). In some points, the physical analogy is not perfect, so the reader is reminded to remain alert of "overshooting" the analogy, reaching conclusions that would be true in an actual physical system but do not necessarily follow mathematically.
-	  	
+
 	 \subsection{Geometrical interpretation of DNNs}
-	 	In order to establish the "physics of learning", we first need to establish the geometric interpretation of the classification problem.
+	 	First we establish the geometric interpretation of the classification problem.
 	 	
-	 	each training sample is a vector in $\mathbb{R}^{n^1}$, therefore it is also a point in an $n^1$-dimensional hyperspace. The first two moments (mean and variance) for each coordinate are predetermined, and the data are shifted and scaled appropriately. The rest of the moments are assumed to be all finite.
+	 	Each training sample is a vector in $\mathbb{R}^{n^1}$, therefore it is equivalently a point in an $n^1$-dimensional hyperspace. The first two moments (mean and variance) are predetermined for each coordinate separately (i.e. the data points are shifted and scaled as necessary before feeding into the network). The rest of the moments are assumed to be all finite.
 	 	
-	 	In each layer, the input is shifted in space by $b^\ell$, and then $n^{\ell+1}$ hyperplanes are placed through the origin. The hyperplanes are represented by unit vectors which are their normals. These unit vectors form the columns of $W^\ell$.
+	 	In each layer, the input is shifted in space by $b^\ell$, and then $n^{\ell+1}$ hyperplanes are drawn through the origin. The hyperplanes are represented by unit vectors which are their normals. These unit vectors form the columns of $W^\ell$.
 	 	
-	 	Multiplying $(x+b)$ by $W$ is equivalent of finding the distance of a training sample from each hyperplane. Next, the nonlinearity is applied. The effect of the \texttt{tanh} nonlinearity is to map the arbitrary distances from a potential range of $\pm \infty$ to $\pm 1$. Roughly speaking, points that are 5 units or more the plane (on either side), will map to numbers very close to $\pm1$.
+	 	The dot product of $(x+b)$ and $W_{k \cdot}$ is the projection of $(x+b)$  on the plane's norm, which is the distance of the training sample from the hyperplane. This distance is positive or negative depending on whether the point and the normal are in the same half-space. Next, the nonlinearity is applied. The \texttt{tanh} nonlinearity maps values in the range $\pm \infty$ to $\pm 1$. Roughly speaking, points that are located at a distance of 5 units or more from the plane (on either side), will map to numbers approaching $\pm1$. The gamma entry $\gamma_k$ scales the distance units. For example $\gamma_k=2$ means saturation is reached at half the distance it is reached when $\gamma_k=1$. When $\gamma_k$ is large, $x^{\ell+1}_k$ assumes values approaching either +1 or -1
+	 	\footnote{ Negative values do not pose a problem; They "flip" the normal direction. If training leads to negative values they can be solved by multiplying both the $\gamma$ entry and the corresponding $W$ column by -1}. This "binary division" makes subsequent layers act more as "logical gates" i.e they can represent unions and intersections of half-spaces defined by $W^1$.
 	 	
-	 	Each subsequent layer uses the (squashed) distances calculated by the previous layer as inputs, performing an additional projection in the new hyperspace (which may have more or less dimensions than the previous).
-	 	
-	 	The magnitudes (or $L_2$ norms)  of the vectors of $W$ are represented in our parametrization by the entries of $\gamma$. Larger values make the "linear regime band" around the hyperplane shrink, leading to saturated outputs ($\pm1$) at closer distances. Conversely, values of $\gamma$ \textit{closer} to 0, expand the linear regime band. Negative values do not pose a problem; They merely act as a switch to "flip" the direction of the corresponding W column. Such negative values, if they occur during training, can be made positive again whenever desired, by simply multiplying both the $\gamma$ entry and the corresponding $W$ column by -1.
-	 	
-	 \subsection{Updates as reactions to forces}
+	 \subsection{Matrix parameter update dynamics}
 	 	Let's go back to the equation describing the update performed on a single column of a matrix W:
 	 	
 			$$\Delta W_{k\cdot}  = g'(z_k)  \delta^{\dagger T}_k (x+b)_{\perp W_k}$$
@@ -106,16 +101,24 @@
 	 	
 	  	\begin{itemize}
 	  		\item $g'(z^{\ell}_k)$ is an attenuation function depending on the distance of $(x+b)$ from the $W_k$ hyperplane
-	  		\item  $\delta^{T\ell+1}_k$ is a scalar multiplier whose value is a result of the "base" error $\delta^\mathtt{L}$ and how it was transformed from the last layer up to the current layer. 
+	  		\item  $\delta^{T\ell+1}_k$ is a scalar multiplier whose value is a result of the "base" error $\delta^\mathtt{L}$ and how it was transformed by layers deeper than current layer. 
 	  		\item $(x^{\ell}+b^{\ell})_{\perp W^\ell}$ is the \textit{lever arm} of the (shifted) sample about the origin.
 	  	\end{itemize}
 		
- 		We see that each training sample in turn, exerts a torque on the hyperplane, by pushing (or pulling) the point directly "below" it. The torque is relative to a pivot point in the origin. 
- 		When the point is farther away, the torque it exerts is smaller, due to the bell shape of the derivative of the nonlinearity. If (as observed empirically), $\gamma$ tends to increase with training time, then in every epoch we should expect to see W affected less by points farther from the separating plane.
+ 		Since the hyperplane must pass through the origin, each training sample in turn, exerts a torque on the hyperplane, inducing a small rotation. The farther the projection of the point on the plane from the origin, the larger the torque exerted and the induced rotation.  
  		
- 		The direction of the force ("attraction" vs. "repulsion") is controlled by $\delta$. In a sense, $\delta$ is the "wildcard" of this equation and holds the key to understanding the dynamics of deep-learning. We shall come back later to this component of the update.
+ 		On the other hand, points higher above (or below) the plane's surface exert smaller torque, due to the attenuation caused by the derivative of the nonlinearity. If (as observed empirically), $\gamma$ tends to increase with training time, then in every epoch we should expect to see W affected less by points farther from the separating plane.
  		
- 		Note that the actual update during training is $\eta \Delta W$, where $\eta$ is the learning rate. In the physical context, $\eta$ represents a time-step for which the force (calculated for a specific configuration) is "allowed" to act, until the change in system configuration is considered and a new force or torque are calculated. 
+ 		Delta has two important contributions: Its sign determines the direction of the force ("attraction" vs. "repulsion") and therefore the direction of rotation; Its (absolute) values is a weighting factor, controlling the amount of rotation in a single update.
+ 	
+ 	\subsection{Summary of matrix update dynamics}
+ 		To sum up the conclusions from this model:
+ 		\begin{itemize}
+ 			\item The updates rely on points close to the plane's surface, within the "linear band" dictated by the plane's orientation and the magnitude of the vector (represented in our parametrization by $gamma$)
+ 			\item Deltas are essentially attenuated linear combination of the sample's last layer's error $\delta^\mathtt{L}$. Their sign determines the direction of the movement of the plane, and the magnitude controls the magnitude of the movement.
+ 		\end{itemize} 
+ 		
+ 	\subsection{Analogy to SVM}
  	
  	\subsection{Equilibrium and the principal of minimal energy}	
  		When examining a physical dynamical system, one is usually interested in finding its state (or states) of equilibrium. In Equilibrium, the forces diminish (or, equivalently, are perfectly balanced and "cancel each other out"), and so no motion i.e. no change in configuration occurs. A system that dissipates energy as it moves through its configuration space is known as a \textit{damped} system. Such as system will converge to an equilibrium (unless its state space is unbounded). Since (total) force is the spatial derivative of energy, the point of equilibrium will also be a point of minimal energy.
@@ -128,7 +131,7 @@
  		The parameters of the problem that we formulated are the magnitude and direction of the vector representing the plane. The combined forces on $W_k$, due to all training samples are 
  		$$\Sigma F = \sum\limits_{(i)} g'(z^{(i)}_k)  \delta^{\dagger (i) T}_k (x^{(i)}+b)_{\perp W_k}$$
 
-		Integrating on $b$ and $W_k$ leads to:
+		Integrating on $W_k$ leads to:
 		
 		$$E = \sum\limits_{(i)} g(z^{(i)}_k)  \delta^{\dagger (i) T}_k (x^{(i)}+b)_{\perp W_k}$$
 		
@@ -136,12 +139,13 @@
  		
  		
  		
-
  		 
- \end{document}
  
  
  \bibliography{new_look_deep_networks}
+ \bibliographystyle{ieeetr}
+
+ \end{document}
  
  [1] my other paper :)
  [2] dropout

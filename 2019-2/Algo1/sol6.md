@@ -52,3 +52,7 @@ $T(n) = O(n) + T(n/2)$
 $T(n) = O(n)$
 
 
+## Question 3
+
+### Proof A. G is Bipartite &rArr; G can be colored by two colors
+We color the left side with one color, and the right side with the other color. 

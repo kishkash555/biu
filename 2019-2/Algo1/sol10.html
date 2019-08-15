@@ -1,0 +1,441 @@
+<!DOCTYPE html><html><head>
+      <title>sol10</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css">
+      
+      
+
+      
+      
+      
+      
+      
+      
+
+      <style>
+      /**
+ * prism.js Github theme based on GitHub's theme.
+ * @author Sam Clarke
+ */
+code[class*="language-"],
+pre[class*="language-"] {
+  color: #333;
+  background: none;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.4;
+
+  -moz-tab-size: 8;
+  -o-tab-size: 8;
+  tab-size: 8;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+  padding: .8em;
+  overflow: auto;
+  /* border: 1px solid #ddd; */
+  border-radius: 3px;
+  /* background: #fff; */
+  background: #f5f5f5;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+  padding: .1em;
+  border-radius: .3em;
+  white-space: normal;
+  background: #f5f5f5;
+}
+
+.token.comment,
+.token.blockquote {
+  color: #969896;
+}
+
+.token.cdata {
+  color: #183691;
+}
+
+.token.doctype,
+.token.punctuation,
+.token.variable,
+.token.macro.property {
+  color: #333;
+}
+
+.token.operator,
+.token.important,
+.token.keyword,
+.token.rule,
+.token.builtin {
+  color: #a71d5d;
+}
+
+.token.string,
+.token.url,
+.token.regex,
+.token.attr-value {
+  color: #183691;
+}
+
+.token.property,
+.token.number,
+.token.boolean,
+.token.entity,
+.token.atrule,
+.token.constant,
+.token.symbol,
+.token.command,
+.token.code {
+  color: #0086b3;
+}
+
+.token.tag,
+.token.selector,
+.token.prolog {
+  color: #63a35c;
+}
+
+.token.function,
+.token.namespace,
+.token.pseudo-element,
+.token.class,
+.token.class-name,
+.token.pseudo-class,
+.token.id,
+.token.url-reference .token.variable,
+.token.attr-name {
+  color: #795da3;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+.token.title,
+.token.title .token.punctuation {
+  font-weight: bold;
+  color: #1d3e81;
+}
+
+.token.list {
+  color: #ed6a43;
+}
+
+.token.inserted {
+  background-color: #eaffea;
+  color: #55a532;
+}
+
+.token.deleted {
+  background-color: #ffecec;
+  color: #bd2c00;
+}
+
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+
+/* JSON */
+.language-json .token.property {
+  color: #183691;
+}
+
+.language-markup .token.tag .token.punctuation {
+  color: #333;
+}
+
+/* CSS */
+code.language-css,
+.language-css .token.function {
+  color: #0086b3;
+}
+
+/* YAML */
+.language-yaml .token.atrule {
+  color: #63a35c;
+}
+
+code.language-yaml {
+  color: #183691;
+}
+
+/* Ruby */
+.language-ruby .token.function {
+  color: #333;
+}
+
+/* Markdown */
+.language-markdown .token.url {
+  color: #795da3;
+}
+
+/* Makefile */
+.language-makefile .token.symbol {
+  color: #795da3;
+}
+
+.language-makefile .token.variable {
+  color: #183691;
+}
+
+.language-makefile .token.builtin {
+  color: #0086b3;
+}
+
+/* Bash */
+.language-bash .token.keyword {
+  color: #0086b3;
+}
+
+/* highlight */
+pre[data-line] {
+  position: relative;
+  padding: 1em 0 1em 3em;
+}
+pre[data-line] .line-highlight-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+  display: block;
+  width: 100%;
+}
+
+pre[data-line] .line-highlight {
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding: inherit 0;
+  margin-top: 1em;
+  background: hsla(24, 20%, 50%,.08);
+  background: linear-gradient(to right, hsla(24, 20%, 50%,.1) 70%, hsla(24, 20%, 50%,0));
+  pointer-events: none;
+  line-height: inherit;
+  white-space: pre;
+}
+
+pre[data-line] .line-highlight:before, 
+pre[data-line] .line-highlight[data-end]:after {
+  content: attr(data-start);
+  position: absolute;
+  top: .4em;
+  left: .6em;
+  min-width: 1em;
+  padding: 0 .5em;
+  background-color: hsla(24, 20%, 50%,.4);
+  color: hsl(24, 20%, 95%);
+  font: bold 65%/1.5 sans-serif;
+  text-align: center;
+  vertical-align: .3em;
+  border-radius: 999px;
+  text-shadow: none;
+  box-shadow: 0 1px white;
+}
+
+pre[data-line] .line-highlight[data-end]:after {
+  content: attr(data-end);
+  top: auto;
+  bottom: .4em;
+}html body{font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ul,html body>ol{margin-bottom:16px}html body ul,html body ol{padding-left:2em}html body ul.no-list,html body ol.no-list{padding:0;list-style-type:none}html body ul ul,html body ul ol,html body ol ol,html body ol ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:bold;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:bold}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em !important;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::before,html body code::after{letter-spacing:-0.2em;content:"\00a0"}html body pre>code{padding:0;margin:0;font-size:.85em !important;word-break:normal;white-space:pre;background:transparent;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;font-size:.85em !important;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:before,html body pre tt:before,html body pre code:after,html body pre tt:after{content:normal}html body p,html body blockquote,html body ul,html body ol,html body dl,html body pre{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body pre,html body code{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview .pagebreak,.markdown-preview .newpage{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center !important}.markdown-preview:not([for="preview"]) .code-chunk .btn-group{display:none}.markdown-preview:not([for="preview"]) .code-chunk .status{display:none}.markdown-preview:not([for="preview"]) .code-chunk .output-div{margin-bottom:16px}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0}@media screen and (min-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{font-size:14px !important;padding:1em}}@media print{html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,0.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{padding:0 1.6em;margin-top:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc li{margin-bottom:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{list-style-type:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% -  300px);padding:2em calc(50% - 457px -  150px);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+      </style>
+    </head>
+    <body for="html-export">
+      <div class="mume markdown-preview  ">
+      <h1 class="mume-header" id="homework-assignment-10">Homework Assignment 10</h1>
+
+<h3 class="mume-header" id="algorithms-1-summer-2019">Algorithms 1 Summer 2019</h3>
+
+<h3 class="mume-header" id="id-011862141">ID: 011862141</h3>
+
+<h4 class="mume-header" id="aug-17th-2019">Aug 17th, 2019</h4>
+
+<hr>
+<h2 class="mume-header" id="question-1-odd-number-of-blue-edges">Question 1 - Odd number of blue edges</h2>
+
+<p>We will term this problem SSSP-ONBE (for <em>odd number of blue edges</em>)</p>
+<h4 class="mume-header" id="preliminary-observations">Preliminary Observations</h4>
+
+<ol>
+<li>This (without the ONBE restriction) is the generic version of SSSP, which is most efficiently solved with the Bellman Ford algorithm.</li>
+<li>A subpath of a path with an odd number of blue edges does not necessarily have the ONBE property. Therefore, we must also maintain shortest paths that have even number of blue edge, which we can use as subpaths.</li>
+<li>This Motivates us to maintain two <em>d</em>-values for each node <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>d</mi><mrow><mi>o</mi><mi>d</mi><mi>d</mi></mrow></msub></mrow><annotation encoding="application/x-tex">d_{odd}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">o</span><span class="mord mathdefault mtight">d</span><span class="mord mathdefault mtight">d</span></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> and <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>d</mi><mrow><mi>e</mi><mi>v</mi><mi>e</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">d_{even}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">e</span><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span><span class="mord mathdefault mtight">e</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></li>
+</ol>
+<h4 class="mume-header" id="main-observation">Main Observation</h4>
+
+<p>Let <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>P</mi><mo>=</mo><mo stretchy="false">(</mo><mi>s</mi><mo>=</mo><msub><mi>v</mi><mn>0</mn></msub><mo separator="true">,</mo><msub><mi>v</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>v</mi><mn>2</mn></msub><mo separator="true">,</mo><mo>&#x2026;</mo><mo separator="true">,</mo><msub><mi>v</mi><mrow><mi>k</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub><mo separator="true">,</mo><mi>u</mi><mo>=</mo><msub><mi>v</mi><mi>k</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">P=(s=v_0,v_1,v_2,\ldots,v_{k-1},u=v_k)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault">s</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.638891em;vertical-align:-0.208331em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="minner">&#x2026;</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span><span class="mbin mtight">&#x2212;</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.208331em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">u</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> be a shortest path from <em>s</em> to <em>u</em>. and let <em>P</em> have an odd number of blue edges.  Then if <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo stretchy="false">(</mo><msub><mi>v</mi><mrow><mi>k</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub><mo separator="true">,</mo><mi>u</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(v_{k-1},u)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span><span class="mbin mtight">&#x2212;</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.208331em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">u</span><span class="mclose">)</span></span></span></span> is a blue edge then <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo stretchy="false">(</mo><mi>s</mi><mo separator="true">,</mo><msub><mi>v</mi><mn>1</mn></msub><mo separator="true">,</mo><mo>&#x2026;</mo><mo separator="true">,</mo><msub><mi>v</mi><mrow><mi>k</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(s,v_1,\ldots,v_{k-1})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault">s</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="minner">&#x2026;</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span><span class="mbin mtight">&#x2212;</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.208331em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> is a shortest path from <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">s</span></span></span></span> to <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>v</mi><mrow><mi>k</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">v_{k-1}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.638891em;vertical-align:-0.208331em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span><span class="mbin mtight">&#x2212;</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.208331em;"><span></span></span></span></span></span></span></span></span></span> which has an <strong>even</strong> number of blue edges. Similarly, if <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo stretchy="false">(</mo><msub><mi>v</mi><mrow><mi>k</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub><mo separator="true">,</mo><mi>u</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(v_{k-1},u)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span><span class="mbin mtight">&#x2212;</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.208331em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">u</span><span class="mclose">)</span></span></span></span> is a red edge then <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo stretchy="false">(</mo><mi>s</mi><mo separator="true">,</mo><msub><mi>v</mi><mn>1</mn></msub><mo separator="true">,</mo><mo>&#x2026;</mo><mo separator="true">,</mo><msub><mi>v</mi><mrow><mi>k</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(s,v_1,\ldots,v_{k-1})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault">s</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="minner">&#x2026;</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span><span class="mbin mtight">&#x2212;</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.208331em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> is a shortest path from <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">s</span></span></span></span> to <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>v</mi><mrow><mi>k</mi><mo>&#x2212;</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">v_{k-1}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.638891em;vertical-align:-0.208331em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span><span class="mbin mtight">&#x2212;</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.208331em;"><span></span></span></span></span></span></span></span></span></span> which has an <strong>odd</strong> number of blue edges.</p>
+<h4 class="mume-header" id="pseudocode">Pseudocode</h4>
+
+<pre class="language-text">INITIALIZE-SINGLE-SOURCE-ONBE(G=(V,E),s):
+    for each vertex v in V:
+        d.odd[v] = infinity
+        d.even[v] = infinity
+        pi.odd[v] = infinity
+        pi.even[v] = infinity
+
+RELAX-ONBE((u,v),w,C):
+    if C((u,v))=&quot;blue&quot;:
+        if d.odd[v] &gt; d.even[u]+w(u,v):
+            d.odd[v] = d.even[u]+w(u,v)
+            pi.odd[v] = u
+        if d.even[v] &gt; d.odd[u]+w(u,v):
+            d.even[v] = d.odd[u]+w(u,v)
+            pi.even[v] = u
+            
+    else: # color is red
+        if d.odd[v] &gt; d.odd[u]+w(u,v):
+            d.odd[v] = d.odd[u]+w(u,v)
+            pi.odd[v] = u
+        if d.even[v] &gt; d.even[u]+w(u,v):
+            d.even[v] = d.even[u]+w(u,v)
+            pi.even[v] = u
+
+
+SSSP-ONBE(G=(V,E),w,s,C):
+    INITIALIZE-SINGLE-SOURCE-ONBE(G=(V,E),s)
+    for i=1 to |V|-1:
+        for (u,v) in E:
+            RELAX-ONBE((u,v),w,C)
+</pre>
+<h4 class="mume-header" id="correctness">Correctness</h4>
+
+<p><strong>Claim A</strong>: If the shortest path from <em>s</em> to <em>u</em> has a last edge which is blue, the algorithm will find it.<br>
+<strong>Proof</strong>: by induction, the base case is a path of a single blue edge. The induction is on the length of the path, and follows from the Main Observation and from the lemmas presented in class.<br>
+<strong>Claim B</strong>: If the shortest path from <em>s</em> to <em>u</em> has a last edge which is red, the algorithm will find it.<br>
+<strong>Proof</strong>: by induction, the base case is a <em>u</em>=<em>s</em>. The induction is on the length of the path, and follows from the Observation and from the lemmas presented in class.</p>
+<h4 class="mume-header" id="extracting-weight-and-path-from-solution">Extracting weight and path from solution</h4>
+
+<p>Once our <em>SSSP-ONBE</em> algorithm ran, we read the results (for a node <em>v</em>) as follows:</p>
+<ol>
+<li>The ONBE distance from <em>s</em> to <em>v</em> is the value in <code>d.odd[v]</code></li>
+<li>The predecessor in the path is <code>pi.odd[v]</code>, let&apos;s call it <em>u</em>.</li>
+<li>If the edge (u,v) is blue, we continue tracing the path by looking at <code>pi.even[u]</code>. If (u,v) is red, we use <code>pi.odd[u]</code>. This logic continues until we reach <em>s</em>.</li>
+</ol>
+<h4 class="mume-header" id="runtime">Runtime</h4>
+
+<p>The runtime is on par with Bellman-Ford&apos;s, since we added <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> operations in each step. So it remains <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi mathvariant="normal">&#x2223;</mi><mi>V</mi><mi mathvariant="normal">&#x2223;</mi><mi mathvariant="normal">&#x2223;</mi><mi>E</mi><mi mathvariant="normal">&#x2223;</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(|V||E|)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">&#x2223;</span><span class="mord mathdefault" style="margin-right:0.22222em;">V</span><span class="mord">&#x2223;</span><span class="mord">&#x2223;</span><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="mord">&#x2223;</span><span class="mclose">)</span></span></span></span>.</p>
+<h2 class="mume-header" id="question-two-prove-optimum-relaxing-order-on-v-1-nodes-exists">Question two - prove optimum relaxing order on |V|-1 nodes exists</h2>
+
+<h4 class="mume-header" id="proof">Proof</h4>
+
+<p>We assume every node is reachable from <em>s</em>.</p>
+<ol>
+<li>Recall that the solution to the SSSP problem is actually a tree, where <em>s</em> is in the root and the shortest path to each node is the walk from the root to the node.</li>
+<li>A tree is by definition a DAG, and it has exactly <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="normal">&#x2223;</mi><mi>V</mi><mi mathvariant="normal">&#x2223;</mi><mo>&#x2212;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">|V|-1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">&#x2223;</span><span class="mord mathdefault" style="margin-right:0.22222em;">V</span><span class="mord">&#x2223;</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">&#x2212;</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span> edges (since we start with the root, i.e. 1 node and 0 edges, and construct the tree by adding an edge and a node at each step until we added all the |V| nodes in the graph).</li>
+<li>We showed in class that if the graph is a DAG, finding the shortest path can be done by relaxing the edges in topological order, going over each edge once.</li>
+<li>We further observe, that if we remove all the edges that are not part of the shortest-path tree from the graph, the distance from <em>s</em> to each node doesn&apos;t change (since the shortest distance path still exists in the reduced graph), and it is still <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>&#x3B4;</mi><mo stretchy="false">(</mo><mi>s</mi><mo separator="true">,</mo><mi>v</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\delta(s,v)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.03785em;">&#x3B4;</span><span class="mopen">(</span><span class="mord mathdefault">s</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mclose">)</span></span></span></span>.</li>
+<li>So, if we construct a graph <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mi>G</mi><mo mathvariant="normal">&#x2032;</mo></msup><mo>=</mo><mo stretchy="false">(</mo><mi>V</mi><mo separator="true">,</mo><msup><mi>E</mi><mo mathvariant="normal">&#x2032;</mo></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">G&apos;=(V,E&apos;)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.751892em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">G</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.751892em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">&#x2032;</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.001892em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.22222em;">V</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.751892em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">&#x2032;</span></span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> where <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mi>E</mi><mo mathvariant="normal">&#x2032;</mo></msup><mo>&#x2286;</mo><mi>E</mi></mrow><annotation encoding="application/x-tex">E&apos; \subseteq E</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.887862em;vertical-align:-0.13597em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.751892em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">&#x2032;</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&#x2286;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">E</span></span></span></span> is the set of <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="normal">&#x2223;</mi><mi>V</mi><mi mathvariant="normal">&#x2223;</mi><mo>&#x2212;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">|V|-1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">&#x2223;</span><span class="mord mathdefault" style="margin-right:0.22222em;">V</span><span class="mord">&#x2223;</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">&#x2212;</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span> edges that participate in the shortest path tree, and relax this graph in topological order from <em>s</em>:
+<ol>
+<li>This will solve the SSSP problem in <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mi>G</mi><mo mathvariant="normal">&#x2032;</mo></msup></mrow><annotation encoding="application/x-tex">G&apos;</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.751892em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">G</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.751892em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">&#x2032;</span></span></span></span></span></span></span></span></span></span></span></span></li>
+<li>The solution we reach will have the same <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>d</mi><mo stretchy="false">[</mo><mi>v</mi><mo stretchy="false">]</mo><mo>=</mo><mi>&#x3B4;</mi><mo stretchy="false">(</mo><mi>s</mi><mo separator="true">,</mo><mi>v</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">d[v]= \delta(s,v)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">d</span><span class="mopen">[</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.03785em;">&#x3B4;</span><span class="mopen">(</span><span class="mord mathdefault">s</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mclose">)</span></span></span></span> for every node <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>v</mi></mrow><annotation encoding="application/x-tex">v</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span></span></span></span> in the graph, as if we solved SSSP in <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>G</mi></mrow><annotation encoding="application/x-tex">G</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault">G</span></span></span></span>.</li>
+</ol>
+</li>
+</ol>
+<p><em>Q.E.D.</em></p>
+<h2 class="mume-header" id="question-3-prove-or-disprove">Question 3 - prove or disprove</h2>
+
+<h3 class="mume-header" id="one-negative-weight-edge-in-the-graph">One negative-weight edge in the graph</h3>
+
+<p>Dijkstra will NOT compute the correct distance.<br>
+Consider the graph<br>
+<img src="sol10_chart2.png" alt="chart2"><br>
+The true shortest distance from A to C is 1. However the algorithm execution will proceed as follows:</p>
+<ol>
+<li>After INITIALIZE-SINGLE-SOURCE, <em>S</em> has a distance of 0, the other nodes have inifinity. So <em>S</em>  is extracted first.</li>
+<li><em>A</em> is the only node adjacent to <em>S</em>, so it will be the only node except <em>S</em> to have a finite distance. it will be extracted next.</li>
+<li>After the algorithm finishes handling <em>A</em>: <em>B</em> and <em>C</em> are in the queue with weights 10 and 3 respectively. <em>C</em> will be handled next.</li>
+<li><em>C</em> has no outgoing edges, so it will be handled without updating any weights.</li>
+<li><em>B</em> will be handled last.</li>
+</ol>
+<p>So edge BC will not be handled at all and the distance to <em>C</em> will be incorrect.</p>
+<h3 class="mume-header" id="negative-edges-only-from-s-no-negative-circles">Negative edges only from S, no negative circles</h3>
+
+<p>Dijkstra will compute the CORRECT distances.<br>
+Proof:<br>
+Let&apos;s denote S&apos;s neighbors M: <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>M</mi><mo>=</mo><mo stretchy="false">{</mo><mi>v</mi><mi mathvariant="normal">&#x2223;</mi><mo stretchy="false">(</mo><mi>s</mi><mo separator="true">,</mo><mi>v</mi><mo stretchy="false">)</mo><mo>&#x2208;</mo><mi>E</mi><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">M=\{v | (s,v)\in E\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">M</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord">&#x2223;</span><span class="mopen">(</span><span class="mord mathdefault">s</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&#x2208;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="mclose">}</span></span></span></span></p>
+<p><strong>Claim 1</strong>: Every shortest path from <em>s</em> to a node <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>v</mi><mo>&#x2208;</mo><mi>V</mi><mo>&#x2216;</mo><mo stretchy="false">{</mo><mi>s</mi><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">v \in V \setminus \{s\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&#x2208;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.22222em;">V</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">&#x2216;</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord mathdefault">s</span><span class="mclose">}</span></span></span></span> will not have a negative-weight (abbreviated N.W.) edge, except possibly as the first edge in the path.<br>
+<strong>Proof</strong>: for a path to use a negative weight edge, not as a first edge, the path has to go back to <em>s</em> (since the only N.W.-edges are from <em>s</em>). We showed in class that shortest paths in graphs that do not have negative circles, do not contain circles, so paths cannot go back to <em>s</em> and therefore will not have N.W. edges except possibly the first.</p>
+<p><strong>Claim 2</strong>: The invariant still holds.<br>
+<strong>Proof</strong>: The edges between <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>y</mi></mrow><annotation encoding="application/x-tex">y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span></span></span></span> and <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>u</mi></mrow><annotation encoding="application/x-tex">u</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">u</span></span></span></span> are have all non-negative weights as long as <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>y</mi></mrow><annotation encoding="application/x-tex">y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span></span></span></span> is not the first node in the path i.e. <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>y</mi><mi mathvariant="normal">&#x2260;</mi><mi>s</mi></mrow><annotation encoding="application/x-tex">y \ne s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel"><span class="mrel"><span class="mord"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.69444em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="rlap"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="inner"><span class="mrel">&#xE020;</span></span><span class="fix"></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.19444em;"><span></span></span></span></span></span></span><span class="mrel">=</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">s</span></span></span></span>, the edges betwen <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>y</mi></mrow><annotation encoding="application/x-tex">y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span></span></span></span> and <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>u</mi></mrow><annotation encoding="application/x-tex">u</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">u</span></span></span></span> will be positive.<br>
+<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>y</mi><mi mathvariant="normal">&#x2260;</mi><mi>s</mi></mrow><annotation encoding="application/x-tex">y \ne s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel"><span class="mrel"><span class="mord"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.69444em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="rlap"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="inner"><span class="mrel">&#xE020;</span></span><span class="fix"></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.19444em;"><span></span></span></span></span></span></span><span class="mrel">=</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">s</span></span></span></span> since <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>y</mi><mo>&#x2208;</mo><mi>V</mi><mo>&#x2216;</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">y \in V \setminus S</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7335400000000001em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&#x2208;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.22222em;">V</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">&#x2216;</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span></span></span></span> while  <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">s</span></span></span></span> is added to <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>S</mi></mrow><annotation encoding="application/x-tex">S</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span></span></span></span> before any other node is added.</p>
+<h3 class="mume-header" id="equivalence-between-dijkstras-and-prim-running-from-s">Equivalence between Dijkstra&apos;s and Prim running from s</h3>
+
+<p>The statement is FALSE. The minimum spanning tree is different than a tree of minimum-distance paths from a particular source node.<br>
+consider the following graph:<br>
+<img src="sol10image2.png" alt="grpah"><br>
+The distance from S to D is 3 directly, or <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>4</mn><mo>+</mo><mn>6</mn><mi>&#x3F5;</mi></mrow><annotation encoding="application/x-tex">4+6\epsilon</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">4</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">6</span><span class="mord mathdefault">&#x3F5;</span></span></span></span> through ABCD. Since Prim is &quot;interested&quot; in adding the lightest-weight edge among the edges crossing the cut, it will contract on SA, AB, BC, CD. these edges are all lighter than SD. However, in Dijkstra&apos;s algorithm, the edge SD will be used since it is on the shortest path from S to D.</p>
+<h2 class="mume-header" id="question-4">Question 4</h2>
+
+<h3 class="mume-header" id="counting-distinct-paths">Counting distinct paths</h3>
+
+<h4 class="mume-header" id="recursive-formula">Recursive formula</h4>
+
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>p</mi><mi>a</mi><mi>t</mi><mi>h</mi><mi>s</mi><mo stretchy="false">(</mo><mi>s</mi><mo separator="true">,</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.3599999999999999em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>1</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mi>s</mi><mo>=</mo><mi>t</mi></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><munder><mo>&#x2211;</mo><mrow><mi>u</mi><mo>:</mo><mo stretchy="false">(</mo><mi>u</mi><mo separator="true">,</mo><mi>t</mi><mo stretchy="false">)</mo><mo>&#x2208;</mo><mi>E</mi></mrow></munder><mi>p</mi><mi>a</mi><mi>t</mi><mi>h</mi><mi>s</mi><mo stretchy="false">(</mo><mi>s</mi><mo separator="true">,</mo><mi>u</mi><mo stretchy="false">)</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mi>e</mi><mi>l</mi><mi>s</mi><mi>e</mi></mrow></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">paths(s,t) = \begin{cases}
+1 &amp; s=t\\
+\sum \limits_{u: (u,t) \in E} paths(s,u) &amp; else
+\end{cases}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">p</span><span class="mord mathdefault">a</span><span class="mord mathdefault">t</span><span class="mord mathdefault">h</span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">s</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:3.664005em;vertical-align:-1.5820025000000002em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05002em;"><span style="top:-2.49999em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>&#x23A9;</span></span></span><span style="top:-3.15001em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>&#x23A8;</span></span></span><span style="top:-4.30002em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>&#x23A7;</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:1.55002em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.0820024999999998em;"><span style="top:-4.0820025em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">1</span></span></span><span style="top:-2.6420025em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7500050000000001em;"><span style="top:-2.058995em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">u</span><span class="mrel mtight">:</span><span class="mopen mtight">(</span><span class="mord mathdefault mtight">u</span><span class="mpunct mtight">,</span><span class="mord mathdefault mtight">t</span><span class="mclose mtight">)</span><span class="mrel mtight">&#x2208;</span><span class="mord mathdefault mtight" style="margin-right:0.05764em;">E</span></span></span></span><span style="top:-3.0000050000000003em;"><span class="pstrut" style="height:3em;"></span><span><span class="mop op-symbol small-op">&#x2211;</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:1.216005em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">p</span><span class="mord mathdefault">a</span><span class="mord mathdefault">t</span><span class="mord mathdefault">h</span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">s</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">u</span><span class="mclose">)</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:1.5820025000000002em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.0820024999999998em;"><span style="top:-4.0820025em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord mathdefault">s</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mord mathdefault">t</span></span></span><span style="top:-2.6420025em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">s</span><span class="mord mathdefault">e</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:1.5820025000000002em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+<p>Explanation: the base case is that a node has a single path to itself. The recursion is based on the fact that if there are <em>k</em> ways to get from <em>s</em> to a node <em>A</em>, and <em>A</em> has an edge to <em>t</em>, then there are <em>k</em> ways to get from <em>s</em> to <em>t</em> through <em>A</em>. Other nodes which have edges to <em>t</em> will add to the path count total.</p>
+<h4 class="mume-header" id="dynamic-programming-algorithm">Dynamic programming algorithm</h4>
+
+<p>Explanation: our goal is to determine the number of paths from <em>s</em> to each node <em>A</em> in the graph. Once we accounted for all the paths going <em>into</em> <em>A</em>, we can use this information to update the total number of paths of all the nodes which <em>A</em> touches.<br>
+The topological sorting order is useful in this respect since it guarantees that when we reach a node <em>A</em>, we already treated the nodes that have edges going into <em>A</em>.<br>
+Note that topological order guarantees <em>s</em> will be first (since if it were not first, the first node by definition of the problem have edges going into it from some other node(s), therefore those edges would point left, or &quot;backwards&quot;) and that <em>t</em> will be last (since if it were not last, some edges going out of the last node would point backwards).</p>
+<ol>
+<li>initialize p[v] as follows: <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="normal">&#x2200;</mi><mi>v</mi><mo>&#x2208;</mo><mi>V</mi><mo>:</mo><mtext>&#xA0;</mtext><mi>p</mi><mo stretchy="false">[</mo><mi>v</mi><mo stretchy="false">]</mo><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.3599999999999999em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>1</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mi>v</mi><mo>=</mo><mi>s</mi></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mi>e</mi><mi>l</mi><mi>s</mi><mi>e</mi></mrow></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">\forall v \in V:\ p[v]=\begin{cases} 1 &amp; v=s\\ 0 &amp; else \end{cases}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.73354em;vertical-align:-0.0391em;"></span><span class="mord">&#x2200;</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&#x2208;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.22222em;">V</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mspace">&#xA0;</span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">p</span><span class="mopen">[</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:3.0000299999999998em;vertical-align:-1.25003em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">1</span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mord mathdefault">s</span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">s</span><span class="mord mathdefault">e</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></li>
+<li>For each <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>v</mi><mo>&#x2208;</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">v \in V</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&#x2208;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.22222em;">V</span></span></span></span> by toplogical order:</li>
+<li>&#x2003;for each <em>u</em> such that <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo stretchy="false">(</mo><mi>v</mi><mo separator="true">,</mo><mi>u</mi><mo stretchy="false">)</mo><mo>&#x2208;</mo><mi>E</mi></mrow><annotation encoding="application/x-tex">(v,u) \in E</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">u</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&#x2208;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">E</span></span></span></span>:</li>
+<li>&#x2003;&#x2003;p[u] = p[u]+p[v]</li>
+<li>return p[t]</li>
+</ol>
+<h3 class="mume-header" id="counting-distinct-shortest-paths">Counting distinct shortest paths</h3>
+
+<p>The solution here is an extension of Dijkstra. In Dijkstra, we maintain for every node <em>u</em> d[u], the shortest distance to that node. It might happen in the RELAX subroutine that the comparison shows a new path with the same distance, in normal Dijkstra we ignore this case since we only need one possible shortest path. Here&apos;s a modified version of RELAX to be plugged into Dijksta to keep track of the number of different paths:</p>
+<p>RELAX-CDSP((u,v),w):</p>
+<ol>
+<li>if d[v] &gt; d[u] + w(u,v):</li>
+<li>&#x2003; d[v] = d[u] + w(u,v)</li>
+<li>&#x2003; p[v] = p[u]</li>
+<li>&#x2003; &#x3C0;[v] = u</li>
+<li>else if d[v] = d[u] + w(u,v):</li>
+<li>&#x2003; p[v] = p[v] + p[u]</li>
+</ol>
+<p>The initialization of p is as in the previous problem, <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="normal">&#x2200;</mi><mi>v</mi><mo>&#x2208;</mo><mi>V</mi><mo>:</mo><mtext>&#xA0;</mtext><mi>p</mi><mo stretchy="false">[</mo><mi>v</mi><mo stretchy="false">]</mo><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.3599999999999999em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>1</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mi>v</mi><mo>=</mo><mi>s</mi></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mi>e</mi><mi>l</mi><mi>s</mi><mi>e</mi></mrow></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">\forall v \in V:\ p[v]=\begin{cases} 1 &amp; v=s\\ 0 &amp; else \end{cases}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.73354em;vertical-align:-0.0391em;"></span><span class="mord">&#x2200;</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&#x2208;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.22222em;">V</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mspace">&#xA0;</span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">p</span><span class="mopen">[</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:3.0000299999999998em;vertical-align:-1.25003em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">1</span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mord mathdefault">s</span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">s</span><span class="mord mathdefault">e</span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+<p>Explanation:</p>
+<ul>
+<li>When we find a new path to <em>v</em> that is shorter than all previously discovered path, and the last node along the path is <em>u</em>, the number of shortest paths to <em>v</em> is the same as the number of shortest paths to <em>u</em>. This is becuase all previously discovered &quot;shortest path&quot; were not actually shortest paths. All shortest paths to <em>u</em>, with the addition of edge (u,v), are shortest paths to <em>v</em>.</li>
+<li>When we find a new path to <em>v</em>, with <em>u</em> the last node along the path, that is <em>equal</em> in weight to an existing (shortest) path, that means that all previously found shortest paths are still valid, plus all the shortest paths from <em>s</em> to <em>u</em> are <em>additional</em> shortest paths from <em>s</em> to <em>v</em> when edge (u,v) is added.</li>
+</ul>
+
+      </div>
+      
+      
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    </body></html>

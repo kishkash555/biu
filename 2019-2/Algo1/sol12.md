@@ -74,41 +74,37 @@ So _M_ is a set which contains the sets with size above $c$.
 
 #### Query stage
 Given indices _i, j_:
-1. if both $S_i,\ S_j \in L$: 
+1. if both $S_i,\ S_j \in M$: 
 1. &emsp; return $D_{m_i,m_j}$ _(retrieve the result from the corresponding entry in D)_
-1. else:   (_at least one of $S_i,\ S_j \notin L$:_)
+1. else:   (_at least one of $S_i,\ S_j \notin M$:_)
 1. &emsp; return Algorithm2($S_i,S_j$)
 
 ### Algorithm1 - find if _m_ sets are pairwise-disjoint
 #### Description
-This algorithm uses a heap which stores at each point in time, one element from each set. This is the minimum element of the set not yet processed.
-The heap is modified so that it stores the index of the set from which the elment came, and if an element that is in the heap is re-inserted, it stores the indices of all the sets which have the element.
+For each group, we traverese the elements of the rest of the groups, whenever a matching element is found, we update a 2-D array $D$.
 
 #### Pseudocode
 Algo1($S_1,S_2,\ldots,S_m$):
-1. Initialize an array P of size m to all 1's (the base index)
-1. Initialize a heap V of size m with Si[1] _(the first element in each set)_
+1. initialize array E containing the elements of the $m$ groups (with duplications) $|E|=|S_1|+|S_2|+\ldots+|S_m| \le n$
+1. initialize array I s.t. I[i] = source group of E[i]
+1. Sort both arrays by E's sorting order
 1. Initialize D: m-by-m binary array, set all TRUE.
-1. While V is not empty:
-1. &emsp; h, J = V.extract_min() _(h is the element and J is a list of sets the element was found in)_
-1. &emsp; if |J| > 1:
-1. &emsp;&emsp; for all pairs of numbers a,b in J:
-1. &emsp;&emsp;&emsp;D[a,b] = FALSE
-1. &emsp; for all j in J: 
-1. &emsp;&emsp;P[j] = P[j] + 1
-1. &emsp;&emsp;if P[j] &leq; |Sj|: V.insert(Sj[P[j]])
+1. for i=1 to m:
+1. &emsp;c=1
+1. &emsp;for j=1 to n:
+1. &emsp;&emsp;if $E[j] \gt S_i[c]$: c=c+1
+1. &emsp;&emsp;if $I[j]\neq i$ and $S_i[c]=E[j]$: 
+1. &emsp;&emsp;&emsp;$D[i,I[j]]=False$
 1. return D
 
-#### Run time analysis:
-1. Initializations: $O(m)$ for lines 1, 2, $O(m^2)$ for line 3.
-1. Loop in lines 4-11: the loop is executed $\sum_i |S_i| \le O(n)$ times.
-1. extract-min (line 5) is $O(1)$
-1. lines 7-8: $O(|J|^2) \le O(m^2)$
-1. lines 9-11: $O(|J|) \le O(m)$
-So the loop total is $O(nm)$ ignoring lines 7-8.
-1. Line 12: $O(m^2)$
 
-Algorithm total: $O(nm)+O(m^2)$
+
+#### Run time analysis:
+1. Initializations: $O(n)$ for lines 1, 2, $O(n\log n)$ for line 3, $O(m^2)$ for line 4
+1. Loop in line 5: executed $m$ times
+1. Loop in lines 7-10: the loop is executed $n$ times. Each operation in lines 8-10 is $O(1)$
+
+Algorithm total: $O(nm + n\log n + m^2)$
 
 ### Algorithm 2: find if two sets are disjoint when one is known to be "small"
 #### Description
@@ -128,8 +124,8 @@ $O(|S_A| \log(|S_B|) \le O(c\log(n))$ Since $S_A \notin M$ and therefore $|S_A| 
 ### Determining _m_ and total time analysis
 We note that since the total number of elements is $n$, $m \le n /c$. we set: $c = \sqrt{n}$ and so $m \le \sqrt{n}$.
 #### Preparation
-- The runtime of sort is at most $O(n\log(n))$ = $\tilde{O}(n)$
-- The runtime of algorithm 1 is $O(nm)+O(m^2) = O(n\sqrt{n})+O(n)=O(n^{1.5})$
+- The runtime of sort is at most $O(n\log n)= \tilde{O}(n)$
+- The runtime of algorithm 1 is $O(nm + n\log n + m^2) = O(n(\sqrt{n} + \log n + 1)) = \tilde{O}(n^{1.5})$
 
 
 #### Query time
@@ -137,8 +133,7 @@ We note that since the total number of elements is $n$, $m \le n /c$. we set: $c
 - The runtime of algorithm 2 is $O(c\log(n))=O(\sqrt{n}\log(n)) = \tilde{O}(n^{0.5})$
 
 
-I have reached the required maximum running times.
-
+Which conform to the required run times.
 
 ## Question 3
 

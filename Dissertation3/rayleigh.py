@@ -34,6 +34,31 @@ def RayleighTest(t, v):
     return z
 
 
+def RayleighWithAmplitude(t, y, duration, min_T):
+    # Fouries series of sparse signal
+    _2pi = 2*_np.pi
+    freqs = _np.arange(1,int(duration/min_T))/duration
+    window = 0.5 - 0.5 * _np.cos(_2pi*t/duration)
+    z = []
+    for fr in freqs:
+        theta = _2pi * fr * t
+        z.append( (
+            (_np.sum(y * window * _np.sin(theta)))**2 + 
+            (_np.sum(y * window * _np.cos(theta)))**2 
+                )/len(y))
+         
+    return _np.array(z), freqs
+    
+
+def RayleighPhase(t,v):
+    n = len(t)
+    theta = 2. * _np.pi * v * t
+
+    ph = np.atan2(( _np.sum(_np.sin(theta)),
+                    _np.sum(_np.cos(theta)) ))
+
+    return ph
+
 def RayleighPowerSpectrum(times, minper=1.0, maxper=500.0, nper=100):
     '''
     Compute the power spectrum over a range of periods by evaluating the

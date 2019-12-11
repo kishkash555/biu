@@ -1,0 +1,59 @@
+ \documentclass[]{article}
+ \usepackage{amsmath,amsfonts,amsthm}
+ \usepackage{ textcomp }
+ 
+ %opening
+ \title{Proposal for a framework investigating the generalization (and other behaviors) of a 3-layer feed-forward neural network}
+ \author{Shahar Siegman}
+ 
+ \begin{document}
+ 	
+ 	\maketitle
+ 	
+ 	\section{Introduction}
+ 		Feed-forward layers are a basic building block of many types of neural networks. They are often employed as the final layers in networks whose task is classification. The typical setup includes a softmax function on the final layer's output and the negative-log-likelihood loss. Training of such networks is performed using one of the many variants of the gradient descent method, the variants differing in how learning rates of each parameter are adjusted as the training progresses.
+ 		
+ 		Despite their ubiquity, and the considerable interest they have raised in the past few years, their training dynamics are only understood at the very high level or at the very low level, with much ground to be covered in-between. At a high level, the training process is described as "fitting functions" or "searching for propitious separation hyperplanes", but these descriptions generally  do not provide any details or insight into the process. For example, the relations and interactions between vectors in the same layer or between vectors in adjacent layers have no reasonable description, even a qualitative one. At the lower level, parameter update formulas are straightforward, and "make sense" in terms of general tendency of parameter updates, but no common approach is offered on how to handle frequently-arising issues such as diagnosing the reasons for slow or stalled convergence or predicting the benefit of modifications to particular layer sizes.
+ 		
+
+		The aim of the proposed research is to gain a better understanding of the dynamics of training of multi-layer feed-forward networks. Our goal will be to isolate "modes of behavior" of networks under specific conditions. Hopefully such modes are not unique to our problem setup, and practitioners will be able to apply these insights in order to detect and diagnose issues affecting their models as soon as they arise, rather than post-factum when the training phase has been exhausted.
+
+	\section{Methodology}
+	\subsection{Outline}
+		We will start with a simple set of assumptions on the data. Based on these assumptions, we will be able to generate random data and set up, without training, a network which has a perfect accuracy on our dataset\footnote{The loss is not zero and depends on the specific draw}. The network is a 3-layer feed-forward network with $d$ and $2^d$ neurons in the two hidden layers respectively, where $d$ is the dimension of the input vectors, i.e. $X \in \mathbb{R}^d$. 
+		
+		After establishing the framework, the proposed research will be based on "experiments". An experiment consists of creating a known disruption in the initial conditions, and then training the network in order to observe the dynamics by which the network "overcomes" the disruption during the training process. Such a disruption may involve adding points in specific locations belonging to specific classes to the dataset; Restricting some of the aspects that were set randomly in the base case; or changing the number of dimensions or neurons in the hidden layers. By following the parameter learning process for these networks, we will gain insight into network learning dynamics.
+		
+		
+ 	\subsection{The base-case}
+ 		Assume our input vectors are drawn from some $d$-dimensional distribution $X\sim P_d(\theta
+ 		)$ in a $d$ dimensional space. Further assume that $|S| < 2^d$ i.e. the number of samples we have is less than the number of \emph{orthants} in our coordinate system. We assume that under some linear transformation $X'=AX$, The distribution $P_d(A^{-1}X')$ has zero mean (in all dimensions), zero median, and the marginal distributions $P(X_i),\ i=1\ldots d$ are independent of each other\footnote{This sounds rather arbitrary and as a very strong assumption. As you will see I'm not using this assumption directly anywhere, I was just looking for a way to say "I am using orthogonal planes to cut up the dataset to single points"}.
+ 		
+ 		Under these conditions, a data point has a probability of one half to be on either side of a plane at the origin perpendicular to one of the axes, and has an equal probability of $2^{-d}$ to fall in any of the orthants.
+
+ 		Inspired by these conditions, we assume that our training data has no more than a single point in each orthant. Denote $C(i)=j$ a function that maps the sample indices to their corresponding class indices. The number of unique classes is assumed to be small with respect to $d$.
+ 		
+		Our first layer is $A$ i.e. the matrix which separates $X$ into the independent basis $X'$. Since this layer is linear it can be absorbed into the second layer through matrix multiplication. Our second connection matrix's columns contain all the $2^d$ possible combinations of $d$-long-sequences of (+1)'s and (-1)'s. When each sample is multiplied by this matrix, the result will be maximal when the -1's align exactly with the small entries in $X_i$'s coordinates, i.e. when the vector of $\pm1$'s corresponds to the orthant of the point. After a sigmoidal nonlinearity, the last connection matrix is defined as 
+		$M_{ij}=\begin{cases}
+		 \frac{1}{\sum\limits_i \mathbf{1}_{\{C(i)=j\}}} & C(i)=j\\
+		 0 & Otherwise
+		 \end{cases}$
+		 
+		This matrix sets, in neuron j, the average activations of the neurons corresponding to the samples from class j. Since the previous layer's activations will be near zero, except the i'th neuron whose activation will be closer to 1, the maximum element in the 3rd layer is the element of class j.
+		
+	\section{Experiment Examples}
+	\subsection{Relaxation of overfitting}
+		The base case is a model of an overfitted network. Any arbitrary class assignment can be matched perfectly using this method. Since each orthant has $d$ neighboring orthants, it is easy to set up the problem is such a way that neighboring orthants can be "joined" i.e. the distinction in the 2nd layer activations produced by points in these orthants can be blurred. An interesting experiment therefore is to see if additional training of the network will indeed cause such a blur, since this behavior has implication on the ability of a network to generalize. Such behavior is analogous to pruning in decision trees and simplification of binary functions with Karnaugh maps.
+		This experiment can also be played in reverse: One can start with a network that fails to distinguish between two adjacent data points, and investigate the conditions necessary for such a distinction to arise in the learning process.
+	\subsection{neuron removal}
+		The network devised here achieves perfect scores by having a very wide 2nd hidden layer. Removing afew neurons from this network (with their corresponding connection weights) will force it to either suffer classification errors or find "creative" ways to overcome the loss in representation power. Observing how the network solves this problems may be conductive to understanding basic SGD dynamics as well as the benefits of Dropout.
+	\subsection{Magnitude of connection matrix column vectors}
+		Changing the initial magnitude of various connection matrix vectors and observing the result, may help explain regularization techniques related to vector magnitude such as weight decay, weight normalization, and batch normalization.
+	\subsection{Local disruption}
+		Since in our base-case design, as in real-world networks, the same separation hyperplane is used more than one, an interesting question is how the network would handle a disruption. The disruption can be brought about by adding several examples into an orthant, of a different class than the network currently predict. While this change can be fully "accommodated" by the last layer's connection weights, inevitably the SGD-based learning process will involve changes in the parameters of the other layers as well.
+	\subsection{ReLU activation}
+		ReLU activations have nonzero gradients in their positive half-plane, as opposed to sigmoidal and $\tanh$ activations which have nonzeros gradients locally. Rededsigning the base case with ReLU activation will help devising similar experiments, comparing and contrasting their results to the bounded activations.
+	\subsection{Lower dimensionality}
+		While many problems are very high-dimensional, in some cases the problem "dealt with" by the feed-forward network is embedded in a much lower dimension. In such cases, the separation hyperplanes	cannot be all orthogonal or nearly-orthogonal. Appropriate modifications to the base case should be made in order to examine the interactions during training.
+ 
+\end{document}

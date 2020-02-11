@@ -26,7 +26,7 @@ Lh = 512; %256;%1024;15; % Window length
 % NFFT - FFT length. 
 
 
-Synth_Method = 'FBS'; % 'WOLA'; 'FBS'; 'No_Overlap'
+Synth_Method = 'No_Overlap'; % 'WOLA'; 'FBS'; 'No_Overlap'
 switch Synth_Method
     case 'WOLA'
         NFFT = Lh;
@@ -46,7 +46,7 @@ end;
 S = stft(s, w_analysis, R ,NFFT);
 S1 = my_stft(s, w_analysis, R, NFFT);
 
-sprintf("S: (%d,%d) S1: (%d,%d)",size(S), size(S1))
+sprintf("S: (%d,%d) S1: (%d,%d), diff: %.3f",size(S), size(S1), norm(S-S1))
 %% Sonogram
 
 T = (0:size(S,2))/fs*R;

@@ -1,3 +1,4 @@
+```python
 import numpy as np
 
 np.random.seed(1235)
@@ -53,13 +54,10 @@ class kalman_simple:
             p = np.matmul(np.matmul(A,p),A.T)+Q
             k = p[:,0]/(p[0,0]+R)
             k = k[:,np.newaxis]
-            # print(k.shape)
             i_ktc = np.eye(2)- np.matmul(k,C)
-            # print(i_ktc.shape)
             krk = R*np.matmul(k,k.T)
-            # print(krk.shape,end="\n\n")
             p = np.matmul(np.matmul(i_ktc, p), i_ktc.T) + krk
             x = x + k*innov
             x_hat.append(x)
-            #print(k.shape)
         self.x_hat = np.hstack(x_hat)
+```

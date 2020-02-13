@@ -3,7 +3,7 @@ function s = my_istft(S, w_synthesis, R)
 Lf = length(w_synthesis);
 [NFFT, n_slices] = size(S);
 Ls = (n_slices-1)*R + Lf;
-unfold_factor = floor(w_synthesis/NFFT);
+unfold_factor = floor(Lf/NFFT);
 
 if numel(S)==0
     s = zeros(0,0);
@@ -14,7 +14,9 @@ n = (0:n_slices-1)*R;
 k = (0:NFFT-1)';
 baseband = (2*pi/NFFT)*k*n;
 
+% transform back from baseband
 S = S .* exp(1i*baseband);
+% take the inverse DFT
 all_ifft = ifft(S);
 
 s = zeros(Ls,1);

@@ -72,7 +72,8 @@ switch Synth_Win
         w_synthesis = 1./w_analysis; % By Definition Lf = Lh;
 end
 s_hat = real(istft(S, w_synthesis, R));
-
+s_hat1 = real(my_istft(S, w_synthesis, R));
+norm(s_hat-s_hat1)
 %% Filter Bank Sum - Synthesis
 
 s_hat = FBS(S);

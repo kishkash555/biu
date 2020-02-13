@@ -26,3 +26,4 @@ NLP-courses/89687-DL/Assignment1/original_code/
 NLP-courses/89687-DL/Assignment4/publish/
 2020-1/DSP2/epdf.pub_multirate-systems-and-filter-banks.djvu
 **/*.m~
+**/.~lock*

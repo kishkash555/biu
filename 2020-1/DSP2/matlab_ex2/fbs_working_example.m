@@ -1,7 +1,7 @@
 %% STFT of a single-frequency signal
 
 % Analysis filter half-size 
-Lh = 1024;
+Lh = 640;
 % the index _n_ for creating the analysis window
 nh=(-Lh:Lh-1)';
 
@@ -11,17 +11,21 @@ M=64;
 % ANALYSIS FILTER
 % if we wanted to calculate the sinc from the sine function: 
 %%% w_analysis = sin(pi*nh/M)./(pi*nh);
-%%% w_analysis(1025)=1/M;
+%%% w_analysis(Lh+1)=1/M;
 
 % using matlab's signal processing toolbox sinc function:
-w_analysis = sinc(nh/M)/M;
+analysis_window_type =  'sinc'; % 'boxcar'; 
+switch analysis_window_type
+    case 'sinc'
+        w_analysis = sinc(nh/M)/M;
+    case 'boxcar'
+        w_analysis = rectwin(Lh*2)/(Lh*2);
+end
 
 
 % CREATE INPUT SIGNAL
-k1 = 12; % an arbitrary frequency for the input signal
-ns = (0:(1024*32-1))'; % the index _n_ for the signal
-s = cos(2*pi*k1*ns/M); % the signal
-
+input_signal_type = 'noisy_sinus'; % 'noise';       %   'sinusoidal';   
+s = create_input_signal(input_signal_type);
 
 % STFT
 s_zeropad = [zeros(Lh,1); s; zeros(Lh-1,1)]; % the analysis filter "eats up" 2*Lh-1 samples from the output
@@ -33,20 +37,27 @@ set(h,'EdgeColor','None')
 
 %% FBS syntesis (requires previous cell)
 
-% calcualte the baseband factor
-[NFFT, n_slices] = size(S);
-n = (0:n_slices-1);
-k = (0:NFFT-1)';
-% since _k_ is column and _n_ is row, 
-% multiplying them will get their cartesian-product matrix:
-baseband = (2*pi/NFFT)*k*n; 
+fbs_implementation = 'built-in'; % mine
+switch fbs_implementation
+    case 'built-in'
+        r = FBS(S)*M;
 
-% We are not running the istft function.
-% Instead, preform the inverse baseband shift 
-% and sum the STFT coefficients:
-Sbb = S .* exp(1i*baseband); % shift back from baseband
+    case 'mine'
+        % calcualte the baseband factor
+        [NFFT, n_slices] = size(S);
+        n = (0:n_slices-1);
+        k = (0:NFFT-1)';
+        % since _k_ is column and _n_ is row, 
+        % multiplying them will get their cartesian-product matrix:
+        baseband = (2*pi/NFFT)*k*n; 
 
-r = sum(Sbb)'; % recounstructed signal
+        % We are not running the istft function.
+        % Instead, preform the inverse baseband shift 
+        % and sum the STFT coefficients:
+        Sbb = S .* exp(1i*baseband); % shift back from baseband
+
+        r = sum(Sbb)'; % recounstructed signal
+end
 
 
 % RESULTS
@@ -63,5 +74,7 @@ figure();
 plot(real(r(1:50)),'b-')
 hold on;
 plot(s(1:50),'r-')
+
+
 
 

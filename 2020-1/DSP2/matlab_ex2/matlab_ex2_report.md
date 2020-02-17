@@ -3,8 +3,8 @@
 ## Illustration of analysis - synthesis 
 Based On 2007 Moed A Q. 3
 
-## 1. STFT 
-### Cell code
+## 1. FBS Analysis/Synthesis 
+### Analysis Cell code
 ```matlab
 %% STFT of a single-frequency signal
 
@@ -52,8 +52,7 @@ Since the chosen band is $k=12$, we see periodogram peaks at bands $12$ and $64-
 <div style="height: 500px;">
 </div>
 
-## 2. FBS
-### Cell code
+### Synthesis cell code
 ```matlab
 %% FBS syntesis (requires previous cell)
 
@@ -86,9 +85,9 @@ figure(); plot(real(r(1:50)),'b-');
 hold on; plot(s(1:50),'r-')
 ```
 
-### Cell Output
+### Cell Output - Sinc analysis filter (satisifies perfect reconstruction condition)
 The norm of the difference between the signals is well within the expected numeric noise.
-The plot illustrates the two graphs perfectly overlap (up to the attainable resolution)
+The plot illustrates the two graphs perfectly overlap (up to the resolution of this graphic)
 
 ```
 ans =
@@ -102,3 +101,38 @@ ans =
 ```
 
 ![reconstructed](reconstructed.png)
+
+
+### Cell Output - Rectangular analysis filter
+Here we use a filter that is not suited for FBS reconstruction, since it does not have zero coefficients at n=M, 2M, 3M,... and therefore fails the Portonoff perfect reconstruction condition.
+
+The result is poor reconstruction. I have used three signals to test this system:
+- Perfect sinusoid
+- Sinusoid + noise
+- white noise
+
+Here are the three graphs for these signals:
+
+![reconstructed boxcar sinus](reconstructed_boxcar_sinus.png)
+
+````
+'Reconstruction error: -12.43 dB'
+````
+
+Observer, however, that the reconstructed signal is actually the same as the original, up to a gain. This will hold for any signal of period M.
+
+
+
+#### Rectangular window, noisy sine wave
+
+![reconstructed boxcar sinus noise](reconstructed_boxcar_sinus_noise.png)
+
+````
+'Reconstruction error: -5.70 dB'
+````
+
+![reconstructed boxcar noise](reconstructed_boxcar_noise.png)
+
+````
+'Reconstruction error: -0.11 dB'
+````

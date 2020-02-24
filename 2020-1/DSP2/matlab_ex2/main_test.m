@@ -184,20 +184,50 @@ soundsc(s_fil_ola)
 
 %% : Overlap & Save
 % The parameters are wrong !!!
+% % % (Overlap-save algorithm for linear convolution)
+% % % h = FIR_impulse_response
+% % % M = length(h)
+% % % overlap = M − 1
+% % % N = 8 × overlap    (see next section for a better choice)
+% % % step_size = N − overlap
+% % % H = DFT(h, N)
+% % % position = 0
+% % % 
+% % % while position + N ≤ length(x)
+% % %     yt = IDFT(DFT(x(position+(1:N))) × H)
+% % %     y(position+(1:step_size)) = yt(M : N)    (discard M−1 y-values)
+% % %     position = position + step_size
+% % % end
+
+% original code
 NFFT = 256;
+
 G = fft(g,NFFT);
 
 Lh = NFFT; % Analysis window length
-R = Lg+1; 
+% Original code
+% R = Lg+1; 
+% corrected
+R = NFFT- Lg + 1;
+
 w_analysis = boxcar(Lh);
-Lf = Lg; % Synthesis window length
+% original code
+% Lf = Lg; % Synthesis window length
+% corrected
+Lf = NFFT;
 
 % It is assumed that FFT size is smaller or equal the synthesis window. 
-%If this is not the case, it is the user responsibility to use correct
-%zero-padding of the windows to the correct FFT size.
+% If this is not the case, it is the user responsibility to use correct
+% zero-padding of the windows to the correct FFT size.
+% original
+% w_synthesis = zeros(size(w_analysis));
 
-w_synthesis = zeros(size(w_analysis));
-w_synthesis(1:Lg) = boxcar(Lf);
+w_synthesis = zeros(Lf,1);
+% original
+% w_synthesis(1:Lg) = boxcar(Lg);
+% corrected
+w_synthesis(Lg:end) = boxcar(Lf-Lg+1);
+
 
 S = stft(s, w_analysis, R ,NFFT);
 S_FIL = repmat(G,1,size(S,2)).*S; % Frequency band processing 

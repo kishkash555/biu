@@ -263,14 +263,31 @@ pre[data-line] .line-highlight[data-end]:after {
     </head>
     <body for="html-export">
       <div class="mume markdown-preview  ">
-      <h1 class="mume-header" id="matlab-exercise-2">MATLAB Exercise 2</h1>
+      <style type="text/css">
+
+ .image_resize {
+        width:570px;
+    }
+    .image_resize img {
+        width:85%;
+    }
+
+ .image_resize2 {
+        width:570px;
+    }
+    .image_resize2 img {
+        width:20%;
+    }
+
+</style>
+<h1 class="mume-header" id="matlab-exercise-2">MATLAB Exercise 2</h1>
 
 <h2 class="mume-header" id="illustration-of-analysis-synthesis">Illustration of analysis - synthesis</h2>
 
 <p>Based On 2007 Moed A Q. 3</p>
-<h2 class="mume-header" id="1-stft">1. STFT</h2>
+<h2 class="mume-header" id="1-fbs-analysissynthesis">1. FBS Analysis/Synthesis</h2>
 
-<h3 class="mume-header" id="cell-code">Cell code</h3>
+<h3 class="mume-header" id="analysis-cell-code">Analysis Cell code</h3>
 
 <pre data-role="codeBlock" data-info="matlab" class="language-matlab"><span class="token comment">%% STFT of a single-frequency signal</span>
 
@@ -313,9 +330,7 @@ Since the chosen band is <span class="katex"><span class="katex-mathml"><math xm
 <img src="periodogram.png" alt="periodogram"></p>
 <div style="height: 500px;">
 </div>
-<h2 class="mume-header" id="2-fbs">2. FBS</h2>
-
-<h3 class="mume-header" id="cell-code-1">Cell code</h3>
+<h3 class="mume-header" id="synthesis-cell-code">Synthesis cell code</h3>
 
 <pre data-role="codeBlock" data-info="matlab" class="language-matlab"><span class="token comment">%% FBS syntesis (requires previous cell)</span>
 
@@ -346,10 +361,10 @@ r <span class="token operator">=</span> <span class="token function">sum</span><
 <span class="token comment">% plot the reconstructed signal on the original</span>
 <span class="token function">figure</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token function">plot</span><span class="token punctuation">(</span><span class="token function">real</span><span class="token punctuation">(</span><span class="token function">r</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token operator">:</span><span class="token number">50</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token string">&apos;b-&apos;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 hold on<span class="token punctuation">;</span> <span class="token function">plot</span><span class="token punctuation">(</span><span class="token function">s</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token operator">:</span><span class="token number">50</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token string">&apos;r-&apos;</span><span class="token punctuation">)</span>
-</pre><h3 class="mume-header" id="cell-output-1">Cell Output</h3>
+</pre><h3 class="mume-header" id="cell-output-sinc-analysis-filter-satisifies-perfect-reconstruction-condition">Cell Output - Sinc analysis filter (satisifies perfect reconstruction condition)</h3>
 
 <p>The norm of the difference between the signals is well within the expected numeric noise.<br>
-The plot illustrates the two graphs perfectly overlap (up to the attainable resolution)</p>
+The plot illustrates the two graphs perfectly overlap (up to the resolution of this graphic)</p>
 <pre data-role="codeBlock" data-info class="language-"><code>ans =
 
     &apos;imaginary part: -161.38 dB&apos;
@@ -359,7 +374,94 @@ ans =
 
     &apos;Reconstruction error: -153.15 dB&apos;
 </code></pre><p><img src="reconstructed.png" alt="reconstructed"></p>
+<h3 class="mume-header" id="cell-output-rectangular-analysis-filter">Cell Output - Rectangular analysis filter</h3>
 
+<p>Here we use a filter that is not suited for FBS reconstruction, since it does not have zero coefficients at n=M, 2M, 3M,... and therefore fails the Portonoff perfect reconstruction condition.</p>
+<p>The result is poor reconstruction. I have used three signals to test this system and illustrate its reconstruction fidelity:</p>
+<ul>
+<li>Perfect sinusoid</li>
+<li>Sinusoid + noise</li>
+<li>white noise</li>
+</ul>
+<p>Here are the three graphs for these signals:</p>
+<div class="image_resize">
+<p><img src="reconstructed_boxcar_sinus.png" alt="reconstructed boxcar sinus"></p>
+</div>
+<pre data-role="codeBlock" data-info class="language-"><code>&apos;Reconstruction error: -12.43 dB&apos;
+</code></pre><p>Observe, however, that the reconstructed signal is actually the same as the original, up to a gain. This will hold for any signal of period M. The reason for this is that since the synthesis filter is just a delta function, the effect of the M&apos;th coefficient of the filter (which should be zero) is to create a shifted image of the original signal, with shift M.</p>
+<h4 class="mume-header" id="rectangular-window-noisy-sine-wave">Rectangular window, noisy sine wave</h4>
+
+<div class="image_resize">
+<p><img src="reconstructed_boxcar_sinus_noise.png" alt="reconstructed boxcar sinus noise"></p>
+</div>
+<pre data-role="codeBlock" data-info class="language-"><code>&apos;Reconstruction error: -5.70 dB&apos;
+</code></pre><p>We observe a <em>better</em> SNR here than the pure sine wave. The reason is that the reconstructed signal is pretty much the same signal, as the filter tends to average out the noise. The original signal however has a higher variance, leading the SNR metric to improve.</p>
+<h4 class="mume-header" id="rectangular-window-gaussian-white-noise">Rectangular window, Gaussian white noise</h4>
+
+<div class="image_resize">
+<p><img src="reconstructed_boxcar_noise.png" alt="reconstructed boxcar noise"></p>
+</div>
+<pre data-role="codeBlock" data-info class="language-"><code>&apos;Reconstruction error: -0.11 dB&apos;
+</code></pre><p>The nonperiodic signal&apos;s reconstruction is poor.</p>
+<h2 class="mume-header" id="question-3-part-2-wola">Question 3 Part 2 - WOLA</h2>
+
+<p>When <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mfrac><mi>M</mi><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">R=\frac{M}{2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.217331em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.872331em;"><span style="top:-2.6550000000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.10903em;">M</span></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span> Portonoff condition holds with boxcar analysis and synthesis filters, since for every <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span></span></span></span>, there are exactly 2 points of <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi></mrow><annotation encoding="application/x-tex">f</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span></span></span></span> and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi></mrow><annotation encoding="application/x-tex">h</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">h</span></span></span></span> which add to the sum.<br>
+This conclusion can be extended for any R which divides M exactly. However,</p>
+<ul>
+<li>The first and last M samples will not be accurately reconstructed (due to &quot;missing&quot; overlaps in the OLA)</li>
+<li>The synthesis filter should be scaled by <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>R</mi><mi>M</mi></mfrac></mrow><annotation encoding="application/x-tex">\frac{R}{M}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.217331em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.872331em;"><span style="top:-2.6550000000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.10903em;">M</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.00773em;">R</span></span></span></span></span><span class="vlist-s">&#x200B;</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span> to maintain a reconstruction coefficient of 1.</li>
+</ul>
+<h4 class="mume-header" id="ola-with-m64-r64-hrectwin64-frectwin64">OLA with M=64, R=64, h=rectwin(64), f=rectwin(64)</h4>
+
+<p>The signal is a noisy sinus which is <em>not</em> M-periodic (the period length is not a divisor of M)</p>
+<div class="image_resize">
+<p><img src="reconstructed_WOLA.png" alt="reconstructed WOLA"></p>
+</div>
+<pre data-role="codeBlock" data-info class="language-"><code>    &apos;Reconstruction error: -316.22 dB&apos;
+</code></pre><h4 class="mume-header" id="ola-with-m64-r32-hrectwin64-f05rectwin64">OLA with M=64, R=32, h=rectwin(64), f=0.5*rectwin(64)</h4>
+
+<div class="image_resize">
+<p><img src="reconstructed_WOLA_R2.png" alt="reconstructed WOLA"></p>
+</div>
+<pre data-role="codeBlock" data-info class="language-"><code>    &apos;Reconstruction error: -316.34 dB&apos;
+</code></pre><h4 class="mume-header" id="ola-with-m64-r8-hrectwin64-f0125rectwin64">OLA with M=64, R=8, h=rectwin(64), f=0.125*rectwin(64)</h4>
+
+<div class="image_resize">
+<p><img src="reconstructed_WOLA_R8.png" alt="reconstructed WOLA"></p>
+</div>
+````
+    &apos;Reconstruction error: -317.87 dB&apos;
+````
+<h5 class="mume-header" id="cell-code">cell code</h5>
+
+<pre data-role="codeBlock" data-info="matlab" class="language-matlab"><span class="token comment">%% WOLA analysis</span>
+mr_ratio <span class="token operator">=</span> <span class="token number">8</span><span class="token punctuation">;</span>
+M <span class="token operator">=</span> <span class="token number">64</span><span class="token punctuation">;</span>
+R <span class="token operator">=</span> <span class="token function">floor</span><span class="token punctuation">(</span>M<span class="token operator">/</span>mr_ratio<span class="token punctuation">)</span><span class="token punctuation">;</span>
+Lh <span class="token operator">=</span> M<span class="token punctuation">;</span>
+Lf <span class="token operator">=</span> M<span class="token punctuation">;</span> 
+w_analysis <span class="token operator">=</span> <span class="token function">rectwin</span><span class="token punctuation">(</span>Lh<span class="token punctuation">)</span><span class="token punctuation">;</span>
+w_synthesis <span class="token operator">=</span> w_analysis<span class="token operator">/</span>mr_ratio<span class="token punctuation">;</span>
+
+<span class="token comment">% CREATE INPUT SIGNAL</span>
+input_signal_type <span class="token operator">=</span> <span class="token string">&apos;noisy_sinus&apos;</span><span class="token punctuation">;</span>     <span class="token comment">% &apos;noise&apos;;  %   &apos;sinusoidal&apos;;; </span>
+s <span class="token operator">=</span> <span class="token function">create_input_signal</span><span class="token punctuation">(</span>input_signal_type<span class="token punctuation">,</span><span class="token number">512</span><span class="token punctuation">,</span>M<span class="token operator">*</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">% Transform</span>
+S <span class="token operator">=</span> <span class="token function">my_stft</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span>w_analysis<span class="token punctuation">,</span>R<span class="token punctuation">,</span>M<span class="token punctuation">)</span><span class="token punctuation">;</span>
+r <span class="token operator">=</span> <span class="token function">my_istft</span><span class="token punctuation">(</span>S<span class="token punctuation">,</span>w_synthesis<span class="token punctuation">,</span>R<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+tt <span class="token operator">=</span> M<span class="token operator">:</span> <span class="token function">length</span><span class="token punctuation">(</span>r<span class="token punctuation">)</span><span class="token operator">-</span>M<span class="token punctuation">;</span>
+<span class="token function">sprintf</span><span class="token punctuation">(</span><span class="token string">&apos;Reconstruction error: %.2f dB&apos;</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token operator">*</span><span class="token function">log10</span><span class="token punctuation">(</span><span class="token function">var</span><span class="token punctuation">(</span><span class="token function">r</span><span class="token punctuation">(</span>tt<span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">s</span><span class="token punctuation">(</span>tt<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">/</span><span class="token function">var</span><span class="token punctuation">(</span><span class="token function">s</span><span class="token punctuation">(</span>tt<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token function">figure</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">plot</span><span class="token punctuation">(</span><span class="token function">real</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">)</span>
+hold on
+<span class="token function">plot</span><span class="token punctuation">(</span><span class="token function">real</span><span class="token punctuation">(</span>r<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+
+
+</pre>
       </div>
       
       

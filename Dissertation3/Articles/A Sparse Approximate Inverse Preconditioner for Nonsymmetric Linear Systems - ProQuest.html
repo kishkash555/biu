@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" lang="en"><head>
+  <meta content="Apache Tapestry Framework (version 5.3.8)" name="generator">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <link href="https://search-proquest-com.eu1.proxy.openathens.net/apple-icon-57x57.png" sizes="57x57" rel="apple-touch-icon">
+  <link href="https://search-proquest-com.eu1.proxy.openathens.net/apple-icon-60x60.png" sizes="60x60" rel="apple-touch-icon">
+  <link href="https://search-proquest-com.eu1.proxy.openathens.net/apple-icon-72x72.png" sizes="72x72" rel="apple-touch-icon">
+  <link href="https://search-proquest-com.eu1.proxy.openathens.net/apple-icon-76x76.png" sizes="76x76" rel="apple-touch-icon">
+  <link href="https://search-proquest-com.eu1.proxy.openathens.net/apple-icon-114x114.png" sizes="114x114" rel="apple-touch-icon">
+  <link href="https://search-proquest-com.eu1.proxy.openathens.net/apple-icon-120x120.png" sizes="120x120" rel="apple-touch-icon">
+  <link href="https://search-proquest-com.eu1.proxy.openathens.net/apple-icon-144x144.png" sizes="144x144" rel="apple-touch-icon">
+  <link href="https://search-proquest-com.eu1.proxy.openathens.net/apple-icon-152x152.png" sizes="152x152" rel="apple-touch-icon">
+  <link href="https://search-proquest-com.eu1.proxy.openathens.net/apple-icon-180x180.png" sizes="180x180" rel="apple-touch-icon">
+  <link sizes="32x32" href="https://search-proquest-com.eu1.proxy.openathens.net/favicon-32x32.png" type="image/png" rel="icon">
+  <link sizes="192x192" href="https://search-proquest-com.eu1.proxy.openathens.net/android-icon-192x192.png" type="image/png" rel="icon">
+  <link sizes="96x96" href="https://search-proquest-com.eu1.proxy.openathens.net/favicon-96x96.png" type="image/png" rel="icon">
+  <link sizes="16x16" href="https://search-proquest-com.eu1.proxy.openathens.net/favicon-16x16.png" type="image/png" rel="icon">
+  <link href="https://search-proquest-com.eu1.proxy.openathens.net/manifest.json" rel="manifest">
+  <meta content="#ffffff" name="msapplication-TileColor">
+  <meta content="/ms-icon-144x144.png" name="msapplication-TileImage">
+  <meta content="#ffffff" name="theme-color">
+  <link media="print" href="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/PrintLayout.css" type="text/css" rel="stylesheet">
+  <script type="text/javascript" async="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/analytics.js"></script><script async="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/gtm.js"></script><script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/core.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/pqcore.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/os-std.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/pdfobject.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/DocViewBase.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/jquery.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/GoogleAnalytics.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/CreateProfileOverlay.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/usernameValidator.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/ZoneUpdater.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/DonorBranding.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/EmailItem.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/use-tools.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/Tab.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/SimilarDocuments.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/MainContentLeft.js" type="text/javascript"></script>
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/CaptureProxyHost.js" type="text/javascript"></script>
+  <script>
+var ieMode = 0;
+var dataLayer = [];
+</script>
+  <!--[if IE 7]><script>ieMode = 7</script><![endif]-->
+  <!--[if IE 8]><script>ieMode = 8</script><![endif]-->
+  <!--[if IE 9]><script>ieMode = 9</script><![endif]-->
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+  <meta content="/images/pagelayout/ProQuest_logo.gif" property="og:image">
+  <script type="text/javascript">
+var _vwo_code=(function(){
+var account_id=62881,
+settings_tolerance=2000,
+library_tolerance=2500,
+use_existing_jquery=false,
+// DO NOT EDIT BELOW THIS LINE
+f=false,d=document;return{use_existing_jquery:function(){return use_existing_jquery;},library_tolerance:function(){return library_tolerance;},finish:function(){if(!f){f=true;var a=d.getElementById('_vis_opt_path_hides');if(a)a.parentNode.removeChild(a);}},finished:function(){return f;},load:function(a){var b=d.createElement('script');b.src=a;b.type='text/javascript';b.innerText;b.onerror=function(){_vwo_code.finish();};d.getElementsByTagName('head')[0].appendChild(b);},init:function(){settings_timer=setTimeout('_vwo_code.finish()',settings_tolerance);this.load('//dev.visualwebsiteoptimizer.com/j.php?a='+account_id+'&amp;u='+encodeURIComponent(d.URL)+'&amp;r='+Math.random());var a=d.createElement('style'),b='body{opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;}',h=d.getElementsByTagName('head')[0];a.setAttribute('id','_vis_opt_path_hides');a.setAttribute('type','text/css');if(a.styleSheet)a.styleSheet.cssText=b;else a.appendChild(d.createTextNode(b));h.appendChild(a);return settings_timer;}};}());_vwo_settings_timer=_vwo_code.init();
+</script><script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/j.js" type="text/javascript"></script>
+  <title>A Sparse Approximate Inverse Preconditioner for Nonsymmetric Linear Systems - ProQuest</title>
+  <link type="text/css" rel="stylesheet" href="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/default.css">
+  <link type="text/css" rel="stylesheet" href="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/tapestry-console.css">
+  <link type="text/css" rel="stylesheet" href="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/t5-alerts.css">
+  <link type="text/css" rel="stylesheet" href="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/tree.css">
+  <link type="text/css" rel="stylesheet" href="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/citethis.css">
+  <link type="text/css" rel="stylesheet" href="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/PageLayout.css">
+  <link type="text/css" rel="stylesheet" href="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/ContentLayout.css">
+  <link type="text/css" rel="stylesheet" href="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/uxf-1.css">
+  <link type="text/css" rel="stylesheet" href="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/overRide.css">
+  <link type="text/css" rel="stylesheet" href="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/openLayer.css">
+  <link type="text/css" rel="stylesheet" href="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/media-queries.css">
+  <link type="text/css" rel="stylesheet" href="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/Chart.css">
+  <script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/GTMContainerProd.js" type="text/javascript"></script>
+ <style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1px; bottom: 2px; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+.mjx-merror .mjx-char {white-space: normal !important; padding: 0 !important; word-wrap: break-word; word-break: break-all; overflow-wrap: break-word}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 1px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: #606872; color: white}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/va-3a851ae4f8ad73489168e2c099a3c55d.js" crossorigin="anonymous" type="text/javascript"></script><script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/track-3a851ae4f8ad73489168e2c099a3c55d.js" crossorigin="anonymous" type="text/javascript"></script><script src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/opa-da02bbb42ccc85fc5d2baff89e5014fd.js" crossorigin="anonymous" type="text/javascript"></script></head>
+ <body><div id="MathJax_Message" style="display: none;"></div>
+  <div tabindex="-1" id="top"></div>
+  <div id="skip">
+   <a accesskey="2" href="#start">Skip to main content</a>
+  </div>
+  <script type="text/x-mathjax-config;executed=true">
+MathJax.Hub.Config({
+jax: ["input/TeX","input/MathML","output/CommonHTML"],
+extensions: ["tex2jax.js","mml2jax.js","MathMenu.js","MathZoom.js","AssistiveMML.js", "a11y/accessibility-menu.js"],
+TeX: {
+extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+},
+MathML: {
+extensions: ["mml3.js", "content-mathml.js"]
+},
+styles: {
+".mjx-merror .mjx-char": {
+"white-space":"normal !important",
+padding: "0 !important",
+"word-wrap": "break-word",
+"word-break": "break-all",
+"overflow-wrap": "break-word"
+}
+}
+});
+var pqMathJaxParseErrorHappened = false;
+function pqMathJaxParseErrorHandler(message) {
+console.log(message);
+if (!pqMathJaxParseErrorHappened) {
+pqMathJaxParseErrorHappened = true;
+}
+}
+MathJax.Hub.Register.MessageHook('MathML Jax - parse error', function(message) {
+pqMathJaxParseErrorHandler(message);
+});
+MathJax.Hub.Register.MessageHook('Math Processing Error', function(message) {
+pqMathJaxParseErrorHandler(message);
+});
+MathJax.Hub.Register.MessageHook('TeX Jax - parse error', function(message) {
+pqMathJaxParseErrorHandler(message);
+});
+MathJax.Hub.Register.StartupHook('End', function() {
+if (pqMathJaxParseErrorHappened) {
+MathJax.Hub.Queue(['setRenderer', MathJax.Hub, 'PlainSource']);
+MathJax.Hub.Queue(['Rerender', MathJax.Hub]);
+}
+});
+</script>
+  <script id="mathJaxScript" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/MathJax.js" async="" type="text/javascript"></script>
+  <div class="" id="wrapper">
+   <div style="position:relative" id="content">
+    <div class="navbar navbar-inverse">
+     <div class="navbar-header">
+      <button type="button" data-toggle="collapse" data-target=".bs-navbar-collapse" class="navbar-toggle"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+      <ul class="nav navbar-nav">
+       <li><span class="navbar-brand diagonal-thin"></span></li>
+       <li>
+        <div class="navbar-brand product-name">
+         <div id="imgClassSwitch">
+          <a href="https://search-proquest-com.eu1.proxy.openathens.net/?accountid=14483"><span class="sr-only">ProQuest</span>
+           <div title="ProQuest" class="pq-logo"></div></a>
+         </div>
+        </div></li>
+      </ul>
+     </div>
+     <nav class="collapse navbar-collapse bs-navbar-collapse">
+      <ul class="nav navbar-nav navbar-right">
+       <li><a onmouseout="clearTimeout(pqga.funcDelay)" id="gaRecentSearches" title="Recent Searches" class="recSec" onmouseover="pqga.funcDelay= setTimeout(function(){dataLayer.push({event:'utilityMenuRecentSearchHover'})}, 600);" href="https://search-proquest-com.eu1.proxy.openathens.net/recentsearches?accountid=14483"><span class="sr-only">Recent Searches</span><span aria-hidden="true" class="uxf-icon uxf-back-in-time"></span></a></li>
+       <li><a style="" id="gaSelectedItems_link" class="wt-selected-items null" href="https://search-proquest-com.eu1.proxy.openathens.net/selecteditems?accountid=14483"><span class="sr-only">Selected Items</span><span title="Selected Items" class="uxf-icon uxf-folder" onmouseout="clearTimeout(pqga.funcDelay)" onmouseover="pqga.funcDelay= setTimeout(function(){dataLayer.push({event:'utilityMenuSelectedItemsHover'})}, 600);"></span><span class="" id="selecteditemscount_badge"></span></a>
+        <div data-backdrop="static" tabindex="-1" id="gaSelectedItems_itemsLink_noItemsOverlay" class="modal fade">
+         <div class="modal-dialog">
+          <div class="modal-content">
+           <div class="modal-header">
+            <h2 class="sr-only">Display selected items layer</h2>
+            <h2 role="heading" id="myModalLabel_gaSelectedItems_itemsLink_noItemsOverlay" class="modal-title">Display selected items</h2>
+            <button aria-label="Close Display selected items layer" data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span></button>
+           </div>
+           <div class="modal-body clearfix">
+            <div class="notSelectedPrompt">
+             <p>Please select one or more items.</p>
+             <div class="clear"></div>
+            </div>
+           </div>
+           <div class="modal-footer">
+            <div class="float_right">
+             <a data-dismiss="modal" href="#" class="btn btn-default" role="button" id="button">Close</a>
+            </div>
+            <div class="clear"></div>
+           </div>
+          </div>
+         </div>
+        </div></li>
+       <li aria-expanded="false" aria-haspopup="true" class="dropdown"><a title="My Research and Language Selection" href="#" data-toggle="dropdown" onmouseout="clearTimeout(pqga.funcDelay)" onmouseover="pqga.funcDelay= setTimeout(function(){dataLayer.push({event:'utilityMenuMyResearchHover'})}, 600);" class="dropdown-toggle" id="mrDropdown"><span class="sr-only">My Research and Language Selection</span><span aria-hidden="true" class="uxf-icon uxf-user"></span></a>
+        <ul role="menu" class="dropdown-menu">
+         <li class="float-right"><a id="gaMRSignIn" href="https://search-proquest-com.eu1.proxy.openathens.net/myresearch/signin?accountid=14483"><span class="glyphicon glyphicon-log-in"></span>&nbsp;Sign into My Research</a></li>
+         <li><a id="gaMRCreateAccountPage" href="https://search-proquest-com.eu1.proxy.openathens.net/myresearch/createaccount?accountid=14483"><span class="uxf-icon uxf-user-add"></span>&nbsp;Create My Research Account</a></li>
+         <li aria-hidden="true" class="divider"></li>
+         <li><a href="https://search-proquest-com.eu1.proxy.openathens.net/bookshelf?accountid=14483"><span class="uxf-icon uxf-book-alt"></span>&nbsp;Bookshelf</a></li>
+         <li aria-hidden="true" class="divider"></li>
+         <li><a data-target="#endsession_confirm" data-toggle="modal" id="exitProQuestLink" href="#"><span class="glyphicon glyphicon-log-out"></span> Exit ProQuest</a></li>
+         <li aria-hidden="true" class="divider"></li>
+         <li><a data-target="#languages" data-toggle="modal" id="gaMRLanguage" href="#"><span aria-hidden="true" class="uxf-icon uxf-globe"></span> English</a></li>
+         <script>
+$j(function(){
+$j('#languages').on('hidden.bs.modal', function(e) { $j('#mrDropdown').focus(); })
+});
+</script>
+        </ul></li>
+       <li aria-expanded="false" aria-haspopup="true" class="dropdown"><a title="Help and support" href="#" data-toggle="dropdown" onmouseout="clearTimeout(pqga.funcDelay)" onmouseover="pqga.funcDelay= setTimeout(function(){dataLayer.push({event:'utilityMenuHelpItemsHover'})}, 600);" class="dropdown-toggle"><span aria-hidden="true" class="uxf-icon uxf-help-circle"></span><span class="sr-only">Help and support</span></a>
+        <ul role="menu" class="dropdown-menu helpMenu">
+         <li role="menuitem"><a onclick="this.blur()" accesskey="6" text="ProQuest Help" title="ProQuest Help" class="popUpHelp" href="javascript:newPopup('/help/academic/webframe.html?Document_overview.html');" id="help">ProQuest Help<span></span></a><span class="dropdownText hidden-xs small">Go directly to information on using the current page.</span></li>
+         <li aria-hidden="true" class="divider hidden-xs"></li>
+         <li role="menuitem"><a target="_new" href="http://www.proquest.com.eu1.proxy.openathens.net/go/newplatform" id="gaHelpSupportLink">Support Center</a><span class="dropdownText hidden-xs small">Find answers to questions about products, access, use, setup, and administration.</span></li>
+         <li aria-hidden="true" class="divider hidden-xs"></li>
+         <li role="menuitem"><a target="_new" href="http://proquest.libguides.com/proquestplatform" id="gaHelpTrainingLink">Training (LibGuides)</a><span class="dropdownText hidden-xs small">User guides, online and onsite training, webinars, and more.</span></li>
+         <li aria-hidden="true" class="divider hidden-xs"></li>
+         <li role="menuitem"><a target="_new" href="https://search-proquest-com.eu1.proxy.openathens.net/docview/info/pqrcvideos" id="researchSkillsLink">Research Skills</a><span class="dropdownText hidden-xs small">Produce better papers, faster, with the help of our research skills videos.</span></li>
+         <li aria-hidden="true" class="divider hidden-xs"></li>
+         <li role="menuitem"><a title="Contact Us" href="http://www.proquest.com.eu1.proxy.openathens.net/go/pqissupportcontact" id="gaHelpContactLink">Contact Us</a><span class="dropdownText hidden-xs small">Have a question, idea, or some feedback? We want to hear from you.</span></li>
+         <li aria-hidden="true" class="divider hidden-xs"></li>
+         <li role="menuitem"><a target="_new" href="https://trials-proquest-com.eu1.proxy.openathens.net/?accountId=14483&amp;accountName=BAR+ILAN+UNIVERSITY&amp;sub=1000302,1000264,1000265,10000001,1007853,1009636,1007856,10000247,1007617,10000008,1007330,10000251,1007851,1007059,1007852,1009070,1006520,1006481,1005701,10000115,10000236,10000359,10000239,1009067,1009188,1009066,1009069,1009068,1007200,1009060,1009063,1007160,1007161,1006075,1009065,1009064,1007916,1007917,1006545,1007911,1007912,1007913,1007914,1007915,1008043,10000231,1000283,1005692,1000277,1007106,1007107,1007900,1007901,1007902,1007903,1007582,1007583,1007584,1007067,1007585,1007586,1007587,1007588,1005684,1005683,1007060,1007061,1007062,1009241,1009240,1006968,1005635,1006324,1007897,1008744,1007898,1008745,1007139,1009715,1008746,1007899,1009714,10000204,1009156,1007133,1008740,1008741,1008742,1008743,1006323,1007886,10000155,1007887,1007888,1007889,1009388,1007485,1007883,1007884,1007885,1007480,1006986,1006985,1000001,10000023,10000266,1007557,10000267,10000025,10000026,1009056,1009057,1007156,1009059,1007399,1006102,1009050,1009054,1005922,10000255,1009047,1009046,1009049,1007025,1009048,10000263,1005641,1007261" id="gaHelpTrialsLink">Product Trials</a><span class="dropdownText hidden-xs small">Request a free product trial.</span></li>
+         <li aria-hidden="true" class="divider hidden-xs"></li>
+         <li role="menuitem"><a target="_new" href="https://search-proquest-com.eu1.proxy.openathens.net/docview/info/imageCredits" id="imageCreditsLink">Credits</a><span class="dropdownText hidden-xs small">View details about the photos used on different databases throughout the platform.</span></li>
+        </ul></li>
+      </ul>
+      <div class="nav navbar-nav navbar-below">
+       <ul class="nav navbar-nav">
+        <li><a accesskey="1" class="" href="https://search-proquest-com.eu1.proxy.openathens.net/?accountid=14483">Basic Search</a></li>
+        <li><a id="advancedsearch" class="" href="https://search-proquest-com.eu1.proxy.openathens.net/advanced?accountid=14483">Advanced Search</a></li>
+        <li alt="Search and browse full text publications" title="Search and browse full text publications"><a class="" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout:publication?t:ac=921465258">Publications</a></li>
+        <li><a title="Browse Topics &amp; Featured Content" class="" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout:browse?t:ac=921465258">Browse</a></li>
+        <li><a title="View and change the databases included in your search" class=" rightToLeft" id="databasePageLink" href="https://search-proquest-com.eu1.proxy.openathens.net/databases/index?accountid=14483">Databases<span class="light" id="dbCount"> (8) </span></a></li>
+       </ul>
+      </div>
+     </nav>
+    </div>
+    <div class="container-fluid">
+     <div class="hide" id="signInLinkZone">
+      <div class="t-zone" id="linkZone">
+       <a id="signInLink" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.signinoverlay.actionlink?t:ac=921465258">Sign in</a>
+       <span></span>
+      </div>
+     </div>
+     <div data-backdrop="static" tabindex="-1" id="signInFormOverlay" class="modal fade">
+      <div class="modal-dialog">
+       <div class="modal-content">
+        <div class="modal-header">
+         <h2 class="sr-only">Sign in to My Research layer</h2>
+         <h2 role="heading" id="myModalLabel_signInFormOverlay" class="modal-title">Sign in to My Research</h2>
+         <button aria-label="Close Sign in to My Research layer" data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span></button>
+        </div>
+        <div class="modal-body clearfix">
+         <div class="commomOverlayContent t-zone" id="overlayZone">
+          <script>
+var msgSignInForPrefs = "<p>Sign in to set your preferences and customize ProQuest for your research.</p>";
+var msgSignInForSaveSearch = "<p>Sign in to save your search(es). You can use My Research in the future to view and rerun your searches.</p>";
+</script>
+          <div id="signInTargetMsg"></div>
+          <p class="col-md-12">Save and organize your research.</p>
+          <form class="dynamicPreview t-prevent-submission" onsubmit="javascript:return Tapestry.waitForPage(event);" action="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.signinoverlay.signinform.signinloginform" method="post" id="signInLoginForm">
+           <div class="" style="display: none;">
+            <input value="921465258" name="t:ac" type="hidden">
+            <input value="n17OeVd+v7kj2gNfxU+320A6b1c=:H4sIAAAAAAAAAK1SzUoDMRCeLhaKFQ9C30BPQirSiigeiiIIpSyUniWbTdfIbpJmsv25+AQ+Q59AfIkevHnyBXwAwZMnDybtooKnLZ6SfJP55pv55uENqpNz6IQ04WE8PNHuTOlM5ZagSKSQasyNA4rXUJmsuMYcrZDUCiV9EhpoK5MQqim74cRS7eJm1iZMGZ6KiEQUOelEDqTMXgqexrt9bnO9N1jUXxtPnwFUulBnSlqj0h7NuIWd7i0d02ZKZdLsWyNkcjrVFhpewJW8+BHg1f9XF52yXYRGMY7Yz6NMIDqixWPcGn7MnwOAqZ4cw1E5WTlyI13/OII7AAubKAYFtD6Z56qWT9cUcaJM/EtLWEDrk620tOCwVLofr3X+nDGVEW3UKHfWOKM0fpvjIlpJLi2SpRv2rzfzl/2N++3xewBBF2osFe731VKR3z6e8swBvWJgFb9ttVXl6wOPbH0BZmPoqjADAAA=" name="t:formdata" type="hidden">
+           </div>
+           <div aria-labelledby="myModalLabel_signInFormOverlay" role="form" id="signInLoginFormDiv">
+            <input id="signInDestinationPage" name="signInDestinationPage" type="hidden">
+            <div class="col-md-12 loginFormInputFields"></div>
+            <div class="row">
+             <div class="col-md-3">
+              <label for="siUsername" class="control-label">Username:</label>
+             </div>
+             <div class="col-md-9">
+              <input class="form-control" id="siUsername" name="siUsername" type="text">
+             </div>
+            </div>
+            <div class="row">
+             <div class="col-md-3">
+              <label for="siPassword" class="control-label">Password:</label>
+             </div>
+             <div class="col-md-9">
+              <input class="form-control" value="" id="siPassword" name="siPassword" type="password">
+             </div>
+            </div>
+            <div class="row">
+             <div class="col-md-offset-3 col-md-4">
+              <a title="Forgot your password?" id="forgottenAccountInfoLink" onclick="jQuery('button.close').click();" data-target="#forgottenOverlay" data-toggle="modal" href="#">Forgot your password?</a>
+             </div>
+             <div class="col-md-5 hidden-xs">
+              <a id="createProfileLink" onclick="jQuery('button.close').click();" data-target="#createProfileOverlay" data-toggle="modal" class="pull-right" href="#">Create My Research account</a>
+             </div>
+             <div class="col-xs-12 visible-xs">
+              <a id="createProfileLink" onclick="jQuery('button.close').click();" data-target="#createProfileOverlay" data-toggle="modal" class="pull-left" href="#">Create My Research account</a>
+             </div>
+            </div>
+            <div class="clearfix" id="modal-footer-ux">
+             <div class="pull-right">
+              <a href="#" class="btn btn-default" role="button" id="submit_0">Sign in</a>
+             </div>
+            </div>
+           </div>
+           <div style="display:none;" class="t-zone" id="signInLoginFormWorking">
+            <img class="t-autoloader-icon" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" alt="">
+           </div>
+           <img id="siUsername_icon" class="t-error-icon" alt="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" style="display: none;">
+           <img id="siPassword_icon" class="t-error-icon" alt="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" style="display: none;">
+          </form>
+         </div>
+        </div>
+        <div class="modal-footer"></div>
+       </div>
+      </div>
+     </div>
+     <div data-backdrop="static" tabindex="-1" id="createProfileOverlay" class="modal fade">
+      <div class="modal-dialog">
+       <div class="modal-content">
+        <div class="modal-header">
+         <h2 class="sr-only">Create a My Research account layer</h2>
+         <h2 role="heading" id="myModalLabel_createProfileOverlay" class="modal-title">Create a My Research account</h2>
+         <button aria-label="Close Create a My Research account layer" data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span></button>
+        </div>
+        <div class="modal-body clearfix">
+         <div class="lightviewInnerWrapper float_left">
+          <div class="t-zone" id="profileZoneIdValue">
+           <div class="dynamicPreview">
+            <form onsubmit="javascript:return Tapestry.waitForPage(event);" action="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.signinoverlay.createprofile.createprofileform" method="post" id="createProfileForm" class="t-prevent-submission">
+             <div class="" style="display: none;">
+              <input value="921465258" name="t:ac" type="hidden">
+              <input value="+iZhMmsZdT7CdmvNmKSeAC11YHE=:H4sIAAAAAAAAAKWTz0scMRTHo6isbEGwCIIXD3odL1pbRdlFUBdkGVhswdvb5M00mkliktkfHrz2v+hfIJ69e+it/4N/gNeeejCzsyNUoTAzpzBfkk8+7+XN3TOZH3bISQgxhiza034VMFapCyyPJZdqgMYHATUIDrVRERcYsDRJkvH060ZJ5GwAIkVrSEuZOAAN9DsGDjRaZ8Y7AVUGBe/7NdF+u3Q2OOWModwIjaJobS/tJ9xaruTFj/WPo7WHhVkyc0aaVElnlOhCgo4sn13CALYEyHir5wyX8f5IO7Ka64S5zoXnd9jXTGf4heyWrCy1aKS/zFey899K+mAxaPd9CNQdcxRso4cu1Zvnj82nlV9/3+lfk1syk+k2ijvq6bXL6r3r9OM9247+/Pw9S8hIV5DRYO1QGWaz0uZ8YUVQg5WhGsMWOSx53jc64iZ5q7Q0zcPCrDY5F9wjn0tiPMO6ydNN1RYnSTYZdWi5Tvl+C/jXppEF3WpDWbBylwOyX/I8JsAFMGb8dBY+HyZhOw9rMqs+GVCqUun46zQtTpMOq0PLdT6R7ZIAB5LRQmXetSU7qkqpOjUGI/8PXL2+UsMH37KgBmvi8gIE3kmyiAYAAA==" name="t:formdata" type="hidden">
+             </div>
+             <input value="profileZoneIdValue" name="dummmyProfileZoneIdValue" type="hidden">
+             <div class="row">
+              <div class="col-md-12">
+               <p class="red"><strong>Required*</strong></p>
+              </div>
+             </div>
+             <div class="form-group row">
+              <div class="col-md-3">
+               <label for="username" class="control-label required">Username</label>
+              </div>
+              <div class="col-md-9">
+               <input class="signintxtField form-control" id="username" name="username" type="text">
+               <p class="small">Used to sign into your account.</p>
+              </div>
+             </div>
+             <div class="form-group row">
+              <div class="col-md-3">
+               <label for="password" class="control-label required">Password</label>
+              </div>
+              <div class="col-md-9">
+               <input class="signintxtField form-control" id="password" name="password" type="password">
+               <p class="small">Use 8 or more letters and numbers.</p>
+              </div>
+             </div>
+             <div class="form-group row">
+              <div class="col-md-3">
+               <label for="confirmPassword" class="control-label required">Retype password</label>
+              </div>
+              <div class="col-md-9">
+               <input class="signintxtField form-control" id="confirmPassword" name="confirmPassword" type="password">
+              </div>
+             </div>
+             <div class="form-group row">
+              <div class="col-md-3">
+               <label for="firstName" class="control-label">First name</label>
+              </div>
+              <div class="col-md-9">
+               <input class="signintxtField form-control" id="firstName" name="firstName" type="text">
+               <p class="small">Displays on screen when you are signed in.</p>
+              </div>
+             </div>
+             <div class="form-group row">
+              <div class="col-md-3">
+               <label for="lastName" class="control-label">Last name</label>
+              </div>
+              <div class="col-md-9">
+               <input class="signintxtField form-control" id="lastName" name="lastName" type="text">
+               <p class="small">Displays in emails sent from your account.</p>
+              </div>
+             </div>
+             <div class="form-group row">
+              <div class="col-md-3">
+               <label for="emailAddress" class="control-label required">Email address</label>
+              </div>
+              <div class="col-md-9">
+               <input class="signintxtField form-control" id="emailAddress" name="emailAddress" type="text">
+               <p class="small">Used for account confirmation, forgotten password reminders, and alerts.</p>
+              </div>
+             </div>
+             <div style="display:none;" class="form-group row">
+              <div class="col-md-3">
+               <label for="accountId" class="control-label">Account Id</label>
+              </div>
+              <div class="col-md-9">
+               <input class="form-control" id="accountId" name="accountId" type="text">
+               <p class="small">Account Indentifier</p>
+              </div>
+             </div>
+             <div class="form-group">
+              <label for="tAndC" class="control-label required"><input id="tAndC" name="tAndC" type="checkbox"> I consent to the collection and use of my personal information consistent with the <a href="http://www.proquest.com.eu1.proxy.openathens.net/go/privacy" target="_blank">Privacy Policy</a>, and I acknowledge that use of the service is subject to the <a href="http://www.proquest.com.eu1.proxy.openathens.net/go/termsandconditions" target="_blank">Terms and Conditions</a>. Without your consent, we cannot create an account. </label>
+             </div>
+             <div style="float:none;" class="form-group row">
+              <div>
+               <label class="control-label" for="refWorks"><input id="refWorks" name="refWorks" type="checkbox"> I want to link my new My Research account to my RefWorks account. <a title="Learn more" class="popUpHelp noBG" href="javascript:newPopup('/help/academic/webframe.html?refworks.html');" id="refworksAndMR">Learn more<span></span></a></label>
+              </div>
+             </div>
+             <div class="clearfix" id="refWorksAccount" style="display: none;">
+              <input value="Wde70NU4Muf0RTrXZXUrYVC5gSs=:H4sIAAAAAAAAAK1RO07DQBAdIlGlIUjcANpNQxooIBTQWMhShKjH6/GysNlZZtdx0nAUToC4RAo67sABaKkosBE+AJBqRu+N3kfz9A7bzRmc5mgoL6uj0E6HK66TitZ463lB0gJKC2GiIFxZR0qoaljuomNjvcc5RYEJi1EYUN+QShgoJllNlGYhZwtVYCQ1LVoQdTq35Mr9GaU6HFyth297L58D2MpgqNknYXfZKibYzW5xgWOH3oxnSaw3x8uQYNSaX3fmWWfenW6owPS3BXJhTTHO6mJuY7Ts18/lYfXx+DoAWIZmCid/TBUwxnYp4z08ACTY6Yn8h9iAdif9n9cb4TpoLqkPOeqZi57ZhPp3zC+PO8JapgIAAA==" id="refWorksAccount-hidden" name="t:formdata" type="hidden" disabled="disabled">
+              <p class="small existingRef">If you have a RefWorks 
+account, save your login details here to keep your My Research citations
+ and folders synchronized with RefWorks. You can add these settings 
+later to the RefWorks Settings page, available from the My Account tab 
+in My Research. <a href="https://search-proquest-com.eu1.proxy.openathens.net/help/academic/webframe.html?sync_MR_refworks.html" target="_blank">Instructions for Athens and Shibboleth users</a>.</p>
+              <div class="form-group row">
+               <div class="col-md-3">
+                <label for="refWorksLoginName" class="control-label">Log-in name</label>
+               </div>
+               <div class="col-md-9">
+                <input class="signintxtField form-control" id="refWorksLoginName" name="refWorksLoginName" type="text">
+               </div>
+              </div>
+              <div class="form-group row">
+               <div class="col-md-3">
+                <label for="refworksPassword" class="control-label">Password</label>
+               </div>
+               <div class="col-md-9">
+                <input class="signintxtField form-control" id="refworksPassword" name="refworksPassword" type="password">
+               </div>
+              </div>
+              <div class="form-group row">
+               <div class="col-md-3">
+                <label for="refworksGroupcode" class="control-label">Group code</label>
+               </div>
+               <div class="col-md-9">
+                <input class="signintxtField  form-control" id="refworksGroupcode" name="refworksGroupcode" type="text">
+                <p class="small field_note clear_left">Optional - Enter if your RefWorks account is provided by a different institution</p>
+               </div>
+              </div>
+             </div>
+             <div class="clearfix t-zone" id="tAndCZone">
+              <div class="clearfix" id="modal-footer-ux">
+               <input value="Bt4yH7nt2UGtaHq9DxJM14KKV2w=:H4sIAAAAAAAAACWOSwrCMBRFnz8QBBHX4EyIc0VEHAlFCsUFxPhaIvk1L606cQWuwRW4HLchuARjHV3uD87zDb3zGlYpLzA95nMXVfGrrQIjWRhpbI0+Bkx45AGdt7lUyKg6aBn+WUXoycNSWM1iX1ZIgXHniAnrUclDVO2sQROIZc1xknorkKhxRNKax2vavQ/rTxvaCfSFknG9PQYYJyde85nipphlwUtTLBIYoEIdBzuusYQbtC4uwOjPtGmY9pHp13S+BIrhjuAAAAA=" name="t:formdata" type="hidden">
+               <div class="btn_wrapper float_right">
+                <a href="#" class="btn btn-default" role="button" id="submitCreateUser">Create account</a>
+                <span class="cancelLink"><a href="#" data-dismiss="modal" id="cancelOverLay">Cancel</a></span>
+               </div>
+              </div>
+             </div>
+             <img id="username_icon" class="t-error-icon" alt="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" style="display: none;">
+             <img id="password_icon" class="t-error-icon" alt="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" style="display: none;">
+             <img id="confirmPassword_icon" class="t-error-icon" alt="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" style="display: none;">
+             <img id="firstName_icon" class="t-error-icon" alt="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" style="display: none;">
+             <img id="lastName_icon" class="t-error-icon" alt="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" style="display: none;">
+             <img id="emailAddress_icon" class="t-error-icon" alt="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" style="display: none;">
+             <img id="accountId_icon" class="t-error-icon" alt="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" style="display: none;">
+             <img id="tAndC_icon" class="t-error-icon" alt="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" style="display: none;">
+             <img id="refWorksLoginName_icon" class="t-error-icon" alt="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" style="display: none;">
+             <img id="refworksPassword_icon" class="t-error-icon" alt="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" style="display: none;">
+             <img id="refworksGroupcode_icon" class="t-error-icon" alt="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" style="display: none;">
+            </form>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="modal-footer"></div>
+       </div>
+      </div>
+     </div>
+     <div data-backdrop="true" tabindex="-1" id="forgottenOverlay" class="modal fade">
+      <div class="modal-dialog">
+       <div class="modal-content">
+        <div class="modal-header">
+         <h2 class="sr-only">Forgot your password? layer</h2>
+         <h2 role="heading" id="myModalLabel_forgottenOverlay" class="modal-title">Forgot your password?</h2>
+         <button aria-label="Close Forgot your password? layer" data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span></button>
+        </div>
+        <div class="modal-body clearfix">
+         <div>
+          <div class="t-zone" id="forgotZone">
+           <div class="dynamicPreview">
+            <p class="passwordMsg" id="importForgottentAccInfoInstr">Enter your My Research email address, and we'll email your username and password.</p>
+            <form class="forgottenAccountForm t-prevent-submission" onsubmit="javascript:return Tapestry.waitForPage(event);" action="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.signinoverlay.forgottenaccountinfo.forgottenaccountform" method="post" id="forgottenAccountForm">
+             <div class="" style="display: none;">
+              <input value="921465258" name="t:ac" type="hidden">
+              <input value="40rilYFtdh0bhjPzqHfoI5/XN98=:H4sIAAAAAAAAAK2Sv0pDMRTG06KlUHFQnFwc6iSkg3bxH1ZEFIoUiouL5Cbn3kZykzQ5t38WVxefoU8gzu4d3Jx8AR9AcHJyML2dpCIoTge+nOT7ne/k7pXM9/fJbosl0BLxtg1VsaHJkHqZaKlND1wQaGxcYhBBM85NplHq2NCOFAK0d+QgnFJmGe8ARWbBoxvWKTcOlIxCTa3RoNHTk/xGteUMB+/bWZRK76XRFzdry4PVh1KRFJqkwo1GZ9QZSwHJUvOK9VhNMZ3U2uikTnYGFklpat4/Iod/g4eUScWEcAEkjFD/cYSIeaCNKIiM47EEJaptwMyun48rLyuPHzPcXXJNChPOhdynMfX5N9rGb2lnEh/fi634ffRUJGRg//4F/ORBDER7YcvUOtPNAkxAs/67/ef+OEszet6Yu13svRVJsUnKXMnQfSryEEOuoCANwpdcy1Pny82JUvkEbLXJi8gCAAA=" name="t:formdata" type="hidden">
+             </div>
+             <input id="comingFrom" value="" name="hidden" type="hidden">
+             <div id="errorPanel"></div>
+             <div class="row">
+              <div class="col-md-3">
+               <label for="emailAddress">Email address: </label>
+              </div>
+              <div class="col-md-9">
+               <input class="signintxtField form-control" id="emailAddress" name="emailAddress" type="text">
+              </div>
+             </div>
+             <div class="clearfix" id="modal-footer-ux">
+              <div class="pull-right">
+               <a href="#" class="btn btn-default" role="button" id="submit_3">Send</a>
+               <span class="cancelLink"><a data-dismiss="modal" href="#">Cancel</a></span>
+              </div>
+             </div>
+             <img id="emailAddress_icon" class="t-error-icon" alt="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/spacer.gif" style="display: none;">
+            </form>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="modal-footer"></div>
+       </div>
+      </div>
+     </div>
+     <div aria-hidden="true" role="dialog" tabindex="-1" id="languages" class="modal fade">
+      <div class="modal-dialog">
+       <div class="modal-content">
+        <div class="modal-header">
+         <button data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span><span class="sr-only">[[missing key: buttonClose]]</span></button>
+         <h2 class="modal-title">Select language</h2>
+        </div>
+        <div class="modal-body">
+         <ul>
+          <li><a id="localeSwitcher_ar" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/ar?t:ac=921465258">العربية</a></li>
+          <li><a id="localeSwitcher_in" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/in?t:ac=921465258">Bahasa Indonesia</a></li>
+          <li><a id="localeSwitcher_cs" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/cs?t:ac=921465258">Čeština</a></li>
+          <li><a id="localeSwitcher_de" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/de?t:ac=921465258">Deutsch</a></li>
+          <li><a id="localeSwitcher_es" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/es?t:ac=921465258">Español</a></li>
+          <li><a id="localeSwitcher_fr" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/fr?t:ac=921465258">Français</a></li>
+          <li><a id="localeSwitcher_ko" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/ko?t:ac=921465258">한국어</a></li>
+          <li><a id="localeSwitcher_it" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/it?t:ac=921465258">Italiano</a></li>
+          <li><a id="localeSwitcher_hu" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/hu?t:ac=921465258">Magyar</a></li>
+          <li><a id="localeSwitcher_ja" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/ja?t:ac=921465258">日本語</a></li>
+          <li><a id="localeSwitcher_no" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/no?t:ac=921465258">Norsk</a></li>
+          <li><a id="localeSwitcher_pl" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/pl?t:ac=921465258">Polski</a></li>
+          <li><a id="localeSwitcher_pt" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/pt?t:ac=921465258">Português (Brasil)</a></li>
+          <li><a id="localeSwitcher_pt_PT" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/pt_PT?t:ac=921465258">Português (Portugal)</a></li>
+          <li><a id="localeSwitcher_ru" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/ru?t:ac=921465258">Русский</a></li>
+          <li><a id="localeSwitcher_th" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/th?t:ac=921465258">ไทย</a></li>
+          <li><a id="localeSwitcher_tr" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/tr?t:ac=921465258">Türkçe</a></li>
+          <li><a id="localeSwitcher_zh_CN" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/zh_CN?t:ac=921465258">中文(简体)‎</a></li>
+          <li><a id="localeSwitcher_zh_TW" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.popuplocaleswitcherlist:changelocale/zh_TW?t:ac=921465258">中文(繁體)‎</a></li>
+         </ul>
+        </div>
+        <div class="modal-footer"></div>
+       </div>
+      </div>
+     </div>
+     <div data-backdrop="true" tabindex="-1" id="endsession_confirm" class="modal fade">
+      <div class="modal-dialog">
+       <div class="modal-content">
+        <div class="modal-header">
+         <h2 class="sr-only">Exit layer</h2>
+         <h2 role="heading" id="myModalLabel_endsession_confirm" class="modal-title">Exit</h2>
+         <span class="sr-only" role="alert">Would you like to exit ProQuest or continue working? Tab through to the exit button or continue working link.</span>
+         <a title="Help icon" class="popUpHelpWindow noBG help overlay_header_HelpLink" href="javascript:newPopup('/help/academic/webframe.html?End_Session.html');" id="endsessionhelp"><span aria-hidden="true" class="uxf-icon uxf-help-circle"><span class="sr-only">Help icon&gt;</span></span><span></span></a>
+         <button aria-label="Close Exit layer" data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span></button>
+        </div>
+        <div class="modal-body clearfix">
+         <p class="sessionText">Exit ProQuest, or continue working?</p>
+        </div>
+        <div class="modal-footer">
+         <div class="center-content">
+          <a site="OS" role="button" id="endSessionLinkId" class="btn btn-default" href="https://search-proquest-com.eu1.proxy.openathens.net/sessionended/false?accountid=14483">Exit</a>
+          <a data-dismiss="modal" title="Continue working" id="endSessionConfirmCancel" href="#">Continue working</a>
+         </div>
+         <br>
+         <div>
+          <p class="small"><strong>Note:</strong> Items you have 
+selected during your session and your list of recent searches are not 
+saved unless you have signed into your account and added them to My 
+Research.</p>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="clear_left"></div>
+     <a data-target="#endSessionWarning" data-toggle="modal" id="endSessionWarningLink" hidden="true"></a>
+     <div data-backdrop="true" tabindex="-1" id="endSessionWarning" class="modal fade">
+      <div class="modal-dialog">
+       <div class="modal-content">
+        <div class="modal-header">
+         <h2 class="sr-only">Your session is about to expire layer</h2>
+         <h2 role="heading" id="myModalLabel_endSessionWarning" class="modal-title">Your session is about to expire</h2>
+         <span class="sr-only" role="alert">Your session is about to 
+expire. Sessions expire after 30 minutes of inactivity. Tab through the 
+options to the continue working button or end session link.</span>
+         <div class="sr-only">
+          Help icon
+         </div>
+         <a title="Help icon" class="popUpHelpWindow noBG help overlay_header_HelpLink" href="javascript:newPopup('/help/academic/webframe.html?End_Session.html');" id="endsessionhelp_0"><span aria-hidden="true" class="uxf-icon uxf-help-circle"><span class="sr-only">Close icon</span></span><span></span></a>
+         <a title="close icon" data-dismiss="modal" id="closeWarningModalLink"><span class="sr-only">Close icon</span></a>
+         <button aria-label="Close Your session is about to expire layer" data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span></button>
+        </div>
+        <div class="modal-body clearfix">
+         <p>Your session will expire in <span id="warnTime"></span>.</p>
+         <p>Sessions expire after 30 minutes of inactivity.</p>
+        </div>
+        <div class="modal-footer">
+         <div class="center-content">
+          <a id="endSessionWarningCarryOn" role="button" class="btn btn-default" data-dismiss="modal" href="https://search-proquest-com.eu1.proxy.openathens.net/sessionended?accountid=14483">Continue working</a>
+          <a id="endSessionWarningEndSession" role="link" title="Exit" href="https://search-proquest-com.eu1.proxy.openathens.net/sessionended?accountid=14483">End Session</a>
+         </div>
+         <br>
+         <div>
+          <p class="small"><strong>Note:</strong> Items you have 
+selected during your session and your list of recent searches are not 
+saved unless you have signed into your account and added them to My 
+Research.</p>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+     <div tabindex="-1" id="start">
+      <script type="text/javascript">
+jQuery(document).ready(function(){
+jQuery('[data-toggle="tooltip"]').tooltip({placement : 'bottom'});
+});
+</script>
+      <div class="container">
+       <div class="clearfix">
+        <ul class="horizontal pull-left back-to-results"></ul>
+        <div id="results-nav" class="clearfix">
+         <ul class="horizontal pull-right hidden-lg hidden-md">
+          <li><a href="#0" class="cd-btn" onclick="pqGlobal.slidePanelOpen(this, 'moreLikeThisPanel')">More like this <span aria-hidden="true" class="uxf-icon uxf-right-open-mini"></span></a></li>
+         </ul>
+        </div>
+       </div>
+       <div class="row">
+        <div class="col-md-9">
+         <div class="docViewContentHeader">
+          <div class="citationTextWrapper">
+           <div class="header_docview_page row clearfix">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+             <h1 class="documentTitle" id="documentTitle">A Sparse Approximate Inverse Preconditioner for Nonsymmetric Linear Systems</h1>
+            </div>
+            <script type="text/javascript">
+var pqDocumentTitle = (function() {
+var blockId = 'documentTitle';
+var moreLinkText = '';
+var lessLinkText = '';
+var moreLinkAccessibilityText = 'More title';
+var lessLinkAccessibilityText = 'Less title';
+return {
+checkOnTitleTruncation: function() {
+var element = document.getElementById(blockId);
+if ((element.offsetHeight + 30)  < element.scrollHeight) {
+addCollapsableToggle();
+} else {
+$j('#' + blockId).removeClass('truncatedDocumentTitle');
+}
+}
+};
+function addCollapsableToggle() {
+$j('#' + blockId).after('<a aria-label="' + moreLinkAccessibilityText + '" class="truncatedDocumentTitleLink collapsed" aria-controls="' + blockId + '" aria-expanded="false" id="MoreLink_' + blockId + '" href="">' + moreLinkText + '</a>');
+$j('#MoreLink_'+ blockId).click(moreLinkClick);
+}
+function moreLinkClick() {
+$j('#' + blockId).removeClass('truncatedDocumentTitle');
+$j('#' + blockId).after('<a aria-label="' + lessLinkAccessibilityText + '" class="truncatedDocumentTitleLessLink truncatedDocumentTitleLink" aria-controls="' + blockId + '" aria-expanded="true" id="LessLink_' + blockId + '" href="">' + lessLinkText + '</a>');
+$j('#LessLink_'+ blockId).click(lessLinkClick);
+$j('#MoreLink_'+ blockId).remove();
+$j('#LessLink_'+ blockId).focus();
+return false;
+}
+function lessLinkClick() {
+$j('#' + blockId).addClass('truncatedDocumentTitle');
+$j('#' + blockId).after('<a aria-label="' + moreLinkAccessibilityText + '" class="truncatedDocumentTitleLink collapsed" aria-controls="' + blockId + '" aria-expanded="false" id="MoreLink_' + blockId + '" href="">' + moreLinkText + '</a>');
+$j('#MoreLink_'+ blockId).click(moreLinkClick);
+$j('#LessLink_'+ blockId).remove();
+$j('#MoreLink_'+ blockId).focus();
+return false;
+}
+})();
+$j(function($) {
+pqDocumentTitle.checkOnTitleTruncation();
+});
+</script>
+            <div class="abstract_Text col-xs-12 col-sm-10 col-md-10 col-lg-10">
+             <span class="titleAuthorETC"><a id="lateralSearch" title="Click to search for more items by this author" href="https://search-proquest-com.eu1.proxy.openathens.net/indexinglinkhandler/sng/au/Benzi,+Michele/$N?accountid=14483">Benzi, Michele</a>; <a id="lateralSearch" title="Click to search for more items by this author" href="https://search-proquest-com.eu1.proxy.openathens.net/indexinglinkhandler/sng/au/Tuma,+Miroslav/$N?accountid=14483">Tuma, Miroslav</a>. </span>
+             <span class="titleAuthorETC"><a id="lateralSearch" title="Click to search for more items from this journal" href="https://search-proquest-com.eu1.proxy.openathens.net/pubidlinkhandler/sng/pubtitle/SIAM+Journal+on+Scientific+Computing/$N/666298/PagePdf/921465258/fulltextPDF/49E0599066FC46E8PQ/1?accountid=14483"><strong>SIAM Journal on Scientific Computing</strong></a><strong>; Philadelphia</strong><a title="Click to search for more items from this issue" class="issue_num_spacing" href="https://search-proquest-com.eu1.proxy.openathens.net/indexingvolumeissuelinkhandler/666298/SIAM+Journal+on+Scientific+Computing/01998Y05Y01$23May+1998$3b++Vol.+19+$283$29/19/3?accountid=14483">&nbsp;Vol.&nbsp;19,&nbsp;Iss.&nbsp;3,&nbsp;</a> (May 1998): 27. </span> DOI:10.1137/S1064827595294691 
+            </div>
+            <div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+             <img alt="Publisher logo. Links to publisher website, opened in a new window." onerror="checkForImage('https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.headertitle:imagecheck?t:ac=921465258');" style="display:none" class="img-responsive" id="pubLogo">
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="col-md-3">
+         <div class="clearfix" id="use-tools"> 
+          <a norewrite="true" download="ProQuestDocument.pdf" title="Download PDF" class="tool-option-link pdf-download" href="https://media.proquest.com/media/pq/classic/doc/2586677741/fmt/pi/rep/NONE?cit%3Aauth=Benzi%2C+Michele%3BTuma%2C+Miroslav&amp;cit%3Atitle=A+Sparse+Approximate+Inverse+Preconditioner+for+Nonsymmetric+Linear+Systems&amp;cit%3Apub=SIAM+Journal+on+Scientific+Computing&amp;cit%3Avol=19&amp;cit%3Aiss=3&amp;cit%3Apg=968&amp;cit%3Adate=May+1998&amp;ic=true&amp;cit%3Aprod=ProQuest+Central&amp;_a=ChgyMDIwMDIxNjEyNDkzMTU3MDoxMDk0MTYSBTk2MTc5GgpPTkVfU0VBUkNIIg44My4xMzcuMjExLjE5OCoGNjY2Mjk4Mgk5MjE0NjUyNTg6DURvY3VtZW50SW1hZ2VCATBSBk9ubGluZVoCRlRiA1BGVGoKMTk5OC8wNS8wMXIKMTk5OC8wNS8zMXoAggEyUC0xMDAwMDAxLTEyMjQ4LUNVU1RPTUVSLTEwMDAwMjU1LzEwMDAwMDA4LTQ3MTgyNzKSAQZPbmxpbmXKAUxNb3ppbGxhLzUuMCAoWDExOyBVYnVudHU7IExpbnV4IHg4Nl82NDsgcnY6NzMuMCkgR2Vja28vMjAxMDAxMDEgRmlyZWZveC83My4w0gESU2Nob2xhcmx5IEpvdXJuYWxzmgIHUHJlUGFpZKoCJU9TOkVNUy1Eb3dubG9hZFBkZi1nZXRNZWRpYVVybEZvckl0ZW3KAgdBcnRpY2xl0gIBWeICAU7yAgD6AgFOggMDV2Vi&amp;_s=r%2BbuSVlIcYTF5D2X7fSzb%2BnNln8%3D" target="_new" id="downloadPDFLink" role="button" renameadded="true"><span class="tool-option"><span aria-hidden="true" class="uxf-icon uxf-download"></span><span aria-label="Download PDF" class="pdf-label">PDF</span></span><span aria-hidden="true" class="optionLabel">Download PDF</span></a> 
+          <a onclick="javascript:return Tapestry.waitForPage(event);" data-toggle="" role="button" updatelinkhref="#" id="citethisLink" title="Cite" class="tool-option-link " aria-label="Cite" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pdfdocusetools_0.citethis:updatecitationlink/DocView/relevance/citeThisZonecitethis/MSTAR_921465258?t:ac=921465258"><span class="tool-option"><span aria-hidden="true" class="uxf-icon uxf-quote"></span></span><span class="sr-only">Cite</span><span class="optionLabel">Cite</span></a>
+          <div class="t-zone" id="citeThisZonecitethis">
+           <div id="cite_main_container_citethis"></div>
+          </div>
+          <a id="emailLink" onclick="javascript:return Tapestry.waitForPage(event);" role="button" title="Email" class="tool-option-link" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pdfdocusetools_0:updateemaillink?t:ac=921465258"><span class="tool-option"><span aria-hidden="true" aria-label="Email" class="uxf-icon uxf-mail"></span></span><span class="optionLabel">Email</span></a>
+          <div class="t-zone" id="saveAsEmailOverlayUseToolsZone"></div>
+          <a role="button" page="pdfprintview" title="Print" class="tool-option-link" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pdfdocusetools_0:printtofit/https:$2f$2fmedia.proquest.com$2fmedia$2fpq$2fclassic$2fdoc$2f2586677741$2ffmt$2fpi$2frep$2fNONE$3fpf$3dT$26hl$3d$26cit$253Aauth$3dBenzi$252C$2bMichele$253BTuma$252C$2bMiroslav$26cit$253Atitle$3dA$2bSparse$2bApproximate$2bInverse$2bPreconditioner$2bfor$2bNonsymmetric$2bLinear$2bSystems$26cit$253Apub$3dSIAM$2bJournal$2bon$2bScientific$2bComputing$26cit$253Avol$3d19$26cit$253Aiss$3d3$26cit$253Apg$3d968$26cit$253Adate$3dMay$2b1998$26ic$3dtrue$26cit$253Aprod$3dProQuest$2bCentral$26_a$3dChgyMDIwMDIxNjEyNDkzMTU3MDoxMDk0MTYSBTk2MTc5GgpPTkVfU0VBUkNIIg44My4xMzcuMjExLjE5OCoGNjY2Mjk4Mgk5MjE0NjUyNTg6DURvY3VtZW50SW1hZ2VCATBSBk9ubGluZVoCRlRiA1BGVGoKMTk5OC8wNS8wMXIKMTk5OC8wNS8zMXoAggEyUC0xMDAwMDAxLTEyMjQ4LUNVU1RPTUVSLTEwMDAwMjU1LzEwMDAwMDA4LTQ3MTgyNzKSAQZPbmxpbmXKAUxNb3ppbGxhLzUuMCAoWDExOyBVYnVudHU7IExpbnV4IHg4Nl82NDsgcnY6NzMuMCkgR2Vja28vMjAxMDAxMDEgRmlyZWZveC83My4w0gESU2Nob2xhcmx5IEpvdXJuYWxzmgIHUHJlUGFpZKoCKE9TOkVNUy1QZGZEb2NWaWV3QmFzZS1nZXRNZWRpYVVybEZvckl0ZW3KAgdBcnRpY2xl0gIBWeICAU7yAgD6AgFOggMDV2Vi$26_s$3dq$252BPLYsD$252FGo02hzZ98hQ29q0YmZA$253D?t:ac=921465258"><span class="tool-option"><span aria-hidden="true" class="uxf-icon uxf-print"></span></span><span class="optionLabel">Print</span></a>
+          <a title="All save options" id="allSaveOptionsLink" href="#" data-toggle="" role="button" class="tool-option-link"><span class="tool-option dot-dot-dot"><span aria-hidden="true" aria-label="All save options" class="uxf-icon uxf-dot-three"></span></span><span class="optionLabel">All Options</span></a>
+          <a onclick="javascript:return Tapestry.waitForPage(event);" id="allSaveOptionsHiddenLink" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pdfdocusetools_0:allsaveoptions?t:ac=921465258" hidden="true"></a>
+          <div class="t-zone" id="useToolsPrintZone"></div>
+          <div class="t-zone" id="allSaveOptionsZone"></div>
+          <div class="t-zone" id="saveasZone"></div>
+          <div data-backdrop="static" tabindex="-1" id="mr_noSelectedItems" class="modal fade">
+           <div class="modal-dialog">
+            <div class="modal-content">
+             <div class="modal-header">
+              <h2 class="sr-only">No items selected layer</h2>
+              <h2 role="heading" id="myModalLabel_mr_noSelectedItems" class="modal-title">No items selected</h2>
+              <button aria-label="Close No items selected layer" data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span></button>
+             </div>
+             <div class="modal-body clearfix">
+              <div class="noSelectedItemsOverlay">
+               <p>Please select one or more items.</p>
+              </div>
+             </div>
+             <div class="modal-footer">
+              <div class="pull-right">
+               <a title="Close" data-dismiss="modal" href="javascript:void(0);" class="btn btn-default" role="button" id="button_0"> Close </a>
+              </div>
+             </div>
+            </div>
+           </div>
+          </div>
+          <div style="display: none;" id="noSelectedItemUseToolsPopover">
+            Select results items first to use the cite, email, and save options 
+          </div>
+          <script>
+$j(function($){
+//Handles bootstrap tooltip display on use tools options
+jQuery(document).ready(function(){
+jQuery('[data-toggle="tooltip"]').tooltip({placement : 'bottom'});
+});
+});
+</script>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div id="docview-contents-wrapper">
+       <div class="docView container" id="columnsWrapper">
+        <div class="row" id="main">
+         <div class="col-md-9 col-sm-12" id="mainContentLeft">
+          <ul class="hiddenText">
+           <li id="my-research-link"></li>
+          </ul>
+          <div class="clear_left"></div> 
+          <div class="tabs docview" role="tabpanel">
+           <ol class="nav nav-tabs" role="tablist">
+            <li aria-selected="true" aria-expanded="true" role="presentation" class="active" id="tab-ScannedPDF-null"><a linktitle="Full text - PDF (Scanned image) from ABI/INFORM Global and other databases" data-toggle="tab" onclick="sessionStorage.tabTriggered = 'true';sessionStorage.tabFocusId = JSON.stringify(this.id);" role="tab" aria-controls="Full text - PDF (Scanned image) from ABI/INFORM Global and other databases" source="item" id="addFlashPageParameterformat_fulltextPDF" title="Full text - PDF (Scanned image) from ABI/INFORM Global and other databases" href="https://search-proquest-com.eu1.proxy.openathens.net/docview/921465258/fulltextPDF/49E0599066FC46E8PQ/1?accountid=14483">Full text - PDF</a></li>
+            <li aria-selected="false" aria-expanded="false" role="presentation" class="tab" id="tab-AbstractRecord-null"><a linktitle="Abstract/Details from ABI/INFORM Global and other databases" data-toggle="" onclick="sessionStorage.tabTriggered = 'true';sessionStorage.tabFocusId = JSON.stringify(this.id);" role="tab" aria-controls="Abstract/Details from ABI/INFORM Global and other databases" source="item" id="addFlashPageParameterformat_abstract" title="Abstract/Details from ABI/INFORM Global and other databases" href="https://search-proquest-com.eu1.proxy.openathens.net/docview/921465258/abstract/49E0599066FC46E8PQ/1?accountid=14483">Abstract/Details</a></li>
+           </ol>
+           <div class="tab-content">
+            <div class="tab-pane active" role="tabpanel" id="tab-ScannedPDF-null">
+             <div class="clearfix">
+              <div class="panel_base status_change_panel errorPanelWidth" style="display:none" id="pdffailure">
+               <div class="body">
+                <p>It appears you don't have support to open PDFs in this web browser. To view this file, <a href="https://media.proquest.com/media/pq/classic/doc/2586677741/fmt/pi/rep/NONE?hl=&amp;cit%3Aauth=Benzi%2C+Michele%3BTuma%2C+Miroslav&amp;cit%3Atitle=A+Sparse+Approximate+Inverse+Preconditioner+for+Nonsymmetric+Linear+Systems&amp;cit%3Apub=SIAM+Journal+on+Scientific+Computing&amp;cit%3Avol=19&amp;cit%3Aiss=3&amp;cit%3Apg=968&amp;cit%3Adate=May+1998&amp;ic=true&amp;cit%3Aprod=ProQuest+Central&amp;_a=ChgyMDIwMDIxNjEyNDkzMTU3MDoxMDk0MTYSBTk2MTc5GgpPTkVfU0VBUkNIIg44My4xMzcuMjExLjE5OCoGNjY2Mjk4Mgk5MjE0NjUyNTg6DURvY3VtZW50SW1hZ2VCATBSBk9ubGluZVoCRlRiA1BGVGoKMTk5OC8wNS8wMXIKMTk5OC8wNS8zMXoAggEyUC0xMDAwMDAxLTEyMjQ4LUNVU1RPTUVSLTEwMDAwMjU1LzEwMDAwMDA4LTQ3MTgyNzKSAQZPbmxpbmXKAUxNb3ppbGxhLzUuMCAoWDExOyBVYnVudHU7IExpbnV4IHg4Nl82NDsgcnY6NzMuMCkgR2Vja28vMjAxMDAxMDEgRmlyZWZveC83My4w0gESU2Nob2xhcmx5IEpvdXJuYWxzmgIHUHJlUGFpZKoCKE9TOkVNUy1QZGZEb2NWaWV3QmFzZS1nZXRNZWRpYVVybEZvckl0ZW3KAgdBcnRpY2xl0gIBWeICAU7yAgD6AgFOggMDV2Vi&amp;_s=pcJfSFisBU4hEGI36pOqZJeNpyM%3D">Open with your PDF reader</a></p>
+               </div>
+              </div>
+              <div class="pdfEmbed" id="pdfEmbedDivId">
+               <embed type="application/pdf" id="embedded-pdf" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/NONE.pdf" tabindex="0" width="100%" height="100%">
+              </div>
+             </div>
+            </div>
+           </div>
+          </div> 
+          <div class="t-zone" id="progressivedisplay"></div>
+         </div>
+         <div class="col-md-3 col-sm-4 col-xs-12" id="side_panel">
+          <div class="cd-panel from-right" id="moreLikeThisPanel">
+           <div class="cd-panel-container">
+            <div class="cd-panel-content">
+             <div class="clearfix hidden-lg hidden-md">
+              <h1 class="pull-left">More like this</h1>
+              <a aria-hidden="true" class="cd-panel-close pull-right uxf-icon uxf-close" href="#0" onclick="pqGlobal.slidePanelClose()">&nbsp;</a>
+             </div>
+             <form autocomplete="off" action="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.searchboxdocview.searchform" method="post" id="searchForm">
+              <div class="" style="display: none;">
+               <input value="921465258" name="t:ac" type="hidden">
+               <input value="gJRpq6rF8yaPH7gl1XBpaewYauA=:H4sIAAAAAAAAAJWQP0oDQRSHn4tCMJBC8AQaRIRJYxrFIo0gLLKweoDZmZfNyOzMZGb2j40n8Aw5gXiJFOmsvIAHEKysLJzdoI0I2n7vwffxe3iFrXoIewnNMeHTE4fUslmmG65ZJbAma+DRFs7CWNucUEPZDImnBp23t2PCtEUpMpJRh2SSBUiZPxco+X6KvjTD62X/ZXf1EcFGDH2mlbdaXtICPezEN7SiI0lVPkq9FSo/bYyH7bX1Klj/Hjf5b1xiNUPn0jIrhHNCq+UjP56+L54igMbUh3DwqxgbQxVHvj4E+RnTBTFWz8vgDRXGfZvDxWiFyjvSqfxP8eL5aPN+UL1FEMXQY1KE7ws+h7tuMZRYBNAu1qF2ocFXQdoVtLz3CfWMkf/MAQAA" name="t:formdata" type="hidden">
+              </div>
+              <div id="side-panel-search">
+               <div class="input-group">
+                <label for="searchTerm" class="sr-only">Search ProQuest...</label>
+                <textarea formid="searchForm.clientId" accesskey="4" onkeydown="pqga.fireTextEntryEvent(event, 'docViewSearchTermsEnterKeyPress');" placeholder="Search ProQuest..." rows="1" class="form-control input" minchars="2" id="searchTerm" name="searchTerm"></textarea>
+                <span class="input-group-btn"><a aria-label="Search button" href="#" class="btn btn-default" role="button" id="expandedSearch"><span aria-hidden="true" class="uxf-icon uxf-search"></span><span class="sr-only">Search button</span></a></span>
+               </div>
+              </div>
+             </form>
+             <div class="hidden-xs">
+              <div id="institutionalBranding"></div>
+             </div>
+             <div class="display_record_formats docViewOtherFormat">
+              <div class="clear_left"></div>
+             </div>
+             <div class="full-text-options">
+              <div id="referenceLinksPanel" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="referenceLinksPanel">
+               <div class="panel-body">
+                <ul>
+                 <li><a title="Cited by" href="https://search-proquest-com.eu1.proxy.openathens.net/citedby/MSTAR_921465258/49E0599066FC46E8PQ/1?accountid=14483">Cited by</a> (1) </li>
+                </ul>
+               </div>
+              </div>
+             </div>
+             <div class="full-text-options">
+              <div class="panel-heading" role="complementary" id="similarDocs">
+               <h5 class="panel-title">
+                <div class="t-zone" id="similarDocsLinkZone">
+                 <a id="hideSimilarDocs" onclick="javascript:return Tapestry.waitForPage(event);" data-toggle="collapse" aria-controls="similarDocsPanel" aria-expanded="true" class="wt-expand-collapse-similar-docs panel-title" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.similardocuments.hidesimilardocs?t:ac=921465258"> Related items </a>
+                </div></h5>
+              </div>
+              <div class="t-zone" id="similarDocsZone">
+               <div id="similarDocsPanel" class="panel-collapse collapse in" role="complementary" aria-labelledby="similarDocsPanel">
+                <div class="panel-body">
+                 <div class="t-zone" id="progressivedisplay_0" style="background-image: none; background-color: rgb(255, 255, 255);"><div><ul><li class="wt-sim-doc-results-item"><h3 id="result-header-1"><a onclick="pqga.pushDataToGA(1);" id="docViewPageLink_1d603df8685a0" title="Approximate computing: Enabling voltage over-scaling in multimedia applications" class="previewTitle Topicsresult" href="https://search-proquest-com.eu1.proxy.openathens.net/docview/901125984/A869C50C2FCB4A5EPQ/1?accountid=14483"><div class="truncatedResultsTitle">Approximate computing: Enabling voltage over-scaling in multimedia applications</div></a></h3><span class="titleAuthorETC">Mohapatra, Debabrata.
+</span><span class="titleAuthorETC ">Purdue University, ProQuest Dissertations Publishing, 2011. 3477703. </span></li></ul></div><div><ul><li class="wt-sim-doc-results-item"><h3 id="result-header-2"><a onclick="pqga.pushDataToGA(2);" id="docViewPageLink_1d603df8685a0_0" title="Boeing's Brave New World of Product Development" class="previewTitle Topicsresult" href="https://search-proquest-com.eu1.proxy.openathens.net/docview/235244623/A869C50C2FCB4A5EPQ/2?accountid=14483"><div class="truncatedResultsTitle">Boeing's Brave New World of Product Development</div></a></h3><span class="titleAuthorETC">Stackpole, Beth.
+</span><span class="titleAuthorETC"><strong>Design News</strong><strong>; Manhassett</strong>&nbsp;Vol.&nbsp;62,&nbsp;Iss.&nbsp;8,&nbsp; (Jun 4, 2007): 91.
+</span></li></ul></div><div><ul><li class="wt-sim-doc-results-item"><h3 id="result-header-3"><a onclick="pqga.pushDataToGA(3);" id="docViewPageLink_1d603df8685a0_1" title="Inverse logic; Tax inversions" class="previewTitle Topicsresult" href="https://search-proquest-com.eu1.proxy.openathens.net/docview/1564164268/A869C50C2FCB4A5EPQ/3?accountid=14483"><div class="truncatedResultsTitle">Inverse logic; Tax inversions</div></a></h3><span class="titleAuthorETC">Anonymous.
+</span><span class="titleAuthorETC"><strong>The Economist</strong><strong>; London</strong>&nbsp;Vol.&nbsp;412,&nbsp;Iss.&nbsp;8905,&nbsp; (Sep 20, 2014): 71.
+</span></li></ul></div><div><ul><li class="wt-sim-doc-results-item"><h3 id="result-header-4"><a onclick="pqga.pushDataToGA(4);" id="docViewPageLink_1d603df8685a0_2" title="Approximate logic circuits: Theory and applications" class="previewTitle Topicsresult" href="https://search-proquest-com.eu1.proxy.openathens.net/docview/881711724/A869C50C2FCB4A5EPQ/4?accountid=14483"><div class="truncatedResultsTitle">Approximate logic circuits: Theory and applications</div></a></h3><span class="titleAuthorETC">Choudhury, Mihir.
+</span><span class="titleAuthorETC ">Rice University, ProQuest Dissertations Publishing, 2011. 3464151. </span></li></ul></div><div><ul><li class="wt-sim-doc-results-item"><h3 id="result-header-5"><a onclick="pqga.pushDataToGA(5);" id="docViewPageLink_1d603df8685a0_3" title="Boeing's offshoring woes: seven lessons every CEO must learn" class="previewTitle Topicsresult" href="https://search-proquest-com.eu1.proxy.openathens.net/docview/1355303716/A869C50C2FCB4A5EPQ/5?accountid=14483"><div class="truncatedResultsTitle">Boeing's offshoring woes: seven lessons every CEO must learn</div></a></h3><span class="titleAuthorETC">Denning, Stephen.
+</span><span class="titleAuthorETC"><strong>Strategy &amp; Leadership</strong><strong>; Chicago</strong>&nbsp;Vol.&nbsp;41,&nbsp;Iss.&nbsp;3,&nbsp; (2013): 29-35.
+</span></li></ul></div></div>
+                 <a id="showMoreRelatedItemsLink" onclick="javascript:return Tapestry.waitForPage(event);" href="https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.similardocuments:showmorerelateditems?t:ac=921465258">Show more related items</a>
+                 <a style="display:none;" onclick="hideMoreRelatedDocs();" id="hideMoreRelatedItemsLink" href="javascript:void(0);">Show less</a>
+                </div>
+               </div>
+              </div>
+             </div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div id="googleDriveOverlayId"></div>
+      <div id="oneDriveOverlayId"></div>
+     </div>
+    </div>
+    <span style="" id="top-link-block"><a href="#" class="well well-sm"><i aria-hidden="true" class="uxf-icon uxf-up-open-large"></i><span class="sr-only">Back to top</span></a></span>
+   </div>
+   <div id="footer-wrapper" style="visibility: visible;">
+    <footer id="footer" role="contentinfo" class="clearfix">
+     <div class="row">
+      <div class="col-xs-12 col-sm-4 col-md-4">
+       <div class="row">
+        <div title="ProQuest logo" class="col-xs-4 col-sm-4 col-md-4 logo"></div>
+       </div>
+      </div>
+      <div class="col-xs-12 col-sm-8 col-md-8">
+       <ul class="quicklinks list-inline">
+        <li><a title="Contact Us" href="http://www.proquest.com.eu1.proxy.openathens.net/go/pqissupportcontact">Contact Us</a></li>
+        <li><a href="http://www.proquest.com.eu1.proxy.openathens.net/go/termsandconditions" id="termsConditionsFooterLink">Terms and Conditions</a></li>
+        <li><a href="http://www.proquest.com.eu1.proxy.openathens.net/go/privacy" id="privacyPolicyFooterLink">Privacy Policy</a></li>
+        <li><a href="http://www.proquest.com.eu1.proxy.openathens.net/go/cookie" id="cookiePolicyFooterLink">Cookie Policy</a></li>
+        <li>
+         <div id="teconsent"></div><script crossorigin="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/notice" async=""></script></li>
+        <li><a accesskey="0" href="http://www.proquest.com.eu1.proxy.openathens.net/go/accessibility-platform" id="accessibilityFooterLink">Accessibility</a></li>
+       </ul>
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-12">
+       <span class="copyrightlink pull-right">Copyright © 2020 ProQuest LLC.</span>
+      </div>
+     </div>
+    </footer>
+   </div>
+   <script async="" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/qualtrics.js"></script>
+  </div>
+  <div style="display: none;" value="subscriber" id="pool"></div>
+  <script>
+var jQueryVersion = jQuery.fn.jquery.split('.').join('');
+jQueryVersion = parseInt(jQueryVersion);
+if(jQueryVersion == 180){
+//When there are multiple jQuery versions on the page, force it to use latest version of jQuery loaded
+jQuery.noConflict(true);
+}
+$j(window).load(function() {
+pqga.sendPageTitleToGA('DocView: Full text - PDF');
+pqga.sendAnalyticsProductNameGA('');
+pqga.sendAnalyticsAccountIdToGA('14483');
+pqga.sendSessionIDToGA('20200216124931570:109416');
+pqga.sendJSessionIDToGA('42B6067DF50E51351D89F413F37A0C0A.i-0898b53dbbed01a7f');
+pqga.sendClientIDSessionToGA('');
+pqga.sendClientIDHitToGA('');
+});
+</script>
+  <div id="ZN_5nVeM4sDdAHV9Y1"></div>
+  <script type="text/javascript">Tapestry.onDOMLoaded(function() {
+Tapestry.init({"formEventManager":[{"formId":"signInLoginForm","validate":{"submit":true,"blur":true}},{"formId":"createProfileForm","validate":{"submit":true,"blur":true}},{"formId":"forgottenAccountForm","validate":{"submit":true,"blur":true}},{"formId":"searchForm","validate":{"submit":false,"blur":false}}]});
+$j('#gaSelectedItems_itemsLink_noItemsOverlay').on('show.bs.modal', function (e) {$j('object, embed').hide();})
+$j('#gaSelectedItems_itemsLink_noItemsOverlay').on('hide.bs.modal', function (e) {$j('object, embed').show();})
+$j('#gaSelectedItems_itemsLink_noItemsOverlay').on('show.bs.modal', function (e) { if (!modalTriggerElement) { modalTriggerElement = document.activeElement; } }); $j('#gaSelectedItems_itemsLink_noItemsOverlay').on('hidden.bs.modal', function(e) { if (modalTriggerElement) { var parent = modalTriggerElement.parentNode; if (parent) { var dropdown = parent.parentNode; if (dropdown && $j(dropdown).hasClass('dropdown-menu')) { modalTriggerElement = dropdown.previousSibling; } modalTriggerElement.focus(); modalTriggerElement = ''; } } });
+$j('#signInFormOverlay').on('show.bs.modal', function (e) {$j('object, embed').hide();})
+$j('#signInFormOverlay').on('hide.bs.modal', function (e) {$j('object, embed').show();})
+$j('#signInFormOverlay').on('show.bs.modal', function (e) { if (!modalTriggerElement) { modalTriggerElement = document.activeElement; } }); $j('#signInFormOverlay').on('hidden.bs.modal', function(e) { if (modalTriggerElement) { var parent = modalTriggerElement.parentNode; if (parent) { var dropdown = parent.parentNode; if (dropdown && $j(dropdown).hasClass('dropdown-menu')) { modalTriggerElement = dropdown.previousSibling; } modalTriggerElement.focus(); modalTriggerElement = ''; } } });
+submitOnEnter('submit_0','signInLoginForm', true, true, "changeSigninLayer();", "", false);
+$j('#createProfileOverlay').on('show.bs.modal', function (e) {$j('object, embed').hide();})
+$j('#createProfileOverlay').on('hide.bs.modal', function (e) {$j('object, embed').show();})
+$j('#createProfileOverlay').on('show.bs.modal', function (e) { if (!modalTriggerElement) { modalTriggerElement = document.activeElement; } }); $j('#createProfileOverlay').on('hidden.bs.modal', function(e) { if (modalTriggerElement) { var parent = modalTriggerElement.parentNode; if (parent) { var dropdown = parent.parentNode; if (dropdown && $j(dropdown).hasClass('dropdown-menu')) { modalTriggerElement = dropdown.previousSibling; } modalTriggerElement.focus(); modalTriggerElement = ''; } } });
+new ZoneUpdater('tAndC', $('tAndC'), 'click', 'https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.signinoverlay.createprofile.tandc:setviewforcreateaccount/XXX?t:ac=921465258', 'tAndCZone', 'XXX');
+submitOnEnter('submitCreateUser','createProfileForm', true, true, "", "", true);
+$j('#forgottenOverlay').on('show.bs.modal', function (e) {$j('object, embed').hide();})
+$j('#forgottenOverlay').on('hide.bs.modal', function (e) {$j('object, embed').show();})
+$j('#forgottenOverlay').on('show.bs.modal', function (e) { if (!modalTriggerElement) { modalTriggerElement = document.activeElement; } }); $j('#forgottenOverlay').on('hidden.bs.modal', function(e) { if (modalTriggerElement) { var parent = modalTriggerElement.parentNode; if (parent) { var dropdown = parent.parentNode; if (dropdown && $j(dropdown).hasClass('dropdown-menu')) { modalTriggerElement = dropdown.previousSibling; } modalTriggerElement.focus(); modalTriggerElement = ''; } } });
+submitOnEnter('submit_3','forgottenAccountForm', true, true, "", "", false);
+$j('#endsession_confirm').on('show.bs.modal', function (e) {$j('object, embed').hide();})
+$j('#endsession_confirm').on('hide.bs.modal', function (e) {$j('object, embed').show();})
+$j('#endsession_confirm').on('hidden.bs.modal', function(e) { $j('#mrDropdown').focus(); })
+$j('#endSessionWarning').on('show.bs.modal', function (e) {$j('object, embed').hide();})
+$j('#endSessionWarning').on('hide.bs.modal', function (e) {$j('object, embed').show();})
+$j('#endSessionWarning').on('show.bs.modal', function (e) { if (!modalTriggerElement) { modalTriggerElement = document.activeElement; } }); $j('#endSessionWarning').on('hidden.bs.modal', function(e) { if (modalTriggerElement) { var parent = modalTriggerElement.parentNode; if (parent) { var dropdown = parent.parentNode; if (dropdown && $j(dropdown).hasClass('dropdown-menu')) { modalTriggerElement = dropdown.previousSibling; } modalTriggerElement.focus(); modalTriggerElement = ''; } } });
+$j('#mr_noSelectedItems').on('show.bs.modal', function (e) {$j('object, embed').hide();})
+$j('#mr_noSelectedItems').on('hide.bs.modal', function (e) {$j('object, embed').show();})
+$j('#mr_noSelectedItems').on('show.bs.modal', function (e) { if (!modalTriggerElement) { modalTriggerElement = document.activeElement; } }); $j('#mr_noSelectedItems').on('hidden.bs.modal', function(e) { if (modalTriggerElement) { var parent = modalTriggerElement.parentNode; if (parent) { var dropdown = parent.parentNode; if (dropdown && $j(dropdown).hasClass('dropdown-menu')) { modalTriggerElement = dropdown.previousSibling; } modalTriggerElement.focus(); modalTriggerElement = ''; } } });
+submitOnEnter('expandedSearch','searchForm', true, false, "", "", true);
+pqga.pushDataToGA('1')
+Tapestry.init({"selectedItemsCount":[{"multipleItemMsg":"%d","clientId":"selecteditemscount","fullFolder":"folderFull","emptyFolder":"uxf-icon uxf-folder","singleItemMsg":"1","itemMsg":"[[missing key: selectedItems.multipleItems.checkbox_badge]]","folderId":"selecteditemsfolder"}],"similarDocuments":[{}],"selectedItemsLink":[{"clientId":"gaSelectedItems","numItems":0}],"downloadPDF":[{"filename":"A_Sparse_Approximate_Inverse_P.pdf","downloadPDFLinkId":"downloadPDFLink","downloadJPMorganPDFLinkId":"downloadJPMorganPDFLink"}],"basicSearchBox":[{}],"progressiveDisplay":[{"update":"show","url":"https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.docviewanalytics.progressivedisplay?t:ac=921465258","element":"progressivedisplay"},{"url":"https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.similardocuments.progressivedisplay?t:ac=921465258","element":"progressivedisplay_0"}],"popupWindowLinks":[{}],"docViewBase":[{"publisherName":"Society for Industrial and Applied Mathematics"}],"formFragment":[{"element":"refWorksAccount"}],"signInOverlay":[{"refreshOnSignIn":""}],"zone":[{"show":"show","update":"show","element":"linkZone"},{"show":"show","update":"highlight","element":"overlayZone"},{"show":"show","update":"highlight","element":"profileZoneIdValue"},{"show":"show","update":"highlight","parameters":{"t:formid":"createProfileForm","t:formcomponentid":"PagePdf:pagelayout.signinoverlay.createprofile.createprofileform"},"element":"tAndCZone"},{"show":"show","update":"highlight","element":"forgotZone"},{"show":"show","update":"highlight","element":"citeThisZonecitethis"},{"show":"show","update":"highlight","element":"saveAsEmailOverlayUseToolsZone"},{"show":"show","update":"highlight","element":"useToolsPrintZone"},{"show":"show","update":"highlight","element":"allSaveOptionsZone"},{"show":"show","update":"highlight","element":"saveasZone"},{"show":"show","update":"highlight","element":"similarDocsLinkZone"},{"show":"show","update":"highlight","element":"similarDocsZone"}],"linkZone":[{"linkId":"signInLoginForm","zoneId":"overlayZone","url":"https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.signinoverlay.signinform.signinloginform"},{"linkId":"createProfileForm","zoneId":"profileZoneIdValue","url":"https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.signinoverlay.createprofile.createprofileform"},{"linkId":"forgottenAccountForm","zoneId":"forgotZone","url":"https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.signinoverlay.forgottenaccountinfo.forgottenaccountform"},{"linkId":"citethisLink","zoneId":"citeThisZonecitethis","url":"https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pdfdocusetools_0.citethis:updatecitationlink/DocView/relevance/citeThisZonecitethis/MSTAR_921465258?t:ac=921465258"},{"linkId":"emailLink","zoneId":"saveAsEmailOverlayUseToolsZone","url":"https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pdfdocusetools_0:updateemaillink?t:ac=921465258"},{"linkId":"allSaveOptionsHiddenLink","zoneId":"allSaveOptionsZone","url":"https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pdfdocusetools_0:allsaveoptions?t:ac=921465258"},{"linkId":"hideSimilarDocs","zoneId":"similarDocsZone","url":"https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.similardocuments.hidesimilardocs?t:ac=921465258"},{"linkId":"showMoreRelatedItemsLink","zoneId":"similarDocsZone","url":"https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.similardocuments:showmorerelateditems?t:ac=921465258"}],"endSessionWarning":[{"secondsText":"seconds","hoursText":"hours","googleCredentialLinked":false,"minutesText":"minutes","warntime":300,"pingURL":"https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.endsession:ping","microsoftCredentialLinked":false,"endSessionWarningCarryOnId":"endSessionWarningCarryOn","timeout":1800}],"activate":["siUsername"],"mainContentLeft":[{"hideSidePanelText":"Hide more options","showSidePanelText":"Show more options","sidePanelToggleLink":"sidePanelToggleLink","mainContentLeftId":"mainContentLeft","sidePanelId":"side_panel","cookieName":"PagePdf_maincontentleft"}],"usernameValidator":[{"lookupUrl":"https://search-proquest-com.eu1.proxy.openathens.net/pagepdf.pagelayout.signinoverlay.createprofile:checkusername"}],"CreateProfileOverlay":[{"myResearchLink":"https://search-proquest-com.eu1.proxy.openathens.net/myresearch/documents?accountid=14483","tAndCId":"tAndC","clientId":"createProfile","preferencesLink":"https://search-proquest-com.eu1.proxy.openathens.net/myresearch/preferences?accountid=14483","submitCreateUserId":"submitCreateUser","theme":"clean","publicKey":"6LfxwgITAAAAAMH36lxhqCGYN34Z208opz7d4gnK"}],"linkTriggerToFormFragment":[{"invert":false,"triggerId":"refWorks","fragmentId":"refWorksAccount"}],"databasePageLink":[{"linkId":"databasePageLink","linkFormId":"databaseOpenLayer"}],"captureHost":[{"url":"/pagepdf.pagelayout.captureproxyhost:capturehost"}],"validate":[{"firstName":[["maxlength","Your first name cannot be longer than 25 characters.",25]],"lastName":[["maxlength","Last name must be fewer than 25 characters in length.",25]],"siPassword":[["maxlength","Password: must be fewer than 25 characters in length.",25]],"password":[["regexp","Your password cannot contain punctuation characters.","^[^!\"#$%&'()*+,-./:;<=>?@_`{|}~]+$"],["minlength","Your password must be 8 characters or more in length.",8],["maxlength","Your password must be fewer than 25 characters in length.",25]],"emailAddress":[["maxlength","Email address must be fewer than 50 characters in length.",50],["pqemail","Enter a valid email address."],["maxlength","Email address:  must be fewer than 128 characters in length.",128]],"siUsername":[["maxlength","Username: must be fewer than 120 characters in length.",120]],"username":[["regexp","Your username cannot contain punctuation characters.","^[^!\"#$%&'()*+,./:;<=>?@_`{|}~]+$"],["minlength","Username must be 3 characters or more in length.",3],["maxlength","Username must be fewer than 50 characters in length.",50]]}]});
+});
+</script>
+ 
+<script type="text/javascript" id="">window.jQuery&&jQuery("a").mousedown(function(a){3==a.which||2==a.which&&!a.ctrlKey&&!a.metaKey?(window.dataLayer=window.dataLayer||[],a=jQuery(this).attr("onclick"),-1<a.search("pqga.pushDataToGA")&&pqga.pushDataToGA(parseInt(a.match(/\d+/))),dataLayer.push({event:"nonLeftClickOnLink",nonLeftClickEventVar:this.id,nonLeftClickLabelVar:"_RC",nonLeftClickTextVar:this.textContent})):a.ctrlKey?(window.dataLayer=window.dataLayer||[],a=jQuery(this).attr("onclick"),-1<a.search("pqga.pushDataToGA")&&pqga.pushDataToGA(parseInt(a.match(/\d+/))),
+dataLayer.push({event:"nonLeftClickOnLink",nonLeftClickEventVar:this.id,nonLeftClickLabelVar:"_RC",nonLeftClickTextVar:this.textContent})):(window.dataLayer=window.dataLayer||[],dataLayer.push({nonLeftClickLabelVar:""}))});</script><script type="text/javascript" src="A%20Sparse%20Approximate%20Inverse%20Preconditioner%20for%20Nonsymmetric%20Linear%20Systems%20-%20ProQuest_files/a.js"></script></body></html>

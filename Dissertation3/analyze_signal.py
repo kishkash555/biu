@@ -6,7 +6,8 @@ FFT = namedtuple('FTT','freq,psd_db,psd,phase'.split(','))
 
 def psd(signal, sampling_rate,hide_bias=False):
     n = len(signal)
-    windowed_signal = np.hamming(n) * signal
+    normed_signal = (signal - signal.mean())/signal.std()
+    windowed_signal = np.hamming(n) * normed_signal
     g = fftshift(fft(windowed_signal))
     psd = np.abs(g)
     psd_db = 10*np.log10(psd)

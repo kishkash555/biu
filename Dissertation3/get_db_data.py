@@ -4,10 +4,13 @@ import numpy as np
 signal_sql = sql.text("""
 SELECT data_time, data_value
 FROM interpolated_interval_data
+INNER JOIN group_series_interpolation_interval USING
+    (series_type_id, interpolation_series_id, group_id)
 WHERE participant_id = :par
 AND series_type_id = :series_type
 AND interpolation_series_id = :interp_type
 AND data_value is not null
+AND data_time >= interval_start
 ORDER BY data_time
 """)
 

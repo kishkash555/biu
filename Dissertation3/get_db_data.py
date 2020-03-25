@@ -25,6 +25,7 @@ AND series_type_id = :series_type
 AND interpolation_series_id = :interp_type
 AND data_value is not null
 AND data_time >= interval_start
+AND data_time <= interval_end
 ORDER BY participant_id, data_time
 """)
 

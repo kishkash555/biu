@@ -69,9 +69,20 @@ class parabola_segment:
         y = np.dot(y_poly[np.newaxis,:],D)
         return np.vstack([x,y])
 
+    def stitch_at_end(self,other):
+        "stitch this parabola at the end of the other"
+        other_endpoints = other.get_points(2)
+        other_x_poly, other_y_poly = other.get_parametric()
+        deriv0 = np.array([0.,1.,2.]) # evaluates from the polynomial its derivative at t=1
+        deriv_x = deriv0.dot(other_x_poly)
+        deriv_y = deriv0.dot(other_y_poly)
+        theta = np.arctan2(deriv_y, deriv_x)
+        self.set_shift(other_endpoints[:,1].squeeze())
+        self.set_rotation(theta)
+        return self
 
-
-if __name__ == "__main__":
+def test_fan():
+    "draw a fan of identical, but rotated and shifted, parabolas"
     seg = parabola_segment(0.2,5)
     last_seg = seg
     segs = [last_seg]
@@ -79,11 +90,27 @@ if __name__ == "__main__":
         new_seg = last_seg.copy().add_shift([2.5,0.5]).add_rotation(0.2)
         segs.append(new_seg)
         last_seg = new_seg
+    plot_segments(segs,20)
 
+def plot_segments(segs, n_points):
     for seg in segs:
-        xy = seg.get_points(20)
+        xy = seg.get_points(n_points)
         plt.plot(xy[0,:],xy[1,:],'.-')
 
     plt.gca().set_aspect('equal', adjustable='box')
     plt.show()
  
+def test_stitch():
+    "draw parabolas stitched together"
+    seg = parabola_segment(0.1,5)
+    last_seg = seg
+    segs = [last_seg]
+    for i in range(6):
+        new_seg = last_seg.copy().stitch_at_end(last_seg)
+        segs.append(new_seg)
+        last_seg = new_seg
+    plot_segments(segs,20)
+
+
+if __name__ == "__main__":
+    test_stitch()

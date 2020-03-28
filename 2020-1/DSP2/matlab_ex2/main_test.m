@@ -61,7 +61,7 @@ colorbar
 
 %% Weighted Overlap and Add - Synthesis
 
-Synth_Win = 'Rectangular'; % 'Perfect' ; 'Rectangular' ; 'No_Overlap'
+Synth_Win = 'No_Overlap'; % 'Perfect' ; 'Rectangular' ; 'No_Overlap'
 switch Synth_Win
     case 'Rectangular'
         Lf = Lh;
@@ -108,8 +108,6 @@ D = 1;
 [win_gain,D] = max(w_analysis);
 
 %% Test reconstructed signal
-
-
 LL = min(length(s),length(s_hat)); % For presenting the reconstructed signal
 tt = (Lh-R)+1:LL-Lh;
 

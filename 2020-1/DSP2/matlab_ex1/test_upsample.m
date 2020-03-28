@@ -1,12 +1,23 @@
 
 L=7; 
 M=5;
-x = audioread("doors.wav");
-h = create_lpf(L,M);
-g = fir_to_pp(L,M,h);
-y = run_pp_filter(x,g,L,M);
-soundsc(y,8000*L/M);
+% x = audioread("doors.wav");
+% x = x(2001:3000);
+% x = x';
 
 
+h = create_lpf(L,1);
+xi = zeros(length(x)*L,1);
+xi(1:L:end) = x;
 
+nv = conv(h,xi);
+y = pp_interpolate(x,h,L);
+
+
+%>> norm(y(1:7200)-nv)
+% 
+% ans =
+% 
+%    1.1927e-15
+% 
 

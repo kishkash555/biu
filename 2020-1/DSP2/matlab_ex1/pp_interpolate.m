@@ -12,5 +12,6 @@ y_pp = zeros(L,h_pp_size(2)+length(x)-1);
 for i=1:L
     y_pp(i,:) = conv(h_pp(i,:),x); % more appropriate than filter
 end
-y=y_pp(:);
+%y=y_pp(:);
+y=y_pp;
 end

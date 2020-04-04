@@ -1,6 +1,7 @@
-function y = run_pp_filter_old(x, pp_filter, L, M)
+function y = run_pp_filter_old(x, h, L, M)
     %RUN_PP_FILTER Summary of this function goes here
     %   Detailed explanation goes here
+    pp_filter = fir_to_pp(L,M,h);
     [r,Q] = size(pp_filter);
     len_out = ceil(length(x)*L/M);
     x = padarray(x,[ceil(Q/2), 0]);

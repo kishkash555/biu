@@ -8,8 +8,8 @@
 close all
 clear all
 clc
-[s,fs] = audioread('mewm0-si718.wav'); % 'medr0-si744' % 'mewm0-si718' % 'fdmy0-sx297'
-%s = cos(2*pi/256*97*(00:9999)); fs = 8000; 
+%[s,fs] = audioread('mewm0-si718.wav'); % 'medr0-si744' % 'mewm0-si718' % 'fdmy0-sx297'
+s = cos(2*pi/256*97*(00:9999)); fs = 8000; 
 %s = exp(2*pi*sqrt(-1)/256*97*(00:9999)); fs = 8000;
 
 if size(s,1)<size(s,2),s=s';end
@@ -52,7 +52,7 @@ sprintf("S: (%d,%d) S1: (%d,%d), diff: %.3f",size(S), size(S1), norm(S-S1))
 T = (0:size(S,2))/fs*R;
 F = (0:NFFT/2)*fs/2/(NFFT/2);
 figure(2)
-imagesc(T,F,20*log10(abs(S(1:NFFT/2+1,:)+eps)))
+imagesc(T,F,20*log10(abs(S1(1:NFFT/2+1,:)+eps)))
 axis xy
 xlabel('Time[Sec]','fontsize',14);
 ylabel('Frequency[Hz]','fontsize',14);

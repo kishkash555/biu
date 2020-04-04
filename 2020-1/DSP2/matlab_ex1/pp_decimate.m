@@ -1,4 +1,4 @@
-function y=pp_decimate2(x,h,M)
+function y=pp_decimate(x,h,M)
 h = pad_divisible(h,M);
 x = pad_divisible(x,M);
 

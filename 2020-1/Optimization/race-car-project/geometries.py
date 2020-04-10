@@ -3,6 +3,14 @@ import matplotlib.pyplot as plt
 
 rotation_mat = lambda dir: np.array([[np.cos(dir), -np.sin(dir)],[np.sin(dir), np.cos(dir)]])
 
+turtulehead= [
+        [(0.004,100)]*2,
+        [(-0.025,50)]*2,
+        [(-0.01,50)]*2,
+        [(0,200)]
+    ]
+
+
 class piecewise_path:
     def __init__(self,segments):
         # assume the first segment goes right from (0,0) 
@@ -11,17 +19,20 @@ class piecewise_path:
         self.segments = segments 
         self.n_segments = len(segments)
 
-    def preturbation_to_curvature_matrix(self):
+    def perturbation_to_curvature_matrix(self):
         # calculate the matrix from which the 1st order change in curvatures 
-        # can be determined when then (normal) change in endpoints is known 
+        # can be determined when then (normal) change in endpoints is known
+        #  
         ret = np.zeros((self.n_segments+1,self.n_segments+1),dtype=float)
         x = np.array([0.]+[1./seg.m for seg in self.segments])
-        starting_slope = np.zeros((1,self.n_segments+1),dtype=float)
+        starting_slope = np.zeros(self.n_segments+1, dtype=float)
         for i in range(1,self.n_segments+1):
             starting_slope[i] += x[i]
             starting_slope[i-1] -= x[i]
             ret[i,:] = x[i]*0.5*starting_slope
-        return ret
+        # the first pertrubation is defined as 0 so the first column is redundant
+        # likewise, the first k always comes out 0 and is redundant
+        return ret[1:,1:]
     
     def get_segment_curvatures(self):
         return np.array([seg.a for seg in self.segments])
@@ -30,7 +41,7 @@ class piecewise_path:
         return np.array([seg.m for seg in self.segments])
         
     def copy(self):
-        return piecewise_path([seg.copy() for seg in segments])
+        return piecewise_path([seg.copy() for seg in self.segments])
 
 
 class parabola_segment:
@@ -166,6 +177,17 @@ class parabola_segment:
         self.set_rotation(theta)
         return self
 
+def compose_track(segments=turtulehead,plot=False):
+    segments = sum(segments,[])
+    segments = [parabola_segment(*k) for k in segments]
+    last_seg = segments[0]
+    for seg in segments[1:]:
+        seg.stitch_at_end(last_seg)
+        last_seg=seg
+    if plot:
+        plot_segments(segments,20)
+    return piecewise_path(segments)
+
 def test_fan():
     "draw a fan of identical, but rotated and shifted, parabolas"
     seg = parabola_segment(0.2,5)
@@ -221,4 +243,5 @@ def test_from_endpoints():
 if __name__ == "__main__":
 #    r=parabola_segment(-0.2,-5)
 #    plot_segments([r],10)
-    test_from_endpoints()
+#    test_from_endpoints()
+    track = compose_track()

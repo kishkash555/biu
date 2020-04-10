@@ -9,7 +9,7 @@ turtulehead= [
         [(-0.01,50)]*2,
         [(0,200)]
     ]
-
+turtulehead = sum(turtulehead,[])
 
 class piecewise_path:
     def __init__(self,segments):
@@ -34,11 +34,45 @@ class piecewise_path:
         # likewise, the first k always comes out 0 and is redundant
         return ret[1:,1:]
     
+    def perturbation_to_curvature_matrix2(self):
+        ret1 = np.zeros((self.n_segments,self.n_segments))
+        ret2 = np.zeros((self.n_segments,self.n_segments))
+        a = self.get_segment_curvatures()
+        m = self.get_segment_lengths()
+        for i in range(self.n_segments):
+            pert = np.zeros(self.n_segments)
+            pert[i] = 1.
+            p = self.get_path_by_perturbations(pert)
+            ret1[:,i] = p.get_segment_curvatures()-a
+            ret2[:,i] = p.get_segment_lengths()-m
+        return ret1, ret2
+
+
+    def get_path_by_perturbations(self,pert):
+        """
+        return a new piecewise path with endpoints perturbed by delta_b
+        calculate a new m to preserve joints on line perpindicular to original curvature
+        """
+        seg_start_dir = 0.
+        prev_endpoint = np.zeros(2)
+        segments = []        
+        for seg,b in zip(self.segments,pert):
+            curr_endpoint = seg.get_points(2)[:,1]
+            theta = np.arctan(2*seg.a*seg.m)
+            new_endpoint = curr_endpoint+np.array([-b*np.sin(seg_start_dir+theta),b*np.cos(seg_start_dir+theta)])
+
+            new_segment = parabola_segment(0,0).from_direction_and_endpoints(seg_start_dir,prev_endpoint,new_endpoint)
+            segments.append(new_segment)
+
+            seg_start_dir += np.arctan(2*new_segment.a*new_segment.m)[0]
+            prev_endpoint = new_endpoint
+        return piecewise_path(segments)
+
     def get_segment_curvatures(self):
-        return np.array([seg.a for seg in self.segments])
+        return np.array([seg.a for seg in self.segments]).squeeze()
 
     def get_segment_lengths(self):
-        return np.array([seg.m for seg in self.segments])
+        return np.array([seg.m for seg in self.segments]).squeeze()
         
     def copy(self):
         return piecewise_path([seg.copy() for seg in self.segments])
@@ -89,8 +123,8 @@ class parabola_segment:
         set parabola parameters based on direction (theta) and endpoints
         """
         rel_point = end_point-start_point
-        rel_point_angle = np.atan2(rel_point[1],rel_point[0])
-        if np.abs(rel_point_angle-dir)> np.pi/4:
+        rel_point_angle = np.arctan2(rel_point[1],rel_point[0])
+        if np.abs(rel_point_angle-dir)> np.pi/2:
             raise ValueError("The direction must be within 90 degrees of the line connecting the points")
         rel_point = rotation_mat(-dir).dot(rel_point[:,np.newaxis])
         self.from_endpoint(rel_point)
@@ -182,7 +216,6 @@ class parabola_segment:
 
 def compose_track(segments=turtulehead,plot=False):
     if type(segments[0])!=parabola_segment:
-        segments = sum(segments,[])
         segments = [parabola_segment(*k) for k in segments]
     last_seg = segments[0]
     for seg in segments[1:]:
@@ -204,9 +237,11 @@ def test_fan():
     plot_segments(segs,20)
 
 def plot_segments(segs, n_points, show =True, color=''):
+    if color == '':
+        color = '-'
     for seg in segs:
         xy = seg.get_points(n_points)
-        plt.plot(xy[0,:],xy[1,:],'-'+color)
+        plt.plot(xy[0,:],xy[1,:],color)
 
     plt.gca().set_aspect('equal', adjustable='box')
     plt.legend([str(i) for i in range(len(segs))])
@@ -252,32 +287,72 @@ def test_perturbation_to_curvature_matrix():
     n_segments = track.n_segments
     pert = (-np.ones(n_segments))**np.arange(n_segments) # alternating +1/-1    
     mat = track.perturbation_to_curvature_matrix()
-    k = np.dot(mat,pert[:,np.newaxis]).squeeze() + track.get_segment_curvatures()
+    a = track.get_segment_curvatures()
+    k = np.dot(mat,pert[:,np.newaxis]).squeeze() + a
     m = track.get_segment_lengths()
-
-    new_segments = [parabola_segment(k[i],m[i]) for i in range(n_segments)]
+    dm = -pert * 2 * a * m / np.sqrt((2*a*m)**2+1)
+    new_segments = [parabola_segment(k[i],m[i]+dm[i]) for i in range(n_segments)]
     path = compose_track(new_segments)
 
+    startpoints = lambda pw: np.vstack([seg.get_points(2)[:,1] for seg in pw.segments])
 
-    plot_segments(track.segments, 2, show=False, color='b')
-    plot_segments(path.segments, 2, show=False, color='r')
+    path_startpoints = startpoints(path)
+    track_startpoints = startpoints(track)
+
+    plot_segments(track.segments, 20, show=False, color='b-')
+    plot_segments(track.segments, 2, show=False, color='b.')
+    
+    plot_segments(path.segments, 20, show=False, color='r-')
+    plot_segments(path.segments, 2, show=False, color='r.')
+
     plt.show()
 
+def test_get_path_by_perturbations():
+    track = compose_track()
+    n_segments = track.n_segments
+    pert = (-np.ones(n_segments))**np.arange(n_segments) # alternating +1/-1    
+    #pert = np.ones(n_segments)
+    #pert[3] = -1.
+    path = track.get_path_by_perturbations(pert)
+    
+    startpoints = lambda pw: np.vstack([seg.get_points(2)[:,1] for seg in pw.segments])
+
+    path_startpoints = startpoints(path)
+    track_startpoints = startpoints(track)
+
+    plot_segments(track.segments, 20, show=False, color='b-')
+    plot_segments(track.segments, 2, show=False, color='b.')
+    
+    plot_segments(path.segments, 20, show=False, color='r-')
+    plot_segments(path.segments, 2, show=False, color='r.')
+
+    plt.show()
+
+def test_perturbation_to_curvature_matrix2():
+    track = compose_track()
+    n_segments = track.n_segments
+    k_mat, m_mat = track.perturbation_to_curvature_matrix2()
+    pert = (-np.ones(n_segments))**np.arange(n_segments) # alternating +1/-1    
+    
+    new_ks = np.dot(k_mat,pert[:,np.newaxis]).squeeze()
+    new_ks += track.get_segment_curvatures()
+    new_ms = np.dot(m_mat,pert[:,np.newaxis]).squeeze()
+    new_ms += track.get_segment_lengths()
+
+    path = track.get_path_by_perturbations(pert)
+    1
 
 
 if __name__ == "__main__":
 #    plot_segments([r],10)
 #    test_from_endpoints()
-    test_perturbation_to_curvature_matrix()
+#    test_get_path_by_perturbations()
+    test_perturbation_to_curvature_matrix2()
 
 """
 parabola_curve_length
-
-
-dy/dx = 2ax
-dy=2ax.dx
-dy^2 + dx^2 = (4a^2.x^2+1) dx^2
-ds = sqrt(4a^2.x^2+1)dx
-
-ds/da = -1/sqrt(4a^2.x^2+1)dx * 8a.x^2 
+p = (mx, a.mx^2 ) # endpoint
+pointing vector: (1,2a.mx)
+normally pointing vector = (-2a.mx,1)/sqrt(4a^2.mx^2+1)
+new x coord = -b*2a.mx / sqrt(4a^2.mx^2+1)
 """

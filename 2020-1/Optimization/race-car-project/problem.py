@@ -60,27 +60,47 @@ class problem:
         self.initial_speed = self.top_speed/2
         return self
 
-    def get_hessian(self, pertrubations, speeds):
-        if pertrubations.ndim==1:
-            x = pertrubations[:,np.newaxis]
-        elif pertrubations.shape[1]>1 and pertrubations.shape[0]==1:
-            x = pertrubations.T
-        elif np.all(pertrubations.shape >1):
-            raise ValueError("pertrubations should be 1D")
-
-        ts = self.track_segments
-        mat = ts.pertrubations_to_curvature_matrix()
-        delta_k = mat.dot(pertrubations)
-        a = ts.get_segment_curvatures()[:,np.newaxis]
-        k = a + delta_k
-    
-    def get_static_penalty_mat(self):
+    def get_problem_matrices(self, sigmas):
         """
+        * The problem matrices are the result of adding each constraint
+        weighted by its sigma
+        * There are N speeds and N pertrubations, since the 0th joint 
+        always has perturbation 0 and speed max_speed/2
+        * The constant speed does not enter the constraint calculation
+        However its coupling with q1 does enter
         * There are penalties for trying to exceed the centripetal force:
         when q_bar[i]^2*gr[i] - k[i] < 0 we have exceeded the allowed centripetal force which should
         lead to a proportional penalty.
         q_bar[i]^2=(c5*q[i-1]+(1-c5)*q[i])^2
-        """     
+        """
+
+        ts = self.track_segments
+        # each row represents a single curvature
+        # since we want the absolute curvature |k| in the constraint,
+        # we multiply each row by the sign of the curvature a
+        k_mat = ts.perturbation_to_curvature_matrix()
+        a = ts.get_segment_curvatures()#[:,np.newaxis]
+        k_mat[a<0,:] = -k_mat[a<0,:]
+
+        c5, N, gr = self.c5, self.N, self.grip_factor
+
+        H = np.zeros((N*2,N*2))
+        F = np.zeros(N*2)
+        for i in range(N+1):
+            if i == 0:
+                q0 = 1/self.initial_speed
+                H[0,0] = -sigmas[0] * gr[0] * (1-c5)**2
+                F[0] = -sigmas[0] * gr[0] * 2 * q0 * c5 * (1-c5)
+            else:
+                H[i-1:i,i-1:i] = -gr[i]*sigmas[i]*np.array(
+                    [[c5**2, c5*(1-c5)],
+                    [c5*(1-c5), (1-c5)**2]]
+                )
+            F[N:] = F[N:] + sigmas[i]*k_mat[i,:]
+
+        return H, F
+
+    def get_static_penalty_mat(self):
         c5, N, gr = self.c5, self.N, self.grip_factor
         penalty_q_mat1 = np.diag((1-c5)*np.ones(N)) +  np.diag(c5*np.ones(N-1),-1)
         penalty_q_mat2 = np.dot(penalty_q_mat1.T,penalty_q_mat1)
@@ -119,16 +139,4 @@ class problem:
         # reset rows where there's no current penality
         penalty_mat[no_penality,:]=0 
         penalty_mat = np.diag(k) - np.dot(qbar_mat2,np.diag(gr))
-
-if __name__ == "__main__":
-    rt = gm.compose_track()
-    n_segments = rt.n_segments
-
-    max_speed, cruise_speed = 80, 60
-    pm = problem(rt).set_top_speed(max_speed).set_mu(0.8)
-
-    cospeeds = np.ones(n_segments)/cruise_speed
-    pert = (-np.ones(n_segments))**np.arange(n_segments) # alternating +1/-1
-
-    pm.test_penalty_mat(pert,cospeeds)
 

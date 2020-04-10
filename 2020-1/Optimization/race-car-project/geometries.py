@@ -51,6 +51,9 @@ class parabola_segment:
         self.theta = 0.
         self.m = max_x
 
+    def __str__(self):
+        return str(self.__dict__)
+
     def copy(self):
         ps = parabola_segment(self.a, self.m)
         ps.shift = self.shift.copy()
@@ -178,8 +181,9 @@ class parabola_segment:
         return self
 
 def compose_track(segments=turtulehead,plot=False):
-    segments = sum(segments,[])
-    segments = [parabola_segment(*k) for k in segments]
+    if type(segments[0])!=parabola_segment:
+        segments = sum(segments,[])
+        segments = [parabola_segment(*k) for k in segments]
     last_seg = segments[0]
     for seg in segments[1:]:
         seg.stitch_at_end(last_seg)
@@ -199,15 +203,17 @@ def test_fan():
         last_seg = new_seg
     plot_segments(segs,20)
 
-def plot_segments(segs, n_points):
+def plot_segments(segs, n_points, show =True, color=''):
     for seg in segs:
         xy = seg.get_points(n_points)
-        plt.plot(xy[0,:],xy[1,:],'-')
+        plt.plot(xy[0,:],xy[1,:],'-'+color)
 
     plt.gca().set_aspect('equal', adjustable='box')
     plt.legend([str(i) for i in range(len(segs))])
-    plt.show()
- 
+    if show:
+        plt.show()
+
+
 def test_stitch():
     "draw parabolas stitched together"
     k = np.linspace(0.1, 1, 5)
@@ -240,8 +246,38 @@ def test_from_endpoints():
     r = parabola_segment(0,0).from_direction_and_endpoints(np.pi,sp,ep)
     plot_segments([r],10)
 
+
+def test_perturbation_to_curvature_matrix():
+    track = compose_track()
+    n_segments = track.n_segments
+    pert = (-np.ones(n_segments))**np.arange(n_segments) # alternating +1/-1    
+    mat = track.perturbation_to_curvature_matrix()
+    k = np.dot(mat,pert[:,np.newaxis]).squeeze() + track.get_segment_curvatures()
+    m = track.get_segment_lengths()
+
+    new_segments = [parabola_segment(k[i],m[i]) for i in range(n_segments)]
+    path = compose_track(new_segments)
+
+
+    plot_segments(track.segments, 2, show=False, color='b')
+    plot_segments(path.segments, 2, show=False, color='r')
+    plt.show()
+
+
+
 if __name__ == "__main__":
-#    r=parabola_segment(-0.2,-5)
 #    plot_segments([r],10)
 #    test_from_endpoints()
-    track = compose_track()
+    test_perturbation_to_curvature_matrix()
+
+"""
+parabola_curve_length
+
+
+dy/dx = 2ax
+dy=2ax.dx
+dy^2 + dx^2 = (4a^2.x^2+1) dx^2
+ds = sqrt(4a^2.x^2+1)dx
+
+ds/da = -1/sqrt(4a^2.x^2+1)dx * 8a.x^2 
+"""

@@ -3,14 +3,38 @@ import matplotlib.pyplot as plt
 
 rotation_mat = lambda dir: np.array([[np.cos(dir), -np.sin(dir)],[np.sin(dir), np.cos(dir)]])
 
-turtulehead= [
+turtlehead= [
         [(0.004,100)]*2,
         [(-0.025,50)]*2,
         [(-0.01,50)]*2,
         [(0,200)]
     ]
-turtulehead = sum(turtulehead,[])
+turtlehead = sum(turtlehead,[])
 
+turtlehead2 = [(a*1.3, b) for (a,b) in turtlehead]
+
+lionhead = [
+        [(0.012,150)],
+        [(-0.012,150)],
+        [(-0.05,40)]*2,
+        [(0.036,80)],
+        [(-0.08,40)]
+    ]
+lionhead = sum(lionhead,[])
+
+hillshape = [
+        [(0.004,100)]*2,
+        [(-0.012,40)]*3,
+        [(0.004,100)],
+        [(0,50)]
+    ]
+hillshape = sum(hillshape,[])
+        
+zigzag = [
+    [(0.012,40),(-0.012,40),(-0.012,40),(-0.012,40),(0.0,200),(0.012,40),(0.012,40),(0.012,40)]*4
+]
+zigzag=sum(zigzag,[])
+        
 class piecewise_path:
     def __init__(self,segments):
         # assume the first segment goes right from (0,0) 
@@ -18,23 +42,8 @@ class piecewise_path:
         # assumes the segments were already stitched
         self.segments = segments 
         self.n_segments = len(segments)
-
+   
     def perturbation_to_curvature_matrix(self):
-        # calculate the matrix from which the 1st order change in curvatures 
-        # can be determined when then (normal) change in endpoints is known
-        #  
-        ret = np.zeros((self.n_segments+1,self.n_segments+1),dtype=float)
-        x = np.array([0.]+[1./seg.m for seg in self.segments])
-        starting_slope = np.zeros(self.n_segments+1, dtype=float)
-        for i in range(1,self.n_segments+1):
-            starting_slope[i] += x[i]
-            starting_slope[i-1] -= x[i]
-            ret[i,:] = x[i]*0.5*starting_slope
-        # the first pertrubation is defined as 0 so the first column is redundant
-        # likewise, the first k always comes out 0 and is redundant
-        return ret[1:,1:]
-    
-    def perturbation_to_curvature_matrix2(self):
         ret1 = np.zeros((self.n_segments,self.n_segments))
         ret2 = np.zeros((self.n_segments,self.n_segments))
         a = self.get_segment_curvatures()
@@ -47,6 +56,15 @@ class piecewise_path:
             ret2[:,i] = p.get_segment_lengths()-m
         return ret1, ret2
 
+    def perturbation_to_radii_matrix(self):
+        tol = 1e-8
+        a = self.get_segment_curvatures()
+        delta_a, delta_m = self.perturbation_to_curvature_matrix()
+        delta_r = np.zeros(delta_a.shape)
+        for i in range(delta_a.shape[0]):
+            delta_r[i,:] = -delta_a[i,:]/ a[i]**2 # applies same factor to each column
+        delta_r[np.abs(a)<tol,:] = 0
+        return delta_r, delta_m
 
     def get_path_by_perturbations(self,pert):
         """
@@ -214,7 +232,7 @@ class parabola_segment:
         self.set_rotation(theta)
         return self
 
-def compose_track(segments=turtulehead,plot=False):
+def compose_track(segments=turtlehead,plot=False):
     if type(segments[0])!=parabola_segment:
         segments = [parabola_segment(*k) for k in segments]
     last_seg = segments[0]
@@ -236,15 +254,17 @@ def test_fan():
         last_seg = new_seg
     plot_segments(segs,20)
 
-def plot_segments(segs, n_points, show =True, color=''):
+def plot_segments(segs, n_points, show =True, color='', legend=False, ax=None):
+    plot = plt.plot if ax is None else ax.plot
     if color == '':
         color = '-'
     for seg in segs:
         xy = seg.get_points(n_points)
-        plt.plot(xy[0,:],xy[1,:],color)
+        plot(xy[0,:],xy[1,:],color)
 
     plt.gca().set_aspect('equal', adjustable='box')
-    plt.legend([str(i) for i in range(len(segs))])
+    if legend:
+        plt.legend([str(i) for i in range(len(segs))])
     if show:
         plt.show()
 
@@ -347,8 +367,8 @@ if __name__ == "__main__":
 #    plot_segments([r],10)
 #    test_from_endpoints()
 #    test_get_path_by_perturbations()
-    test_perturbation_to_curvature_matrix2()
-
+#    test_perturbation_to_curvature_matrix2()
+    compose_track(plot=True)
 """
 parabola_curve_length
 p = (mx, a.mx^2 ) # endpoint

@@ -22,14 +22,17 @@ class problem:
     """
     def __init__(self, track_segments):
         self.track_segments = track_segments.copy()
-        self.grip_factor = None
-        self.top_speed = None
-        self.initial_speed = None
         self.segment_lengths = self.track_segments.get_segment_lengths()
         self.speed_weights = np.convolve(self.segment_lengths,np.array([0.5, 0.5]))
         self.N = self.track_segments.n_segments
-        self.c5 = 0.
-        self.static_penalty = None
+        self.gr = None # represents coefficient of friction
+        self.gs = None # represents bonus to friction due to acceleration
+        self.top_speed = None
+        self.initial_speed = None
+        self.acc_factor = None # represents the top possible acceleration
+        self.brake_factor = None # represent the top possible deceleration
+    
+
 
     def set_mu(self, mu_vector= 0.4):
         """
@@ -60,6 +63,16 @@ class problem:
         self.initial_speed = self.top_speed/2
         return self
 
+    def set_acc_and_brake_factors(self, acc=0.5, br=0.7):
+        """
+        in m/s^2. Uses a speed constant (top speed) to scale dimensions
+        """
+        if self.top_speed is None:
+            raise ValueError("first set top speed")
+        self.acc_factor = 2*acc/self.top_speed
+        self.brake_factor = 2*br/self.top_speed
+        return self
+        
     def get_problem_matrices(self, sigmas):
         """
         * The problem matrices are the result of adding each constraint

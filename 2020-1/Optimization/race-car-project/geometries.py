@@ -18,23 +18,8 @@ class piecewise_path:
         # assumes the segments were already stitched
         self.segments = segments 
         self.n_segments = len(segments)
-
+   
     def perturbation_to_curvature_matrix(self):
-        # calculate the matrix from which the 1st order change in curvatures 
-        # can be determined when then (normal) change in endpoints is known
-        #  
-        ret = np.zeros((self.n_segments+1,self.n_segments+1),dtype=float)
-        x = np.array([0.]+[1./seg.m for seg in self.segments])
-        starting_slope = np.zeros(self.n_segments+1, dtype=float)
-        for i in range(1,self.n_segments+1):
-            starting_slope[i] += x[i]
-            starting_slope[i-1] -= x[i]
-            ret[i,:] = x[i]*0.5*starting_slope
-        # the first pertrubation is defined as 0 so the first column is redundant
-        # likewise, the first k always comes out 0 and is redundant
-        return ret[1:,1:]
-    
-    def perturbation_to_curvature_matrix2(self):
         ret1 = np.zeros((self.n_segments,self.n_segments))
         ret2 = np.zeros((self.n_segments,self.n_segments))
         a = self.get_segment_curvatures()

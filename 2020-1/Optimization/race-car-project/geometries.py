@@ -44,6 +44,11 @@ class piecewise_path:
             ret2[:,i] = p.get_segment_lengths()-m
         return ret1, ret2
 
+    def perturbation_to_radii_matrix(self):
+        a = self.get_segment_curvatures()
+        delta_a, delta_m = self.perturbation_to_curvature_matrix
+        delta_r = -delta_a/a**2
+        return delta_r, delta_m
 
     def get_path_by_perturbations(self,pert):
         """

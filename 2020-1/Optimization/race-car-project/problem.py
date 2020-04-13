@@ -1,7 +1,116 @@
 import numpy as np
 import geometries as gm
 
+def minimum(*args):
+    m = np.inf
+    for v in args:
+        m = np.minimum(v,m)
+    return m
+    
 class problem:
+    def __init__(self,track_segments):
+        self.track_segments = track_segments.copy()
+        self.segment_lengths = self.track_segments.get_segment_lengths()
+        self.speed_weights = np.convolve(self.segment_lengths,np.array([0.5, 0.5]))
+        self.N = self.track_segments.n_segments
+        self.gr = None # represents coefficient of friction
+        self.gs = None # represents bonus to friction due to acceleration
+        self.top_speed = None
+        self.initial_speed = None
+        self.acc_factor = None # represents the top possible acceleration
+        self.brake_factor = None # represent the top possible deceleration
+        self.nominal_speed = None
+
+    def set_mu(self, mu, gs):
+        """
+        mu*M*g = M*v^2/R
+        mu*g = k/q^2
+        q^2*gr - k = 0 ==> gr = k/q^2
+        gr = mu*g # where g is the constant of gravity
+        """
+        mu_vector = mu
+        if type(mu) != np.ndarray:
+            mu_vector = np.array(mu_vector) 
+        if mu_vector.size !=1 and (
+            mu_vector.squeeze().ndim != 1 or 
+            mu_vector.size != self.n_segments
+            ):
+            raise ValueError("wrong size or shape of input")
+        self.gr = mu_vector*10 
+        self.gs = gs
+        return self
+
+    def set_top_speed(self,speed=80):
+        """
+        in m/s. Multiply by 3.6 to get the car's km/h top speed
+        """
+        self.top_speed = speed
+        return self
+
+    def set_acc_and_brake_factors(self, acc=0.12, brake=0.1):
+        """
+        in m/(s*m): The speed change in m/s per meter of track
+        assuming going from 50 m/s to 100 m/s takes at least 5 seconds
+        the car travels 75*5 = 375 meters
+        so 50/375 = 0.133
+        we set a constant of 0.12 for acc and 0.1 for brake
+        for slow speed: assuming going from 5 m/s to 15 m/s takes 3 seconds
+        a change of +10m/s on 30 meters is 0.333
+        """
+        if self.top_speed is None:
+            raise ValueError("first set top speed")
+        self.acc_factor = acc
+        self.brake_factor = brake        
+        return self
+
+    def set_nominal_speed(self):
+        """
+        This is the speed that the car travels when following the centerline exactly.
+        It is set at the N track endpoints.
+        The 0th point is set to a speed of top speed/2.
+        """
+        a = np.abs(self.track_segments.get_segment_curvatures())
+        N, gr, gs = self.N, self.gr, self.gs
+        x = self.segment_lengths
+        top_centrip_prev_segment = np.sqrt(self.gr/a)
+        top_centrip_next_segment = np.zeros(N)
+        top_centrip_next_segment[:N-1] = np.sqrt(self.gr*gs/a[1:])
+        top_centrip_next_segment[N-1] = np.inf
+        
+        nominal_speed = minimum(top_centrip_next_segment, top_centrip_prev_segment, self.top_speed)
+        top_pos_speed_change = x * self.acc_factor
+        top_neg_speed_change = x* self.brake_factor
+        count = 0
+        while True:
+            count +=1
+            prev_point_speed = np.roll(nominal_speed,1)
+            prev_point_speed[0] = np.inf
+            next_point_speed = np.roll(nominal_speed,-1)
+            next_point_speed[-1] = np.inf
+
+            if np.all(nominal_speed <= prev_point_speed + top_pos_speed_change) and \
+                np.all(nominal_speed <= next_point_speed + top_neg_speed_change):
+                break
+            new_nominal_speed = minimum(nominal_speed, 
+                prev_point_speed + top_pos_speed_change,
+                next_point_speed + top_neg_speed_change
+                )
+            nominal_speed = new_nominal_speed
+            self.initial_speed = min(nominal_speed[0]+top_neg_speed_change[0]/2,self.top_speed/2)
+            if count>N:
+              raise NotImplementedError("could not solve for nominal speed")
+            
+        self.nominal_speed = nominal_speed
+        return self
+
+    def get_problem_matrices(self):
+        """
+        goal: x[i]/m(1-(u[i-1]+u[i])/2+(u[i-1]+u[i])^2/4) =
+        x[i]/(4m) (4 - 2u[i-1]-2u[i] +u[i-1]^2 + 2u[i-1]u[i] + u[i]^2)
+        accelaration constraint: u[i]-u[i-1] < acc_factor*x
+        """
+
+class old_problem:
     """
     The problem includes N segments which were already stitched (for C1-continuity).
     These N segments have N+1 endpoints (not a loop), which I will refer to as joints.
@@ -203,3 +312,9 @@ class problem:
         penalty_mat[penalty_values<0,:]=0
         return penalty_mat
 """
+
+if __name__ == "__main__":
+    prob = problem(gm.compose_track())
+    prob.set_top_speed().set_acc_and_brake_factors().set_mu(0.7,1.2)
+    prob.set_nominal_speed()
+    print(prob.nominal_speed)

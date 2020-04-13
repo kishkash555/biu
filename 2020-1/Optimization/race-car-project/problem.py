@@ -34,7 +34,7 @@ class problem:
     
 
 
-    def set_mu(self, mu_vector= 0.4):
+    def set_mu(self, mu_vector= 0.2, gs=1.1):
         """
         mu*M*g = M*v^2/R
         mu*g = k/q^2
@@ -48,7 +48,8 @@ class problem:
             mu_vector.size != self.n_segments
             ):
             raise ValueError("wrong size or shape of input")
-        self.grip_factor = mu_vector*10 
+        self.gr = mu_vector*10 
+        self.gs = gs
         return self
 
     # def set_grip_acc_factor(self, grip_acc_factor):
@@ -72,8 +73,8 @@ class problem:
         self.acc_factor = 2*acc/self.top_speed
         self.brake_factor = 2*br/self.top_speed
         return self
-        
-    def get_problem_matrices(self, sigmas):
+
+    def get_problem_matrices(self, sigmas_centrip, sigmas_acc, sigmas_br, sigmas_width, sigmas_top_speed):
         """
         * The problem matrices are the result of adding each constraint
         weighted by its sigma
@@ -91,28 +92,95 @@ class problem:
         # each row represents a single curvature
         # since we want the absolute curvature |k| in the constraint,
         # we multiply each row by the sign of the curvature a
-        k_mat = ts.perturbation_to_curvature_matrix()
-        a = ts.get_segment_curvatures()#[:,np.newaxis]
-        k_mat[a<0,:] = -k_mat[a<0,:]
-
-        c5, N, gr = self.c5, self.N, self.grip_factor
-
+        
+        N = self.N
         H = np.zeros((N*2,N*2))
         F = np.zeros(N*2)
-        for i in range(N+1):
-            if i == 0:
-                q0 = 1/self.initial_speed
-                H[0,0] = -sigmas[0] * gr[0] * (1-c5)**2
-                F[0] = -sigmas[0] * gr[0] * 2 * q0 * c5 * (1-c5)
-            else:
-                H[i-1:i,i-1:i] = -gr[i]*sigmas[i]*np.array(
-                    [[c5**2, c5*(1-c5)],
-                    [c5*(1-c5), (1-c5)**2]]
-                )
-            F[N:] = F[N:] + sigmas[i]*k_mat[i,:]
 
+        # centripetal constraints
+        # k[j]-q[j]^2*gr < 0
+        # k[j]-q[j+1]^2*gr*gs < 0
+        k_mat, _ = ts.perturbation_to_curvature_matrix()
+        a = ts.get_segment_curvatures()
+        k_mat[a<0,:] = -k_mat[a<0,:]
+
+        gr, gs, sc, ss = self.gr, self.gs, sigmas_centrip[:N], sigmas_centrip[N:]
+
+        for i in range(N):
+            H[i,i] -= sc[i]*gr
+            F[N:] += sc[i]*k_mat[i,:] 
+        for i in range(N):
+            H[i+1,i+1] -= ss[i]*gr*gs
+            F[N:] += sc[i]*k_mat[i,:] 
+
+        # accelaration constraints:
+        # q[i]-q[i+1]-q[i+1]q[i]*e*x[i+1] < 0 
+        sa, sb, e, r, x = sigmas_acc, sigmas_br, self.acc_factor, self.brake_factor, self.segment_lengths
+        F[0] -= sa[0]*e*x[0]/self.initial_speed
+        for i in range(N-1):
+            H[i+1,i] -= 0.5*sa[i+1]*e*x[i+1] 
+            H[i,i+1] -= 0.5*sa[i+1]*e*x[i+1]
+            F[i] += sa[i]
+            F[i+1] -= sa[i]
+
+        # braking constraints
+        for i in range(N-1):
+            H[i+1,i] -= 0.5*sb[i+1]*r*x[i+1]
+            H[i,i+1] -= 0.5*sb[i+1]*r*x[i+1]
+            F[i] -= sb[i+1]
+            F[i+1] += sb[i+1]
+        
+        # # penalize high speeds
+        for i in range(N):
+            H[i,i] -= sigmas_top_speed[i]
+        # problem unconstrained goal
+        F[:N] += x
+        
+        # rough boundaries
+        for i in range(N):
+            H[N+i,N+i] += sigmas_width[i]
         return H, F
 
+    def check_constrains_fulfilled(self,x_star):
+        ts, N = self.track_segments, self.N
+        a = ts.get_segment_curvatures()
+        q = x_star[:N]
+        b = x_star[N:]
+        k_mat,_ = ts.perturbation_to_curvature_matrix()
+
+        k =  np.dot(k_mat,b[:, np.newaxis]).squeeze()
+        k = np.abs(k + a)
+        gr, gs = self.gr, self.gs
+
+        segment_start_centrip = k[1:]-q[:-1]**2*gr
+        segment_end_centrip = k-q**2*gr*gs
+        
+        left_boundaries = b - 4 # will be negative as long as b < 4
+        right_boundaries = -b - 4 # will be negative as long as b > -4
+        1
+
+
+
+    def test_penalty_mat(self, pertrubations, cospeeds):
+        ts = self.track_segments
+        mat = ts.perturbation_to_curvature_matrix()
+        pertrubations=pertrubations.reshape(pertrubations.size,1)
+        delta_k = mat.dot(pertrubations)
+        a = ts.get_segment_curvatures()[:,np.newaxis]
+        k = a + delta_k
+        c5, N, gr = self.c5, self.N, self.grip_factor
+        gr = self.grip_factor
+        qbar_column = np.convolve(cospeeds,np.array([c5,1-c5]))[1:] # the first one is dumped
+        qbar_column = qbar_column.reshape(-1,1)
+        no_penalty = qbar_column**2*gr-np.abs(k) > 0.
+        
+        # reset rows where there's no current penality
+        penalty_mat[no_penality,:]=0 
+        penalty_mat = np.diag(k) - np.dot(qbar_mat,np.diag(gr))
+
+
+
+"""
     def get_static_penalty_mat(self):
         c5, N, gr = self.c5, self.N, self.grip_factor
         penalty_q_mat1 = np.diag((1-c5)*np.ones(N)) +  np.diag(c5*np.ones(N-1),-1)
@@ -134,22 +202,4 @@ class problem:
         penalty_values = np.dot(penalty_mat,state_vec)
         penalty_mat[penalty_values<0,:]=0
         return penalty_mat
-
-
-    def test_penalty_mat(self, pertrubations, cospeeds):
-        ts = self.track_segments
-        mat = ts.perturbation_to_curvature_matrix()
-        pertrubations=pertrubations.reshape(pertrubations.size,1)
-        delta_k = mat.dot(pertrubations)
-        a = ts.get_segment_curvatures()[:,np.newaxis]
-        k = a + delta_k
-        c5, N, gr = self.c5, self.N, self.grip_factor
-        gr = self.grip_factor
-        qbar_column = np.convolve(cospeeds,np.array([c5,1-c5]))[1:] # the first one is dumped
-        qbar_column = qbar_column.reshape(-1,1)
-        no_penalty = qbar_column**2*gr-np.abs(k) > 0.
-        
-        # reset rows where there's no current penality
-        penalty_mat[no_penality,:]=0 
-        penalty_mat = np.diag(k) - np.dot(qbar_mat2,np.diag(gr))
-
+"""

@@ -11,6 +11,18 @@ turtulehead= [
     ]
 turtulehead = sum(turtulehead,[])
 
+turtulehead2 = [(a*1.3, b) for (a,b) in turtulehead]
+
+lionhead = [
+        [(0.06,15)],
+        [(-0.06,15)],
+        [(-0.25,4)]*2,
+        [(0.18,8)],
+        [(-0.4,4)],
+        [(0,12)]
+    ]
+lionhead = sum(lionhead,[])
+
 class piecewise_path:
     def __init__(self,segments):
         # assume the first segment goes right from (0,0) 
@@ -332,8 +344,8 @@ if __name__ == "__main__":
 #    plot_segments([r],10)
 #    test_from_endpoints()
 #    test_get_path_by_perturbations()
-    test_perturbation_to_curvature_matrix2()
-
+#    test_perturbation_to_curvature_matrix2()
+    compose_track(plot=True)
 """
 parabola_curve_length
 p = (mx, a.mx^2 ) # endpoint

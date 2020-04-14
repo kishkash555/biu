@@ -57,6 +57,9 @@ class problem:
         self.max_decel = brake        
         return self
 
+    def set_road_width(self, half_width=4):
+        self.road_width = half_width
+
     def set_nominal_speed(self):
         """
         This is the speed that the car travels when following the centerline exactly.
@@ -98,7 +101,10 @@ class problem:
         self.nominal_speed = np.sqrt(nominal_speed)
         return self
 
-    def get_problem_matrices(self,sigmas_d):
+    def get_problem_dimension(self):
+        return 4*self.N-1
+    
+    def get_problem_matrices(self,sigmas_d,sigmas_u):
         """
         goal:
         quadratic coefficient:
@@ -119,9 +125,9 @@ class problem:
         total parameters: 2N problem parameters + 3N constraints
         """
         tol = 1e-5
-        N = self.N
-        H = np.zeros((4*N-1, 4*N-1))
-        F = np.zeros(4*N-1)
+        N, dim = self.N, self.get_problem_dimension()
+        H = np.zeros((dim, dim))
+        F = np.zeros(dim)
 
         s = self.segment_lengths
         m = self.nominal_speed
@@ -131,8 +137,8 @@ class problem:
         tau = 2*s[1:]/(m[:-1]+m[1:])
 
         for i in range(N-1):
-            H[i,i] += tau[i]*beta[i]**2
-            H[i+1, i+1] += tau[i]*(1-beta[i])**2
+            H[i,i] += tau[i]*beta[i]**2 + sigmas_u[i]
+            H[i+1, i+1] += tau[i]*(1-beta[i])**2 + sigmas_u[i+1]
             H[i+1,i] += tau[i]*beta[i]*(1-beta[i])
             F[i] -= tau[i]*beta[i]
             F[i+1] -= tau[i]*(1-beta[i])
@@ -157,15 +163,25 @@ class problem:
 
                 F[B + i] += m[i]**2 - gr*gs*r[i]
 
-        # radial start of segment: from 3N to 4N-2
         B += N
+        # radial start of segment: from 3N to 4N-2
         for i in range(N-1):
             if np.abs(a[i+1]) > tol:
                 H[B+i, i] += 2*m[i]**2
                 H[B+i, N:2*N] -= gr*delta_r[i+1,:]
 
                 F[B+i] += m[i]**2 - gr*r[i+1]
- 
+
+        B += N-1
+        # # deviations
+        # W = self.road_width
+        # for i in range(N):
+        #     H[B+i,N+i] += 1 # left side constraint
+        #     # H[B+N+i,N+i] -= 1 # right side constraint
+        #     F[B+i] = -W
+        #     # F[B+N+i] = -W
+        # B += 2*N
+
         H = symmetrize(H)            
         return H,F
 

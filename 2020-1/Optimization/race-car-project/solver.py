@@ -29,9 +29,18 @@ class conjugate_gradient:
         r = p.copy()
         for _ in range(4*N):
             alpha = np.dot(r.T,r)/np.dot(np.dot(p.T,H),p)
+            # if alpha >0:
+            #     x_bound = np.choose(p>0,lb,ub)
+            # else: 
+            #     x_bound = np.choose(p<0,lb,ub)
+            # dist = np.abs(x-x_bound)
+            # step_bound = np.abs(dist/p)
+            # alpha = np.sign(alpha)*min(np.abs(alpha),step_bound.min())       
+
             x += alpha * p
             r_prev = r.copy()
             r -= alpha*np.dot(H,p)
+            print(norm(r))
             if norm(r) < tol:
                 print("soltion found")
                 return x
@@ -40,12 +49,12 @@ class conjugate_gradient:
 
 def make_problem():
     prob = problem(gm.compose_track(gm.turtulehead))
-    prob.set_mu(0.7,1.2).set_top_speed().set_acc_and_brake_factors()
+    prob.set_mu(0.7,1.2).set_top_speed().set_acc_and_brake_factors().set_road_width()
     prob.set_nominal_speed()
     return prob
 
 def make_x0(prob, N):
-    x0 = np.zeros(4*N-1)
+    x0 = np.zeros(prob.get_problem_dimension())
     #x0 = np.concatenate([1/prob.initial_speed*np.ones(N), np.zeros(N)])
     return x0
 
@@ -59,23 +68,36 @@ def test_check_constraints_fulfilled():
 
 def test_solver():    
     prob = make_problem()
+    prob_size = prob.get_problem_dimension()
     N = len(prob.segment_lengths)
     x0 = make_x0(prob, N) 
     
     sigmas_d = 0.1*np.ones(N)
-    H,F = prob.get_problem_matrices(sigmas_d)
+    sigmas_u = 0.1*np.ones(N)
+    H,F = prob.get_problem_matrices(sigmas_d, sigmas_u)
     x_star = x0
     B=2*N
+    #ub = np.concatenate([0.5*np.ones(N),4*np.ones(N),np.inf*np.ones(prob_size-2*N)])
+    #lb = -ub
+    constraints_to_nullify=np.zeros(prob_size-2*N,dtype=bool)
     while True:
         cj = conjugate_gradient(H,F)
         x_star = cj.solve(x_star)
         speed,deviat,mults = split_solution(x_star,N)
         n_mults = len(mults)
-        if np.all(mults>=0):
+        large_deviations = np.arange(N)[np.abs(deviat)>prob.road_width]
+        large_speeds = np.arange(N)[np.abs(speed)>0.5]
+        if np.all(mults>=0) and len(large_deviations)==0 and len(large_speeds)==0:
             print("Solution found")
             break
-        constraints_to_nullify = np.arange(n_mults)[mults<0]
-        for i in constraints_to_nullify:
+        new_constraints_to_nullify = mults<0
+        if sum(new_constraints_to_nullify)==0:
+            sigmas_d[large_deviations] *= 1.25
+            sigmas_u[large_speeds] *=1.25
+        H,F = prob.get_problem_matrices(sigmas_d, sigmas_u)
+        constraints_to_nullify = np.logical_or(constraints_to_nullify,new_constraints_to_nullify)
+        ind = np.arange(prob_size-2*N)[constraints_to_nullify]
+        for i in ind:
             H[B+i,:] = 0.
             H[:,B+i] = 0.
             F[B+i] = 0 

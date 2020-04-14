@@ -6,19 +6,21 @@ def minimum(*args):
     for v in args:
         m = np.minimum(v,m)
     return m
-    
+
+def symmetrize(a):
+    return a + a.T - np.diag(a.diagonal())
+
 class problem:
     def __init__(self,track_segments):
         self.track_segments = track_segments.copy()
         self.segment_lengths = self.track_segments.get_segment_lengths()
-        self.speed_weights = np.convolve(self.segment_lengths,np.array([0.5, 0.5]))
         self.N = self.track_segments.n_segments
         self.gr = None # represents coefficient of friction
         self.gs = None # represents bonus to friction due to acceleration
         self.top_speed = None
         self.initial_speed = None
-        self.acc_factor = None # represents the top possible acceleration
-        self.brake_factor = None # represent the top possible deceleration
+        self.max_accel = None # represents the top possible acceleration
+        self.max_decel = None # represent the top possible deceleration
         self.nominal_speed = None
 
     def set_mu(self, mu, gs):
@@ -47,20 +49,12 @@ class problem:
         self.top_speed = speed
         return self
 
-    def set_acc_and_brake_factors(self, acc=0.12, brake=0.1):
+    def set_acc_and_brake_factors(self, acc=8, brake=6):
         """
-        in m/(s*m): The speed change in m/s per meter of track
-        assuming going from 50 m/s to 100 m/s takes at least 5 seconds
-        the car travels 75*5 = 375 meters
-        so 50/375 = 0.133
-        we set a constant of 0.12 for acc and 0.1 for brake
-        for slow speed: assuming going from 5 m/s to 15 m/s takes 3 seconds
-        a change of +10m/s on 30 meters is 0.333
+        in m/(s*s): assumes accelaration/decelarations are constants
         """
-        if self.top_speed is None:
-            raise ValueError("first set top speed")
-        self.acc_factor = acc
-        self.brake_factor = brake        
+        self.max_accel = acc
+        self.max_decel = brake        
         return self
 
     def set_nominal_speed(self):
@@ -72,14 +66,14 @@ class problem:
         a = np.abs(self.track_segments.get_segment_curvatures())
         N, gr, gs = self.N, self.gr, self.gs
         x = self.segment_lengths
-        top_centrip_prev_segment = np.sqrt(self.gr/a)
+        top_centrip_prev_segment = self.gr/a
         top_centrip_next_segment = np.zeros(N)
-        top_centrip_next_segment[:N-1] = np.sqrt(self.gr*gs/a[1:])
+        top_centrip_next_segment[:N-1] = self.gr*gs/a[1:]
         top_centrip_next_segment[N-1] = np.inf
         
-        nominal_speed = minimum(top_centrip_next_segment, top_centrip_prev_segment, self.top_speed)
-        top_pos_speed_change = x * self.acc_factor
-        top_neg_speed_change = x* self.brake_factor
+        nominal_speed = minimum(top_centrip_next_segment, top_centrip_prev_segment, self.top_speed**2)
+        top_pos_speed_change = 2* x * self.max_accel
+        top_neg_speed_change = 2* x * self.max_decel
         count = 0
         while True:
             count +=1
@@ -87,28 +81,104 @@ class problem:
             prev_point_speed[0] = np.inf
             next_point_speed = np.roll(nominal_speed,-1)
             next_point_speed[-1] = np.inf
-
             if np.all(nominal_speed <= prev_point_speed + top_pos_speed_change) and \
                 np.all(nominal_speed <= next_point_speed + top_neg_speed_change):
                 break
+           
             new_nominal_speed = minimum(nominal_speed, 
                 prev_point_speed + top_pos_speed_change,
                 next_point_speed + top_neg_speed_change
                 )
             nominal_speed = new_nominal_speed
-            self.initial_speed = min(nominal_speed[0]+top_neg_speed_change[0]/2,self.top_speed/2)
+            self.initial_speed = min(nominal_speed[0]+top_neg_speed_change[0]/2,self.top_speed*0.7)
+            self.initial_speed = np.sqrt(self.initial_speed)
             if count>N:
               raise NotImplementedError("could not solve for nominal speed")
             
-        self.nominal_speed = nominal_speed
+        self.nominal_speed = np.sqrt(nominal_speed)
         return self
 
-    def get_problem_matrices(self):
+    def get_problem_matrices(self,sigmas_d):
         """
-        goal: x[i]/m(1-(u[i-1]+u[i])/2+(u[i-1]+u[i])^2/4) =
-        x[i]/(4m) (4 - 2u[i-1]-2u[i] +u[i-1]^2 + 2u[i-1]u[i] + u[i]^2)
-        accelaration constraint: u[i]-u[i-1] < acc_factor*x
+        goal:
+        quadratic coefficient:
+        2*s[i]/(4*m[i])+s[i+1](4*m[i+1])
+        coupling coefficient:
+        s[i]/(2*m[i]) 
+        linear coefficient:
+        -s[i+1]
+
+        accelaration constraint: 2N constraints (for accelaration and decelaration) 
+        m[i]*u[i] - m[i-1]*u[i-1] <= 2*max_accel/(m[i]+m[i-1]) + m[i-1]-m[i]
+        
+        radial speed constraint: 2N constraints (for segment before and after)
+        m[i]^2*(1+2u[i]) - mu*gs/a[i] + mu*gs/a[i]^2 * delta_a <=0
+
+        boundary constraints: replace with penalty on deviations d[i]^2
+ 
+        total parameters: 2N problem parameters + 3N constraints
         """
+        convexity = 0.
+        N = self.N
+        H = np.zeros((5*N-2, 5*N-2))
+        F = np.zeros(5*N-2)
+
+        s = self.segment_lengths
+        m = self.nominal_speed
+        
+        # filling in goal
+        beta = m[:-1]/(m[:-1]+m[1:])
+        tau = 2*s[1:]/(m[:-1]+m[1:])
+
+        for i in range(N-1):
+            H[i,i] += tau[i]*beta[i]**2
+            H[i+1, i+1] += tau[i]*(1-beta[i])**2
+            H[i+1,i] += tau[i]*beta[i]*(1-beta[i])
+            F[i] -= tau[i]*beta[i]
+            F[i+1] -= tau[i]*(1-beta[i])
+
+        # filling in the deviation regularization
+        for i in range(N):
+            H[N+i,N+i] = sigmas_d[i]
+        
+        # accelaration: form 2N to 3N-2
+        e = self.max_accel
+        B = 2*N
+        for i in range(N-1):
+            H[B+i+1, i] += m[i+1]/2
+            H[B+i, i] -= m[i]/2
+            F[B+i] -= e*tau[i] + m[i] - m[i+1]
+            if convexity>0:
+                H[B+i, B+i] += convexity 
+        # decelration: skipping for now
+
+        # radial end of segment: from 3N-1 to 4N-2
+        gr, gs = self.gr, self.gs
+        delta_r, _ = self.track_segments.perturbation_to_radii_matrix()
+        r = 1/self.track_segments.get_segment_curvatures()
+        delta_r[r<0,:] = -delta_r[r<0,:]
+        r[r<0] = -r[r<0]
+        B += N-1
+        for i in range(N):
+            H[B+i, i] += m[i]**2
+            H[B+i, N:2*N] += delta_r[i,:]
+
+            F[B + i] -= gr*gs*r[i]
+            if convexity>0:
+                H[B+i, B+i] += convexity 
+
+        # radial start of segment
+        B += N
+        for i in range(N-1):
+            H[B+i, i] += m[i]**2
+            H[B+i, N:2*N] += delta_r[i+1,:]
+
+            F[B+i] -= gr*r[i+1]
+            if convexity>0:
+                H[B+i, B+i] += convexity 
+
+        H = symmetrize(H)            
+        return H,F
 
 class old_problem:
     """
@@ -317,4 +387,5 @@ if __name__ == "__main__":
     prob = problem(gm.compose_track())
     prob.set_top_speed().set_acc_and_brake_factors().set_mu(0.7,1.2)
     prob.set_nominal_speed()
+    H, F = prob.get_problem_matrices(np.ones(8))
     print(prob.nominal_speed)

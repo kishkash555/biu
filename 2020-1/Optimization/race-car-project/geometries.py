@@ -45,9 +45,13 @@ class piecewise_path:
         return ret1, ret2
 
     def perturbation_to_radii_matrix(self):
+        tol = 1e-8
         a = self.get_segment_curvatures()
-        delta_a, delta_m = self.perturbation_to_curvature_matrix
-        delta_r = -delta_a/a**2
+        delta_a, delta_m = self.perturbation_to_curvature_matrix()
+        delta_r = np.zeros(delta_a.shape)
+        for i in range(delta_a.shape[0]):
+            delta_r[i,:] = -delta_a[i,:]/ a[i]**2 # applies same factor to each column
+        delta_r[np.abs(a)<tol,:] = 0
         return delta_r, delta_m
 
     def get_path_by_perturbations(self,pert):

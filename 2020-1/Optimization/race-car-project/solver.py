@@ -3,18 +3,17 @@ from problem import problem
 import geometries as gm
 
 
-def split_solution(x_star):
-    N = len(x_star)//2
-    return 1/x_star[:N], x_star[N:]
+def split_solution(xs,N):
+    speeds, deviations, multipliers = xs[:N], xs[N:2*N],xs[2*N:]
+    return speeds, deviations, multipliers
 
 class conjugate_gradient:
-    def __init__(self,H,F,boundaries, tol=1e-3):
+    def __init__(self,H,F, tol=1e-3):
         self.H = H
         # The canonical problem is x.T*H*x + F*x 
         # The solver solves x.T*H*x - F*x
         # Therefore we use the negative of F
         self.F = -F
-        self.b = boundaries
         self.N = F.size
         self.tol = tol
     
@@ -28,7 +27,7 @@ class conjugate_gradient:
             return x
         p = F-b_hat
         r = p.copy()
-        for _ in range(N):
+        for _ in range(4*N):
             alpha = np.dot(r.T,r)/np.dot(np.dot(p.T,H),p)
             x += alpha * p
             r_prev = r.copy()
@@ -41,11 +40,13 @@ class conjugate_gradient:
 
 def make_problem():
     prob = problem(gm.compose_track(gm.turtulehead))
-    prob.set_mu(0.5).set_top_speed().set_acc_and_brake_factors()
+    prob.set_mu(0.7,1.2).set_top_speed().set_acc_and_brake_factors()
+    prob.set_nominal_speed()
     return prob
 
 def make_x0(prob, N):
-    x0 = np.concatenate([1/prob.initial_speed*np.ones(N), np.zeros(N)])
+    x0 = np.zeros(4*N-1)
+    #x0 = np.concatenate([1/prob.initial_speed*np.ones(N), np.zeros(N)])
     return x0
 
 def test_check_constraints_fulfilled():
@@ -61,20 +62,27 @@ def test_solver():
     N = len(prob.segment_lengths)
     x0 = make_x0(prob, N) 
     
-    sigmas_centrip = np.zeros(N*2)
-
-    sigmas_acc = 1*np.ones(N)
-    sigmas_br = 0.1*np.ones(N)
-    sigmas_width = 0.1*np.ones(N)
-    sigmas_top_speed = 0.1*np.ones(N)
-    H,F = prob.get_problem_matrices(sigmas_centrip, sigmas_acc, sigmas_br, sigmas_width, sigmas_top_speed)
-
-     
-    cj = conjugate_gradient(H,F,4)
-    x_star = cj.solve(x0)
-    speed,drift = split_solution(x_star)
+    sigmas_d = 0.1*np.ones(N)
+    H,F = prob.get_problem_matrices(sigmas_d)
+    x_star = x0
+    B=2*N
+    while True:
+        cj = conjugate_gradient(H,F)
+        x_star = cj.solve(x_star)
+        speed,deviat,mults = split_solution(x_star,N)
+        n_mults = len(mults)
+        if np.all(mults>=0):
+            print("Solution found")
+            break
+        constraints_to_nullify = np.arange(n_mults)[mults<0]
+        for i in constraints_to_nullify:
+            H[B+i,:] = 0.
+            H[:,B+i] = 0.
+            F[B+i] = 0 
+            x_star[B+i] = 0.
+        1
     gm.plot_segments(prob.track_segments.segments,20,show=False,color='k')
-    path = prob.track_segments.get_path_by_perturbations(drift) 
+    path = prob.track_segments.get_path_by_perturbations(deviat) 
     # gm.plot_segments(path.segments,20,show=True)
     1
 

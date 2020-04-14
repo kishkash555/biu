@@ -118,10 +118,10 @@ class problem:
  
         total parameters: 2N problem parameters + 3N constraints
         """
-        convexity = 0.
+        tol = 1e-5
         N = self.N
-        H = np.zeros((5*N-2, 5*N-2))
-        F = np.zeros(5*N-2)
+        H = np.zeros((4*N-1, 4*N-1))
+        F = np.zeros(4*N-1)
 
         s = self.segment_lengths
         m = self.nominal_speed
@@ -141,42 +141,31 @@ class problem:
         for i in range(N):
             H[N+i,N+i] = sigmas_d[i]
         
-        # accelaration: form 2N to 3N-2
-        e = self.max_accel
-        B = 2*N
-        for i in range(N-1):
-            H[B+i+1, i] += m[i+1]/2
-            H[B+i, i] -= m[i]/2
-            F[B+i] -= e*tau[i] + m[i] - m[i+1]
-            if convexity>0:
-                H[B+i, B+i] += convexity 
-        # decelration: skipping for now
 
-        # radial end of segment: from 3N-1 to 4N-2
+        # radial end of segment: from 2N to 3N-1
         gr, gs = self.gr, self.gs
         delta_r, _ = self.track_segments.perturbation_to_radii_matrix()
-        r = 1/self.track_segments.get_segment_curvatures()
+        a = self.track_segments.get_segment_curvatures()
+        r = 1/a
         delta_r[r<0,:] = -delta_r[r<0,:]
         r[r<0] = -r[r<0]
-        B += N-1
+        B = 2*N
         for i in range(N):
-            H[B+i, i] += m[i]**2
-            H[B+i, N:2*N] += delta_r[i,:]
+            if np.abs(a[i])>tol:
+                H[B+i, i] += 2*m[i]**2
+                H[B+i, N:2*N] -= gr*gs*delta_r[i,:]
 
-            F[B + i] -= gr*gs*r[i]
-            if convexity>0:
-                H[B+i, B+i] += convexity 
+                F[B + i] += m[i]**2 - gr*gs*r[i]
 
-        # radial start of segment
+        # radial start of segment: from 3N to 4N-2
         B += N
         for i in range(N-1):
-            H[B+i, i] += m[i]**2
-            H[B+i, N:2*N] += delta_r[i+1,:]
+            if np.abs(a[i+1]) > tol:
+                H[B+i, i] += 2*m[i]**2
+                H[B+i, N:2*N] -= gr*delta_r[i+1,:]
 
-            F[B+i] -= gr*r[i+1]
-            if convexity>0:
-                H[B+i, B+i] += convexity 
-
+                F[B+i] += m[i]**2 - gr*r[i+1]
+ 
         H = symmetrize(H)            
         return H,F
 

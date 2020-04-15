@@ -40,15 +40,14 @@ class conjugate_gradient:
             x += alpha * p
             r_prev = r.copy()
             r -= alpha*np.dot(H,p)
-            print(norm(r))
             if norm(r) < tol:
-                print("soltion found")
+                #print("soltion found")
                 return x
             beta = np.dot(r.T,r)/np.dot(r_prev.T, r_prev)
             p = r + beta*p
 
 def make_problem():
-    prob = problem(gm.compose_track(gm.turtulehead))
+    prob = problem(gm.compose_track(gm.lionhead))
     prob.set_mu(0.7,1.2).set_top_speed().set_acc_and_brake_factors().set_road_width()
     prob.set_nominal_speed()
     return prob
@@ -72,7 +71,7 @@ def test_solver():
     N = len(prob.segment_lengths)
     x0 = make_x0(prob, N) 
     
-    sigmas_d = 0.1*np.ones(N)
+    sigmas_d = 0.01*np.ones(N)
     sigmas_u = 0.1*np.ones(N)
     H,F = prob.get_problem_matrices(sigmas_d, sigmas_u)
     x_star = x0
@@ -88,12 +87,18 @@ def test_solver():
         large_deviations = np.arange(N)[np.abs(deviat)>prob.road_width]
         large_speeds = np.arange(N)[np.abs(speed)>0.5]
         if np.all(mults>=0) and len(large_deviations)==0 and len(large_speeds)==0:
-            print("Solution found")
+            print("Solution found. speed {} deviations {}".format(
+                np.array2string(prob.nominal_speed*(1+speed)*3.6,precision=1,suppress_small=True),
+                np.array2string(deviat,precision=2,suppress_small=True),
+            ))
             break
         new_constraints_to_nullify = mults<0
         if sum(new_constraints_to_nullify)==0:
+            print("large dev {} large speed {}".format(large_deviations, large_speeds))
             sigmas_d[large_deviations] *= 1.25
             sigmas_u[large_speeds] *=1.25
+        else:
+            print("nullify", np.arange(prob_size-2*N)[new_constraints_to_nullify])
         H,F = prob.get_problem_matrices(sigmas_d, sigmas_u)
         constraints_to_nullify = np.logical_or(constraints_to_nullify,new_constraints_to_nullify)
         ind = np.arange(prob_size-2*N)[constraints_to_nullify]
@@ -104,8 +109,9 @@ def test_solver():
             x_star[B+i] = 0.
         1
     gm.plot_segments(prob.track_segments.segments,20,show=False,color='k')
-    path = prob.track_segments.get_path_by_perturbations(deviat) 
-    # gm.plot_segments(path.segments,20,show=True)
+    path = prob.track_segments.get_path_by_perturbations(deviat*4) 
+    gm.plot_segments(path.segments,3,show=False,color='b.')
+    gm.plot_segments(path.segments,20,show=True,color='b--')
     1
 
 if __name__ == "__main__":

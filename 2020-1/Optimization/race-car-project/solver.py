@@ -87,18 +87,18 @@ def test_solver():
         large_deviations = np.arange(N)[np.abs(deviat)>prob.road_width]
         large_speeds = np.arange(N)[np.abs(speed)>0.5]
         if np.all(mults>=0) and len(large_deviations)==0 and len(large_speeds)==0:
-            print("Solution found. speed {} deviations {}".format(
-                np.array2string(prob.nominal_speed*(1+speed)*3.6,precision=1,suppress_small=True),
-                np.array2string(deviat,precision=2,suppress_small=True),
-            ))
+            # print("Solution found. speed {} deviations {}".format(
+            #     np.array2string(prob.nominal_speed*(1+speed)*3.6,precision=1,suppress_small=True),
+            #     np.array2string(deviat,precision=2,suppress_small=True),
+            # ))
             break
         new_constraints_to_nullify = mults<0
         if sum(new_constraints_to_nullify)==0:
-            print("large dev {} large speed {}".format(large_deviations, large_speeds))
+            # print("large dev {} large speed {}".format(large_deviations, large_speeds))
             sigmas_d[large_deviations] *= 1.25
             sigmas_u[large_speeds] *=1.25
-        else:
-            print("nullify", np.arange(prob_size-2*N)[new_constraints_to_nullify])
+        # else:
+        #     print("nullify", np.arange(prob_size-2*N)[new_constraints_to_nullify])
         H,F = prob.get_problem_matrices(sigmas_d, sigmas_u)
         constraints_to_nullify = np.logical_or(constraints_to_nullify,new_constraints_to_nullify)
         ind = np.arange(prob_size-2*N)[constraints_to_nullify]

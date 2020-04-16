@@ -3,15 +3,15 @@ import matplotlib.pyplot as plt
 
 rotation_mat = lambda dir: np.array([[np.cos(dir), -np.sin(dir)],[np.sin(dir), np.cos(dir)]])
 
-turtulehead= [
+turtlehead= [
         [(0.004,100)]*2,
         [(-0.025,50)]*2,
         [(-0.01,50)]*2,
         [(0,200)]
     ]
-turtulehead = sum(turtulehead,[])
+turtlehead = sum(turtlehead,[])
 
-turtulehead2 = [(a*1.3, b) for (a,b) in turtulehead]
+turtlehead2 = [(a*1.3, b) for (a,b) in turtlehead]
 
 lionhead = [
         [(0.012,150)],
@@ -219,7 +219,7 @@ class parabola_segment:
         self.set_rotation(theta)
         return self
 
-def compose_track(segments=turtulehead,plot=False):
+def compose_track(segments=turtlehead,plot=False):
     if type(segments[0])!=parabola_segment:
         segments = [parabola_segment(*k) for k in segments]
     last_seg = segments[0]
@@ -241,15 +241,17 @@ def test_fan():
         last_seg = new_seg
     plot_segments(segs,20)
 
-def plot_segments(segs, n_points, show =True, color=''):
+def plot_segments(segs, n_points, show =True, color='', legend=False, ax=None):
+    plot = plt.plot if ax is None else ax.plot
     if color == '':
         color = '-'
     for seg in segs:
         xy = seg.get_points(n_points)
-        plt.plot(xy[0,:],xy[1,:],color)
+        plot(xy[0,:],xy[1,:],color)
 
     plt.gca().set_aspect('equal', adjustable='box')
-    plt.legend([str(i) for i in range(len(segs))])
+    if legend:
+        plt.legend([str(i) for i in range(len(segs))])
     if show:
         plt.show()
 

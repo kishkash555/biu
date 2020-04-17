@@ -22,6 +22,14 @@ lionhead = [
     ]
 lionhead = sum(lionhead,[])
 
+ushape = [
+        [(0.004,100)]*2,
+        [(-0.012,40)]*3,
+        [(0.004,100)]
+    ]
+ushape = sum(ushape,[])
+        
+        
 class piecewise_path:
     def __init__(self,segments):
         # assume the first segment goes right from (0,0) 

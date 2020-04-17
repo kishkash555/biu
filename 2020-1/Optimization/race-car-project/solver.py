@@ -50,7 +50,7 @@ class conjugate_gradient:
 
 def make_problem():
     prob = problem(gm.compose_track(gm.ushape))
-    prob.set_mu(1.4,1.2).set_top_speed().set_acc_and_brake_factors().set_road_width(4)
+    prob.set_mu(3,1.2).set_top_speed().set_acc_and_brake_factors().set_road_width()
     prob.set_nominal_speed()
     return prob
 
@@ -66,9 +66,9 @@ def test_check_constraints_fulfilled():
     prob.check_constrains_fulfilled(x0)
 
 
-def solve_using_boundaries(plot_solution=False):    
-    prob = make_problem()
-    prob_size = prob.get_problem_dimension()
+def solve_using_boundaries(prob=None, plot_solution=False):    
+    if prob is None:
+        prob = make_problem()
     N = len(prob.segment_lengths)
     x0 = make_x0(prob, N) 
     tol = 5e-4
@@ -89,7 +89,6 @@ def solve_using_boundaries(plot_solution=False):
         if x_star is None:
             print("Could not find solution")
         speed,deviat,mults,other = split_solution(x_star,N)
-        n_mults = len(mults)
         large_deviations = np.arange(N)[np.abs(deviat)>prob.road_width*(1+tol)]
         large_speeds = np.arange(N)[np.abs(speed)>0.5+tol]
         if np.all(mults>=-tol) and len(large_deviations)==0 and len(large_speeds)==0:
@@ -119,12 +118,13 @@ def solve_using_boundaries(plot_solution=False):
         plt.subplot(121)
         gm.plot_segments(prob.track_segments.segments,20,show=False,color='k')
         path = prob.track_segments.get_path_by_perturbations(deviat) 
-        gm.plot_segments(path.segments,3,show=False,color='b.')
+        gm.plot_segments(path.segments,5,show=False,color='.')
         gm.plot_segments(path.segments,20,show=False,color='b--')
         plt.subplot(122)
         plt.plot([0]+list(xs),me,'k-')
         plt.plot([0]+list(xs),v,'b--')
-        plt.plot([0]+list(xs),v,'b.')
+        for x,y in zip([0]+list(xs),v):
+            plt.plot(x,y,'.')
         ylim = plt.gca().get_ylim()
         plt.gca().set_ylim((0,ylim[1]))
 

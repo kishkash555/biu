@@ -4,8 +4,8 @@ import geometries as gm
 import matplotlib.pyplot as plt
 
 def split_solution(xs,N):
-    speeds, deviations, multipliers = xs[:N], xs[N:2*N],xs[2*N:]
-    return speeds, deviations, multipliers
+    speeds, deviations, multipliers_accel, other_multipliers = xs[:N], xs[N:2*N],xs[2*N:4*N-1], xs[4*N-1:]
+    return speeds, deviations, multipliers_accel, other_multipliers
 
 class conjugate_gradient:
     def __init__(self,H,F, tol=1e-3):
@@ -71,7 +71,7 @@ def solve_using_boundaries(plot_solution=False):
     x0 = make_x0(prob, N) 
     tol = 1e-4
     sigmas_d = 0.01*np.ones(N)
-    sigmas_u = 0.01*np.ones(N)
+    sigmas_u = 0.001*np.ones(N)
     boundary_d = np.zeros(N)
     boundary_u = np.zeros(N)
     H,F = prob.get_problem_matrices(sigmas_d, sigmas_u, boundary_d, boundary_u)
@@ -80,15 +80,15 @@ def solve_using_boundaries(plot_solution=False):
     B=2*N
     #ub = np.concatenate([0.5*np.ones(N),4*np.ones(N),np.inf*np.ones(prob_size-2*N)])
     #lb = -ub
-    constraints_to_nullify=np.zeros(prob_size-2*N,dtype=bool)
+    constraints_to_nullify=np.zeros(2*N-1,dtype=bool)
     while True:
         cj = conjugate_gradient(H,F)
         x_star = cj.solve(x_star)
         if x_star is None:
             print("h")
-        speed,deviat,mults = split_solution(x_star,N)
+        speed,deviat,mults,other = split_solution(x_star,N)
         n_mults = len(mults)
-        large_deviations = np.arange(N)[np.abs(deviat)>prob.road_width+tol]
+        large_deviations = np.arange(N)[np.abs(deviat)>prob.road_width*(1+tol)]
         large_speeds = np.arange(N)[np.abs(speed)>0.5+tol]
         if np.all(mults>=-tol) and len(large_deviations)==0 and len(large_speeds)==0:
             break
@@ -100,7 +100,7 @@ def solve_using_boundaries(plot_solution=False):
                 boundary_u[large_speeds[-1]] = np.sign(speed[large_speeds[-1]])
         H,F = prob.get_problem_matrices(sigmas_d, sigmas_u, boundary_d, boundary_u)
         constraints_to_nullify = np.logical_or(constraints_to_nullify,new_constraints_to_nullify)
-        ind = np.arange(prob_size-2*N)[constraints_to_nullify]
+        ind = np.arange(2*N-1)[constraints_to_nullify]
         for i in ind:
             H[B+i,:] = 0.
             H[:,B+i] = 0.

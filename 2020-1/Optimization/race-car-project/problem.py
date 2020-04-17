@@ -160,27 +160,27 @@ class problem:
 
         # radial end of segment: from 2N to 3N-1
         gr, gs = self.gr, self.gs
-        delta_r, _ = self.track_segments.perturbation_to_radii_matrix()
+        delta_k, _ = self.track_segments.perturbation_to_curvature_matrix()
         a = self.track_segments.get_segment_curvatures()
         r = 1/a
-        delta_r[r<0,:] = -delta_r[r<0,:]
+        delta_k[r<0,:] = -delta_k[r<0,:]
         r[r<0] = -r[r<0]
         B = 2*N
         for i in range(N):
             if np.abs(a[i])>tol:
-                H[B+i, i] += m[i]**2
-                H[B+i, N:2*N] -= 0.5*gr*gs*delta_r[i,:]
+                H[B+i, i] += 1
+                H[B+i, N:2*N] += 0.5*r[i]*delta_k[i,:]
 
-                F[B + i] += m[i]**2 - gr*gs*r[i]
+                F[B + i] +=  1- gr*gs*r[i]/m[i]**2
 
         B += N
         # radial start of segment: from 3N to 4N-2
         for i in range(N-1):
             if np.abs(a[i+1]) > tol:
-                H[B+i, i] += m[i]**2
-                H[B+i, N:2*N] -= 0.5*gr*delta_r[i+1,:]
+                H[B+i, i] += 1
+                H[B+i, N:2*N] += 0.5*r[i+1]*delta_k[i+1,:]
 
-                F[B+i] += m[i]**2 - gr*r[i+1]
+                F[B+i] += 1 - gr*r[i+1]/m[i]**2
 
         B += N-1
         # deviations

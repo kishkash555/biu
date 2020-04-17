@@ -3,6 +3,8 @@ from problem import problem
 import geometries as gm
 import matplotlib.pyplot as plt
 
+norm = np.linalg.norm
+
 def split_solution(xs,N):
     speeds, deviations, multipliers_accel, other_multipliers = xs[:N], xs[N:2*N],xs[2*N:4*N-1], xs[4*N-1:]
     return speeds, deviations, multipliers_accel, other_multipliers
@@ -48,7 +50,7 @@ class conjugate_gradient:
 
 def make_problem():
     prob = problem(gm.compose_track(gm.ushape))
-    prob.set_mu(1.4,1.2).set_top_speed().set_acc_and_brake_factors().set_road_width()
+    prob.set_mu(1.4,1.2).set_top_speed().set_acc_and_brake_factors().set_road_width(4)
     prob.set_nominal_speed()
     return prob
 
@@ -69,7 +71,7 @@ def solve_using_boundaries(plot_solution=False):
     prob_size = prob.get_problem_dimension()
     N = len(prob.segment_lengths)
     x0 = make_x0(prob, N) 
-    tol = 1e-4
+    tol = 5e-4
     sigmas_d = 0.01*np.ones(N)
     sigmas_u = 0.001*np.ones(N)
     boundary_d = np.zeros(N)
@@ -81,11 +83,11 @@ def solve_using_boundaries(plot_solution=False):
     #ub = np.concatenate([0.5*np.ones(N),4*np.ones(N),np.inf*np.ones(prob_size-2*N)])
     #lb = -ub
     constraints_to_nullify=np.zeros(2*N-1,dtype=bool)
-    while True:
+    while norm(np.dot(H,x_star)+F) > 1e-3:
         cj = conjugate_gradient(H,F)
         x_star = cj.solve(x_star)
         if x_star is None:
-            print("h")
+            print("Could not find solution")
         speed,deviat,mults,other = split_solution(x_star,N)
         n_mults = len(mults)
         large_deviations = np.arange(N)[np.abs(deviat)>prob.road_width*(1+tol)]
@@ -95,7 +97,7 @@ def solve_using_boundaries(plot_solution=False):
         new_constraints_to_nullify = mults< -tol
         if sum(new_constraints_to_nullify)==0:
             if len(large_deviations)>len(large_speeds):
-                boundary_d[large_deviations[0]] = np.sign(deviat[large_deviations[0]])  
+                boundary_d[large_deviations[0]] = np.sign(deviat[large_deviations[0]])
             else:
                 boundary_u[large_speeds[-1]] = np.sign(speed[large_speeds[-1]])
         H,F = prob.get_problem_matrices(sigmas_d, sigmas_u, boundary_d, boundary_u)
@@ -108,67 +110,26 @@ def solve_using_boundaries(plot_solution=False):
             x_star[B+i] = 0.
         1
     me = np.array([prob.initial_speed]+list(prob.nominal_speed))
-    t = 2*prob.segment_lengths/(me[:-1]+me[1:])
+    v = me.copy()
+    v[1:] = v[1:]*(1+speed)
+    t = 2*prob.segment_lengths/(v[:-1]+v[1:])
+    xs = np.cumsum(prob.segment_lengths)
     delta_t = (x_star*(Hg.dot(x_star)+Fg))[:N]  
     if plot_solution:
         plt.subplot(121)
         gm.plot_segments(prob.track_segments.segments,20,show=False,color='k')
-        path = prob.track_segments.get_path_by_perturbations(deviat*4) 
+        path = prob.track_segments.get_path_by_perturbations(deviat) 
         gm.plot_segments(path.segments,3,show=False,color='b.')
         gm.plot_segments(path.segments,20,show=False,color='b--')
         plt.subplot(122)
-        plt.plot([0]+list(np.cumsum(t)),me)
+        plt.plot([0]+list(xs),me,'k-')
+        plt.plot([0]+list(xs),v,'b--')
+        plt.plot([0]+list(xs),v,'b.')
+        ylim = plt.gca().get_ylim()
+        plt.gca().set_ylim((0,ylim[1]))
 
     return x_star, t, delta_t 
 
-def solve_using_penalties():    
-    prob = make_problem()
-    prob_size = prob.get_problem_dimension()
-    N = len(prob.segment_lengths)
-    x0 = make_x0(prob, N) 
-    
-    sigmas_d = 0.01*np.ones(N)
-    sigmas_u = 0.1*np.ones(N)
-    H,F = prob.get_problem_matrices(sigmas_d, sigmas_u)
-    x_star = x0
-    B=2*N
-    #ub = np.concatenate([0.5*np.ones(N),4*np.ones(N),np.inf*np.ones(prob_size-2*N)])
-    #lb = -ub
-    constraints_to_nullify=np.zeros(prob_size-2*N,dtype=bool)
-    while True:
-        cj = conjugate_gradient(H,F)
-        x_star = cj.solve(x_star)
-        speed,deviat,mults = split_solution(x_star,N)
-        n_mults = len(mults)
-        large_deviations = np.arange(N)[np.abs(deviat)>prob.road_width]
-        large_speeds = np.arange(N)[np.abs(speed)>0.5]
-        if np.all(mults>=0) and len(large_deviations)==0 and len(large_speeds)==0:
-            # print("Solution found. speed {} deviations {}".format(
-            #     np.array2string(prob.nominal_speed*(1+speed)*3.6,precision=1,suppress_small=True),
-            #     np.array2string(deviat,precision=2,suppress_small=True),
-            # ))
-            break
-        new_constraints_to_nullify = mults<0
-        if sum(new_constraints_to_nullify)==0:
-            # print("large dev {} large speed {}".format(large_deviations, large_speeds))
-            sigmas_d[large_deviations] *= 1.25
-            sigmas_u[large_speeds] *=1.25
-        # else:
-        #     print("nullify", np.arange(prob_size-2*N)[new_constraints_to_nullify])
-        H,F = prob.get_problem_matrices(sigmas_d, sigmas_u)
-        constraints_to_nullify = np.logical_or(constraints_to_nullify,new_constraints_to_nullify)
-        ind = np.arange(prob_size-2*N)[constraints_to_nullify]
-        for i in ind:
-            H[B+i,:] = 0.
-            H[:,B+i] = 0.
-            F[B+i] = 0 
-            x_star[B+i] = 0.
-        1
-    gm.plot_segments(prob.track_segments.segments,20,show=False,color='k')
-    path = prob.track_segments.get_path_by_perturbations(deviat*4) 
-    gm.plot_segments(path.segments,3,show=False,color='b.')
-    gm.plot_segments(path.segments,20,show=True,color='b--')
-    1
 
 if __name__ == "__main__":
     solve_using_boundaries(True)

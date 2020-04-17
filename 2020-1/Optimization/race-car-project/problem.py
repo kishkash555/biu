@@ -66,7 +66,7 @@ class problem:
         It is set at the N track endpoints.
         The 0th point is set to a speed of top speed/2.
         """
-        a = np.abs(self.track_segments.get_segment_curvatures())
+        a = np.maximum(np.abs(self.track_segments.get_segment_curvatures()),0.001)
         N, gr, gs = self.N, self.gr, self.gs
         x = self.segment_lengths
         top_centrip_prev_segment = self.gr/a
@@ -162,6 +162,8 @@ class problem:
         gr, gs = self.gr, self.gs
         delta_k, _ = self.track_segments.perturbation_to_curvature_matrix()
         a = self.track_segments.get_segment_curvatures()
+        sm = np.abs(a)<tol
+        a[sm] = tol/2 
         r = 1/a
         delta_k[r<0,:] = -delta_k[r<0,:]
         r[r<0] = -r[r<0]

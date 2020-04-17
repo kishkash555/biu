@@ -48,9 +48,9 @@ class conjugate_gradient:
             beta = np.dot(r.T,r)/np.dot(r_prev.T, r_prev)
             p = r + beta*p
 
-def make_problem():
-    prob = problem(gm.compose_track(gm.ushape))
-    prob.set_mu(3,1.2).set_top_speed().set_acc_and_brake_factors().set_road_width()
+def make_problem(shape=gm.ushape, mu=1.5):
+    prob = problem(gm.compose_track(shape))
+    prob.set_mu(mu,1.2).set_top_speed().set_acc_and_brake_factors().set_road_width()
     prob.set_nominal_speed()
     return prob
 
@@ -66,7 +66,7 @@ def test_check_constraints_fulfilled():
     prob.check_constrains_fulfilled(x0)
 
 
-def solve_using_boundaries(prob=None, plot_solution=False):    
+def solve_using_boundaries(prob=None, plot_solution=False,trace_mult=1,su=1):    
     if prob is None:
         prob = make_problem()
     N = len(prob.segment_lengths)
@@ -89,6 +89,9 @@ def solve_using_boundaries(prob=None, plot_solution=False):
         if x_star is None:
             print("Could not find solution")
         speed,deviat,mults,other = split_solution(x_star,N)
+        if sum(speed<-1):
+            sigmas_u[speed<-1]=su*0.001
+            speed[speed<-1]=0
         large_deviations = np.arange(N)[np.abs(deviat)>prob.road_width*(1+tol)]
         large_speeds = np.arange(N)[np.abs(speed)>0.5+tol]
         if np.all(mults>=-tol) and len(large_deviations)==0 and len(large_speeds)==0:
@@ -99,6 +102,7 @@ def solve_using_boundaries(prob=None, plot_solution=False):
                 boundary_d[large_deviations[0]] = np.sign(deviat[large_deviations[0]])
             else:
                 boundary_u[large_speeds[-1]] = np.sign(speed[large_speeds[-1]])
+                sigmas_u[large_speeds[-1]] = 0.001
         H,F = prob.get_problem_matrices(sigmas_d, sigmas_u, boundary_d, boundary_u)
         constraints_to_nullify = np.logical_or(constraints_to_nullify,new_constraints_to_nullify)
         ind = np.arange(2*N-1)[constraints_to_nullify]
@@ -117,14 +121,18 @@ def solve_using_boundaries(prob=None, plot_solution=False):
     if plot_solution:
         plt.subplot(121)
         gm.plot_segments(prob.track_segments.segments,20,show=False,color='k')
-        path = prob.track_segments.get_path_by_perturbations(deviat) 
+        path = prob.track_segments.get_path_by_perturbations(deviat*trace_mult) 
         gm.plot_segments(path.segments,5,show=False,color='.')
         gm.plot_segments(path.segments,20,show=False,color='b--')
+        plt.title("Optimal Path",fontsize=22)
         plt.subplot(122)
         plt.plot([0]+list(xs),me,'k-')
         plt.plot([0]+list(xs),v,'b--')
         for x,y in zip([0]+list(xs),v):
             plt.plot(x,y,'.')
+        plt.title("Speed profile",fontsize=22)
+        plt.gca().set_xlabel("Distance")
+        plt.gca().set_ylabel("Speed")
         ylim = plt.gca().get_ylim()
         plt.gca().set_ylim((0,ylim[1]))
 
@@ -132,6 +140,8 @@ def solve_using_boundaries(prob=None, plot_solution=False):
 
 
 if __name__ == "__main__":
-    solve_using_boundaries(True)
-    plt.show()
+    solve_using_boundaries(prob=make_problem(gm.ushape),plot_solution=True)
+
+    # solve_using_boundaries(True)
+    # plt.show()
     

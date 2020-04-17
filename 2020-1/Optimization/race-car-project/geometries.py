@@ -22,14 +22,18 @@ lionhead = [
     ]
 lionhead = sum(lionhead,[])
 
-ushape = [
+hillshape = [
         [(0.004,100)]*2,
         [(-0.012,40)]*3,
         [(0.004,100)],
         [(0,50)]
     ]
-ushape = sum(ushape,[])
+hillshape = sum(hillshape,[])
         
+zigzag = [
+    [(0.012,40),(-0.012,40),(-0.012,40),(-0.012,40),(0.0,200),(0.012,40),(0.012,40),(0.012,40)]*4
+]
+zigzag=sum(zigzag,[])
         
 class piecewise_path:
     def __init__(self,segments):

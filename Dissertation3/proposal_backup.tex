@@ -4,7 +4,7 @@
 
 %\documentclass[letterpaper, 10 pt, conference]{ieeeconf}  % Comment this line out
                                                           % if you need a4paper
-\documentclass[a4paper, 11pt]{article}      % Use this line for a4
+                                                          \documentclass[a4paper, 11pt]{article}      % Use this line for a4
                                                           % paper
 
 \usepackage[utf8]{inputenc}
@@ -40,65 +40,97 @@ A research proposal.
 
 \end{abstract}
 
-\section{Background}
-\subsection{General - team performance}
-Team performance is an important research topic in social sciences. Successful teams perform better while their members experience more positive feelings, compared to less successful teams. This is why it's not surprising that team success is determined not only by each individual team member's competence towards the task, but also by the extent to which team members are able to respond effectively to their peers' changing moods and psychological states during the interaction.
-
-While changes in moods and psychological states cannot be measured directly, changes in physiological signals such as heart rate and skin conductance can serve as proxies. Recently, portable and lightweight electronic measurement devices have enabled researchers to measure their subjects' physiology during an interactive experiment without interfering significantly with the experiment's progress. The extra data collected in this way, creates an opportunity for a deeper understanding of the evolution of team members' psychological state during the course of an experiment, and, importantly, how this evolution relates to team success.
+\section{Motivation - team performance}
+Team performance is an important research topic in social sciences. Successful teams are characterized by both higher performance and better individual (subjective) experiences during the interaction, compared to less successful teams. This is why it's not surprising that team success is determined not only by individual competence levels, but also by the extent to which team members are able to respond effectively to their peers' changing moods and psychological states during the interaction. While these changes cannot be measured directly, they affect physiological changes which can be measured as physiological signals such as heart rate and skin conductance. Recently, portable and lightweight electronic measurement devices have allowed researchers to measure such signals during an interactive experiment without interfering significantly with the experiment's progress. Using these signal to gain deeper understanding of group interaction is a major current effort of the research community. 
 
 
-\subsection{Physiological synchrony}
-The seemingly intuitive notion of synchrony seems to lack a more concrete definition, at least one that is widely accepted. Notionally, it is when the physiological state of two (or more) individuals, develops in a way that implies a common causal factor. Usually, the researcher would strive to neutralize any external influences, in order to investigate how much, and in what ways, synchrony arises as the team members interact, sense and respond to each other. In my research, I will regard any form of statistical dependence between any two (or more) physiological signals collected concurrently from the studied individuals during their interaction, as an indication of physiological synchrony.
+\section{Physiological synchrony}
+\subsection{Synchrony}
+Notionally, synchrony occurs when the development in time of the physiological states of two (or more) individuals, align in a way that implies a common causal factor and matched phase. 
+While the concept itself is considered intuitively clear, defining it quantitatively has proven less straightforward. As shall be explained in the next two sections, the main reason is the fact that physiological time series tend to exhibit complex patterns of auto-dependence. 
+
+\subsection{Quantifying synchrony}
+Typically, to demonstrate synchrony, the researcher first attempts to model the dynamics of each time series separately. While such a model has no direct significance in the context of investigating synchrony, it helps establish the  baseline dynamics of a "stable" signal i.e. the expected development of a signal that is not influenced by other participants' emotions. As an example for a model of a stable signal, consider the ARIMA family of models. Such models assume short-memory, linearity and stationarity. 
+
+Once the model for each signal's auto-dependence is specified, its parameters for the particular participant are estimated. It is customary to use for parameter estimation a signal taken from the individual when at rest and not during the actual interaction. This model is used to separate the interaction-related component as follows: each sample (or short batch of samples) is first predicted based on past samples. Deviations of the actual signal from model prediction are assumed to be due to external influences, including neural influence stemming from psychological changes. In some time-series modeling contexts, this is referred to as the \emph{innovation component} of the signal. 
+
+Taking the innovation component of each participant's signal, the researcher then quantifies the level of dependence between the individuals' signals. A widely-adopted practice is to compare the level of statistical dependence between the population of "true pairs" (i.e. the pairs of signals from individuals that actually interacted) and randomly-matched pairs (signals of individuals from different groups that were matched at random post-experiment).
+
+\subsection{Difficulties in quantifying synchrony}
+The main difficulty associated with the above approach is in modeling the self-dependence of a physiological signal. Physiological signals have been shown to exhibit complex patterns of long-term auto-dependence, and do not generally exhibit stationarity. This makes parameter estimation for such models difficult. In most cases, the available sample duration is too short for estimating the large number of parameters that a long-range autocorrelation model would require. Many different methods have been applied to the problem. The main difficulty is that different design choices can potentially lead to different conclusions regarding synchrony.
+
+\section{The experimental setup}
 
 \subsection{Heart Rate and Skin Conductivity}
 The heart rate is measured by analyzing the electric potential at electrodes placed on the subject's torso, and is also known as the RR-interval (a name derived from the "R" peak in the ECG), or IBI (for inter-beat interval). The variation of heart rate over time in healthy individuals is controlled by a few different pathways in the autonomous nervous system. In many different settings, persons in direct social contact (i.e. in physical proximity and exchanging social cues) have been observed to have some level of synchrony in their heart rates over the course of an experiment, which is understood as an affirmation of the fact that the regulatory states of the two individuals are both affected by (or respond to) the cues exchanged during their social interaction.
 
 Skin conductivity varies mainly due to the presence of sweat, and is measured in units of [ohm\slash meter].
 
-\section{Experimental Setup}
+\section{Experiment itinerary and details of data recorded}
 A brief description of the experiment on which this work focuses follows. The experiment was repeated about 50 times, with distinct teams of three members each.
 \begin{itemize}
     \item Each team's interaction was subdivided into 4 sessions:
     \begin{itemize}
         \item In the first and last sessions, team members were simply asked to relax. These are termed baseline sessions.
-        \item In the second sessions, team members played the drums together for several minutes, accompanied by a background tempo (teams were randomly assigned on of two types of tempos)
-        \item In the third session, the team played the drums again, this time without any background tempo (this is termed the freestyle session) 
+        \item In the second sessions, team members played the drums together for several minutes, accompanied by a background tempo (teams were randomly assigned one of two types of tempos)
+        \item In the third session, the team played the drums again, this time without any background tempo (this is termed the freestyle session)
+        \item In the last session, the team members again were in the same room without performing any task.
     \end{itemize}
-    \item Before the interaction started, each participant had to answer a personality questionnaire which focused on social affinity.
+    \item Before arriving, each participant had to fill in and submit a personality questionnaire which focuses on social affinity.
     \item Just before the interaction started, the participants filled another questionnaire, regarding their current mood, sleep, and caffeine intake.
     \item Between the two interaction sessions, the participants filled a questionnaire to evaluate the effect of the interaction on their moods.
-    \item Respondents with musical background were not admitted.
+    \item Participants were pre-screened for musical  background. Respondents with significant musical experience were not admitted.
 \end{itemize}
 
-\subsection{Literature Survey}
-The existence of synchrony in IBI signals has been established in various situations and setups. More recent papers in this field, deal with the dynamics of synchrony, i.e. analyzing periodic patterns underlying synchrony and devising synchrony-finding methods that can be used viably over short time frames (e.g. minutes or even sub-minutes), in order to analyze the progression of synchorny over the course of an experiment. 
 
 
+\section{Proposed Research}
+First, I briefly introduce the main research questions as I see them. Then, I explain why dealing with these questions using tools from deep learning looks like a promising, and under-explored alternative to the more traditional research methods in this area. Lastly, I add more details on the suggested approach and the implications of potential outcomes.
 
-
-In the word ``signal'', we refer to any time-based measurement representing some aspect of their current physiology.
-
-
-While many types of signals fall into the above definition, most research has focused on a few types of signals whose regulatory significance is relatively well-understood and are easy to collect. We will briefly cover the two types of signals that are used in the current research: heart rate and skin conductivity.
-
-
-\section{Research Goals}
-Our goals in this research are as follows: 
-
-\textbf{From the methodological perspective:}
+\subsection{Research questions}
+Our goal in this research is to leverage the rich data collected in the experiment to advance the understanding of the development of enjoyment and rapport during the drumming task. The two physiological signals recorded (heart rate and skin conductivity) should provide important indications regarding the development of feelings such as excitement and anxiety, and so we believe that patterns can be detected which can be directly linked to the self-reported degree of enjoyment. We therefore propose focusing on the following research questions:
 \begin{itemize}
-\item Understanding the applicability of some of the common methods for testing (and quantifying) synchrony for our particular data-set.
-\item Establishing the trade-off between effect significance and analysis time-frame for our data-set.
-\item Using periodic function analysis to characterize the typical delays associated with synchronous behavior in the different types of signals.   
+\item 
+Patterns in signals of an individual (isolated from group):
+\begin{itemize}
+    \item 
+    Can the signals of each individual, when analyzed in isolation from teammates' signals, predict the level of positive feelings (enjoyment, satisfaction and delight) experienced by the same individual in response to the task?
+    \item
+    As a followup question, if such prediction is possible, can we \emph{expose} the patterns that are linked to positive feelings and explain \emph{how} they relate to positive feelings?
+\end{itemize}
+\item Joint patterns in the signals from the three group members
+\begin{itemize}
+    \item Can the signals of the three teammates, when analyzed collectively, predict the level of positive feelings experienced by the group as a whole? 
+    \item If so, can we expose what features of the signal combination are related to group positive feelings?
 \end{itemize}
 
-\textbf{From the physio-psychological perspective:}
-\begin{itemize}
-\item Link between quantitative measures of synchrony and the individual ("subjective") experience during the experiment
-\item Investigate how the unpredictable background beat interacted with the formation of synchrony
-\item Investigate the dynamics of three-person synchrony from a social perspective.
+\item
+Do the signals recorded prior to the interaction, when the prospective participants were together in one room but not engaged in group activity, reflect in any way the outcome of the experiment?
 \end{itemize}
+
+The following paragraph explains why deep learning methods should offer an effective approach to dealing with these question.
+
+\subsection{Motivation for applying machine learning}
+Machine learning techniques are useful when large amounts of data are available, and existing models fail to fully utilize these data and/or omit potentially important interactions among the system's components. The interactions between a signal and itself, a signal and the other signal from the same individual and (through communication and psychological influence) among the signals of the individuals in the room, do not conform to any known model, but can be picked up by correctly applying deep learning techniques to the problem. Together with the rather large number of repetitions of the experiment, we believe machine learning techniques can help support and expedite the analysis. A successful application of deep learning methods would pave the way for, and motivate, additional researches in the field to consider and adopt similar analysis method in their research endeavours.
+\subsection{Proposed lines of investigation}
+In this section, I go into further details 
+\subsubsection{satisfied vs. dissatisfied individuals}
+Using the signals available per individual, we first want to see whether the individual's self-reported feelings following the experiment can be predicted based on his/her signals during the experiment. If we reach a high degree of prediction, it would indicate that "happiness" felt during the experiment can be associated with specific patterns of arousal (as captured by the signals measured from those individuals). A positive answer would motivate a more through and detailed investigation into what those patterns are, and whether we can explain the relation between these patterns and the positive feelings. A negative answer would indicate that happiness can be associated to a particular pattern of arousal during the experiment, and would motivate two followup investigation:
+\begin{itemize}
+    \item examining the post-experiment signals, in order to establish that the self-reported positive feeling are also reflected by differences in physiology.
+    \item examining the experiment signals jointly for the three team members, more details in the next paragraph.
+\end{itemize}
+
+\subsubsection{satisfied vs. dissatisfied groups}
+Here we investigate whether the overall happiness level of the group can be predicted by looking at the combination of the signals taken during the interaction. If we are able to demonstrate so, while at the same time demonstrating that each signal separately is a poor predictor, we would help substantiate the claim that while there are no specific patterns that indicate \emph{individual} satisfaction levels, the combinations of signals from the different individuals can help predict whether the group as a whole had a positive experience. This would embody a significant support for the hypothesis that features of the combinations of the physiological signals 
+
+As a second stage of this line of investigation, groups that had high variance in reported feelings (i.e. one or two members were highly satisfied while the other member or members were highly dissatisfied) can be compared to more consistent groups, in order to gain more insights regarding the dynamics of the triad.
+
+\subsubsection{Early indications of accord}
+While the previous to proposed investigation would use the signals recording \emph{during} the interaction, here I propose using the signals recorded prior to the interaction to predict the interaction outcome. If successful, this would be a strong indication that the dynamics of the experiments were actually determined before the experiment started, when the individuals comprising the prospective group responded to the presence of the other individuals in the same room.
+
+
+\subsection{}
 
 
 \end{document}
-

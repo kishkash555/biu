@@ -42,13 +42,22 @@ A research proposal.
 
 \section{Background}
 \subsection{General - team performance}
-Team performance is an important research topic in social sciences. Successful teams perform better while their members experience more positive feelings, compared to less successful teams. This is why it's not surprising that team success is determined not only by each individual team member's competence towards the task, but also by the extent to which team members are able to respond effectively to their peers' changing moods and psychological states during the interaction.
-
-While changes in moods and psychological states cannot be measured directly, changes in physiological signals such as heart rate and skin conductance can serve as proxies. Recently, portable and lightweight electronic measurement devices have enabled researchers to measure their subjects' physiology during an interactive experiment without interfering significantly with the experiment's progress. The extra data collected in this way, creates an opportunity for a deeper understanding of the evolution of team members' psychological state during the course of an experiment, and, importantly, how this evolution relates to team success.
+Team performance is an important research topic in social sciences. Successful teams are characterized by both higher performance and better individual (subjective) experiences during the interaction, compared to less successful teams. This is why it's not surprising that team success is determined not only by individual competence levels, but also by the extent to which team members are able to respond effectively to their peers' changing moods and psychological states during the interaction. While these changes cannot be measured directly, they affect physiological changes which can be measured as physiological signals such as heart rate and skin conductance. Recently, portable and lightweight electronic measurement devices have allowed researchers to measure such signals during an interactive experiment without interfering significantly with the experiment's progress. Using these signal to gain deeper understanding of group interaction is a major current effort of the research community. 
 
 
-\subsection{Physiological synchrony}
-The seemingly intuitive notion of synchrony seems to lack a more concrete definition, at least one that is widely accepted. Notionally, it is when the physiological state of two (or more) individuals, develops in a way that implies a common causal factor. Usually, the researcher would strive to neutralize any external influences, in order to investigate how much, and in what ways, synchrony arises as the team members interact, sense and respond to each other. In my research, I will regard any form of statistical dependence between any two (or more) physiological signals collected concurrently from the studied individuals during their interaction, as an indication of physiological synchrony.
+\subsection{Approach for detecting physiological synchrony}
+Notionally, synchrony occurs when the physiological states of two (or more) individuals, develop in time in a way that implies a common causal factor. The details of the analyses vary from author to author (and sometimes from paper to paper). However, some principles are common. In the next few paragraphs I briefly describe the common principles.
+
+To show that the signals are statistically related, the researcher first attempts to model the dynamics of each time series separately. For example, applying linearity assumptions leads to ARIMA-type models. Often, however, more elaborate methods are used, as the linearity assumption is generally considered inadequate. 
+
+
+Once a model for each signal's auto-dependence is specified, and its parameters for the particular signal are estimated, the time-series can be broken down into a predictable and an unpredictable component (typically in an additive sense). The unpredictable component is assumed to reflect the instantaneous input from the neurological system.
+
+Then, the author usually applies a second model, for how the signal from one individual may affect the signal from the other individual. This model is used to test whether dependence exists across individuals. 
+
+To illustrate the analysis approach outlined above, let us follow the steps required, using a simple example where an interaction is performed in pairs, with the RR-interval of each individual recorded during the interaction. First, a model of each signal's self-dependence is applied. The part of the signal that is explained by the model is subtracted, leaving the unexplained part, sometimes referred to as the instantaneous innovation. The time-series of instantaneous innovations are analyzed for cross-dependence, e.g. via linear regression or lagged regression. In order to demonstrate synchrony that is induced by the interaction, the researcher typically compares the quality of fit achieved when using one member's signal to predict his or her true pair's signal, vs. the quality of fit when matching signals randomly (i.e. signal of individuals from distinct pairs).
+
+
 
 \subsection{Heart Rate and Skin Conductivity}
 The heart rate is measured by analyzing the electric potential at electrodes placed on the subject's torso, and is also known as the RR-interval (a name derived from the "R" peak in the ECG), or IBI (for inter-beat interval). The variation of heart rate over time in healthy individuals is controlled by a few different pathways in the autonomous nervous system. In many different settings, persons in direct social contact (i.e. in physical proximity and exchanging social cues) have been observed to have some level of synchrony in their heart rates over the course of an experiment, which is understood as an affirmation of the fact that the regulatory states of the two individuals are both affected by (or respond to) the cues exchanged during their social interaction.
@@ -76,23 +85,8 @@ The existence of synchrony in IBI signals has been established in various situat
 
 
 
-In the word ``signal'', we refer to any time-based measurement representing some aspect of their current physiology.
-
-
-While many types of signals fall into the above definition, most research has focused on a few types of signals whose regulatory significance is relatively well-understood and are easy to collect. We will briefly cover the two types of signals that are used in the current research: heart rate and skin conductivity.
-
-
 \section{Research Goals}
 Our goals in this research are as follows: 
-
-\textbf{From the methodological perspective:}
-\begin{itemize}
-\item Understanding the applicability of some of the common methods for testing (and quantifying) synchrony for our particular data-set.
-\item Establishing the trade-off between effect significance and analysis time-frame for our data-set.
-\item Using periodic function analysis to characterize the typical delays associated with synchronous behavior in the different types of signals.   
-\end{itemize}
-
-\textbf{From the physio-psychological perspective:}
 \begin{itemize}
 \item Link between quantitative measures of synchrony and the individual ("subjective") experience during the experiment
 \item Investigate how the unpredictable background beat interacted with the formation of synchrony

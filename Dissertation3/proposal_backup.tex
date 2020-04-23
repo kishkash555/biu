@@ -40,18 +40,22 @@ A research proposal.
 
 \end{abstract}
 
-\section{Background}
-\subsection{General - team performance}
+\section{Motivation - team performance}
 Team performance is an important research topic in social sciences. Successful teams are characterized by both higher performance and better individual (subjective) experiences during the interaction, compared to less successful teams. This is why it's not surprising that team success is determined not only by individual competence levels, but also by the extent to which team members are able to respond effectively to their peers' changing moods and psychological states during the interaction. While these changes cannot be measured directly, they affect physiological changes which can be measured as physiological signals such as heart rate and skin conductance. Recently, portable and lightweight electronic measurement devices have allowed researchers to measure such signals during an interactive experiment without interfering significantly with the experiment's progress. Using these signal to gain deeper understanding of group interaction is a major current effort of the research community. 
 
 
-\subsection{Approach for detecting physiological synchrony}
-Notionally, synchrony occurs when the physiological states of two (or more) individuals, develop in time in a way that implies a common causal factor. The details of the analyses vary from author to author (and sometimes from paper to paper). However, some principles are common. In the next few paragraphs I briefly describe the common principles.
+\section{Physiological synchrony}
+\subsection{Synchrony}
+Notionally, synchrony occurs when the development in time of the physiological states of two (or more) individuals, align in a way that implies a common causal factor and matched phase. 
+While the concept itself is considered intuitively clear, defining it quantitatively has proven less straightforward. As shall be explained in the next two sections, the main reason is the fact that physiological time series tend to exhibit complex patterns of auto-dependence. 
 
-To show that the signals are statistically related, the researcher first attempts to model the dynamics of each time series separately. For example, applying linearity assumptions leads to ARIMA-type models. Often, however, more elaborate methods are used, as the linearity assumption is generally considered inadequate. 
+\subsection{Quantifying synchrony}
+Typically, to demonstrate synchrony, the researcher first attempts to model the dynamics of each time series separately. For example, applying short-memory and linearity assumptions leads to ARIMA-type models. Once the model for each signal's auto-dependence is specified, its parameters for the particular signal are estimated. Then, each sample (or short batch of samples) can be predicted based on past samples. Any deviation of the actual signal from model prediction is assumed to be due to external (i.e. neural) influences on the physiological system. In some contexts, this is referred to as the \emph{innovation component} of the signal. 
 
+Taking the innovation component of each participant's signal, the researcher then looks for indications of dependence between the signals of individuals that were in social interaction. A widely-adopted practice is to demonstrate that the dependence between signals of individuals that actually interacted is significantly higher than the (chance) dependence between randomly-matched pairs of signal.
 
-Once a model for each signal's auto-dependence is specified, and its parameters for the particular signal are estimated, the time-series can be broken down into a predictable and an unpredictable component (typically in an additive sense). The unpredictable component is assumed to reflect the instantaneous input from the neurological system.
+\subsection{Difficulties in quantifying synchrony}
+The main difficulty associated with the above approach is in modeling the self-dependence of a physiological signal. Physiological signals have been shown to exhibit complex patterns of long-term auto-dependence. This makes parameter estimation for such models difficult. In some cases, the available sample duration is not much longer than the desired maximum auto-dependence interval, which renders the approach all but unfeasible. A plethora of competing methods have been applied to the problem. Different design choices lead to different results.
 
 Then, the author usually applies a second model, for how the signal from one individual may affect the signal from the other individual. This model is used to test whether dependence exists across individuals. 
 

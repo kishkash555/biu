@@ -4,7 +4,7 @@
 
 %\documentclass[letterpaper, 10 pt, conference]{ieeeconf}  % Comment this line out
                                                           % if you need a4paper
-                                                          \documentclass[a4paper, 11pt]{article}      % Use this line for a4
+\documentclass[a4paper, 11pt]{article}      % Use this line for a4
                                                           % paper
 
 \usepackage[utf8]{inputenc}
@@ -19,8 +19,9 @@
 %\usepackage{amssymb}  % assumes amsmath package installed
 
 \title{\LARGE \bf
-Team performance and physiological synchrony
-}
+Investigation of team performance 
+and physiological synchrony
+using deep learning }
 
 \author{Shahar Siegman}
 
@@ -52,29 +53,29 @@ While the concept itself is considered intuitively clear, defining it quantitati
 \subsection{Quantifying synchrony}
 Typically, to demonstrate synchrony, the researcher first attempts to model the dynamics of each time series separately. While such a model has no direct significance in the context of investigating synchrony, it helps establish the  baseline dynamics of a "stable" signal i.e. the expected development of a signal that is not influenced by other participants' emotions. As an example for a model of a stable signal, consider the ARIMA family of models. Such models assume short-memory, linearity and stationarity. 
 
-Once the model for each signal's auto-dependence is specified, its parameters for the particular participant are estimated. It is customary to use for parameter estimation a signal taken from the individual when at rest and not during the actual interaction. This model is used to separate the interaction-related component as follows: each sample (or short batch of samples) is first predicted based on past samples. Deviations of the actual signal from model prediction are assumed to be due to external influences, including neural influence stemming from psychological changes. In some time-series modeling contexts, this is referred to as the \emph{innovation component} of the signal. 
+Once the model for each signal's auto-dependence is specified, its parameters for the particular participant are estimated. This model is used to separate the interaction-related component as follows: each sample (or short batch of samples) is first predicted based on past samples. Deviations of the actual signal from model prediction are assumed to be due to external influences, including neural influence stemming from psychological changes. In some time-series modeling contexts, this is referred to as the \emph{innovation component} of the signal. 
 
-Taking the innovation component of each participant's signal, the researcher then quantifies the level of dependence between the individuals' signals. A widely-adopted practice is to compare the level of statistical dependence between the population of "true pairs" (i.e. the pairs of signals from individuals that actually interacted) and randomly-matched pairs (signals of individuals from different groups that were matched at random post-experiment).
+Taking the innovation component of each participant's signal, the researcher then quantifies the level of dependence between the individuals' signals. A widely-adopted practice is to compare the empirical level of statistical dependence between the population of "true pairs" (i.e. the pairs of signals from individuals that actually interacted) to the level found in randomly-matched pairs (signals of individuals from different groups that were matched at random post-experiment).
 
 \subsection{Difficulties in quantifying synchrony}
-The main difficulty associated with the above approach is in modeling the self-dependence of a physiological signal. Physiological signals have been shown to exhibit complex patterns of long-term auto-dependence, and do not generally exhibit stationarity. This makes parameter estimation for such models difficult. In most cases, the available sample duration is too short for estimating the large number of parameters that a long-range autocorrelation model would require. Many different methods have been applied to the problem. The main difficulty is that different design choices can potentially lead to different conclusions regarding synchrony.
+The main difficulty associated with the above approach is in modeling the self-dependence of a physiological signal. Physiological signals have been shown to exhibit complex patterns of long-term auto-dependence, and do not generally exhibit stationarity. This makes ARIMA a poor choice, and more elaborate models require more parameters whose estimation accuracy may be poor. In most cases, the available sample duration is too short for estimating the large number of parameters that a long-range autocorrelation model would require. Many different methods have been applied to the problem, and the choice of methodology can potentially lead to different conclusions regarding synchrony.
 
 \section{The experimental setup}
 
 \subsection{Heart Rate and Skin Conductivity}
-The heart rate is measured by analyzing the electric potential at electrodes placed on the subject's torso, and is also known as the RR-interval (a name derived from the "R" peak in the ECG), or IBI (for inter-beat interval). The variation of heart rate over time in healthy individuals is controlled by a few different pathways in the autonomous nervous system. In many different settings, persons in direct social contact (i.e. in physical proximity and exchanging social cues) have been observed to have some level of synchrony in their heart rates over the course of an experiment, which is understood as an affirmation of the fact that the regulatory states of the two individuals are both affected by (or respond to) the cues exchanged during their social interaction.
+The heart rate is measured by analyzing the electric potential at electrodes placed on the subject's torso. The RR-interval (a name derived from the "R" peak in the ECG), or IBI (for inter-beat interval) are both names for the interval between successive beats, in other words, the instantaneous reciprocal of the heart rate. The variation of heart rate over time in healthy individuals is controlled by several different pathways in the autonomous nervous system. In many different settings, persons in direct social contact (i.e. in physical proximity and exchanging social cues) have been observed to have some level of synchrony in their heart rates over the course of an experiment, which is understood as an affirmation of the fact that the regulatory states of the two individuals are both affected by (or respond to) the cues exchanged during their social interaction.
 
-Skin conductivity varies mainly due to the presence of sweat, and is measured in units of [ohm\slash meter].
+Skin conductivity varies mainly due to the presence of sweat. It is measured in units of [ohm\slash meter]. Its level is related to sympathetic nervous system activity.
 
 \section{Experiment itinerary and details of data recorded}
 A brief description of the experiment on which this work focuses follows. The experiment was repeated about 50 times, with distinct teams of three members each.
 \begin{itemize}
     \item Each team's interaction was subdivided into 4 sessions:
     \begin{itemize}
-        \item In the first and last sessions, team members were simply asked to relax. These are termed baseline sessions.
-        \item In the second sessions, team members played the drums together for several minutes, accompanied by a background tempo (teams were randomly assigned one of two types of tempos)
+        \item In the first session, team members were simply asked to relax. This is the first of two \emph{baseline} sessions.
+        \item In the second session, team members played the drums together for several minutes, accompanied by a background tempo (teams were randomly assigned one of two types of tempos)
         \item In the third session, the team played the drums again, this time without any background tempo (this is termed the freestyle session)
-        \item In the last session, the team members again were in the same room without performing any task.
+        \item In the last session, the team members again were in the same room without performing any task. This is the second baseline session.
     \end{itemize}
     \item Before arriving, each participant had to fill in and submit a personality questionnaire which focuses on social affinity.
     \item Just before the interaction started, the participants filled another questionnaire, regarding their current mood, sleep, and caffeine intake.
@@ -85,28 +86,82 @@ A brief description of the experiment on which this work focuses follows. The ex
 
 
 \section{Proposed Research}
-First, I briefly introduce the main research questions as I see them. Then, I explain why dealing with these questions using tools from deep learning looks like a promising, and under-explored alternative to the more traditional research methods in this area. Lastly, I add more details on the suggested approach and the implications of potential outcomes.
+
+\subsection{Focus of the research}
+Each participant's experience has both physiological and psychological perspectives. The physiological perspective is represented in this experiment by the recorded physiological signals. The psychological perspective is represented by the questionnaire responses provided before and after the group drumming session. The existence of interrelations between the physiological and psychological functions of the human is well established. Likewise, substantial attention has been given to demonstrating that physiological signals from different individuals can exhibit similar patterns during social interactions - this is the phenomenon known as physiological synchrony. However, the interplay between physiological synchrony and group performance is less understood, and will be the focus of the current research.
+
+\subsection{Deep learning techniques for investigating dependence between parameters}
+\subsubsection{Input masking}
+Deep learning models are known to exploit features in input space without requiring those features to be to explicitly specified to them. Therefore, well-trained models are expected to exploit almost any feature of the input relevant to the output. If features irrelevant to the output are (unwittingly) used by the model to determine the output, it means over-fitting has occurred. Therefore an effective model is one that utilizes any relevant information while ignoring clutter. 
+
+This has led to the technique of \emph{masking} as a way to investigate the dependence between input and output spaces and deduce relevance. In short, the technique simply calls for a segment of the input to be replaced with non-informative data, then run both the original and the mutilated samples through the model and observe the changes in output (e.g. prediction accuracy of the model output). If a significant change such as a drop in prediction accuracy occurs following this substitution, it's an indication that the masked segment of the input was relevant for the output.
+
+\subsubsection{Deep canonical correlation analysis}
+
+If we mutilate the test data by replacing parts of the input with data that is irrelevant to the current case, we expect the model's accuracy to degrade, if the model relied on the data that has been removed. Conversely, replacing parts of the input that the model regarded as clutter with similar data, is not likely to affect 
+at data  This means that the overall performance on a test dataset would be more pr Once the model has been trained, we can use the technique of masking in order to test whether a particular part of the input contributed to the output.
+
+if we are interested in understanding which parts of the input had  we can gain understanding of what the model considers as clutte replacing parts of the input with less relevant information should lead to a systematic degradation in model performance. As an example, consider a model trained to detect whether 
+The reason machine-learning model are 
+When training a machine learning model, we expect the model to be 
+
+Machine-learning (ML) models are very flexible in terms of inputs and outputs. They can also be adapted, through specialized cost functions, to learn representations with certain desirable features. These qualities will allow us to uncover relationships among the group participants' signals, and achieve greater insight about the phenomenon of physiological synchronization, its occurrence in group interaction, and its relation to group performance indicators such as affinity.
+
+
+
+relationships between the coincident psychological and physiological states of an individual
+'s are. However, the 
+fact that relationships exist between the physiological and psychological is  
+individual's experience 
+The approach I propose is to compare the scores achieved by similar models fed with actual 
+compare the accuracy of models that are fed with correc
+While traditionally, the purpose of research 
+
+\subsection{Prediction }
+
+\section{Maximally-correlated representations}
+Using deep canonical correlation analysis, we would like to investigate the relation between signals of persons 
+allows to train a network on pairs of inputs, such that to transform two signals 
+\subsection{Deep Learning as a system for learning effective representations }
+While most introductory texts in deep learning tend to present examples where networks are trained to perform specific tasks (such as classification of images or sentiment analysis in texts), the training of a network can alternatively be regarded as a process of learning useful abstractions of the dataset. The features learned by an auto-encoder network, for example, can be used as inputs to a classifier, with the benefits of less task-specific learning and improved performance. This realization has led to the development of pre-trained multi-purpose networks in various fields.
+
+My research will involve creating representations that encode 
+
+
+Machine learning models are able to learn complex relations between data points in an input space on one side, and outcomes in an output space, on the other. Different input spaces may result in different models, depending, among other factors, on what data fields are available for each case. The more relevant data fields are available, the higher the model's expected accuracy. For example, imagine a model is being trained to predict a person's preferred vacation destination, based on personal data. Let's assume that the initial version of the model was trained with age as the only input, i.e. the input to the training was a set of ages of past vacationers and where they spent their vacations. The model is not likely to be very accurate, since age is only one of many factor related to a person's preferred destination. Now, assume two additional models are trained, each with different fields added: The first includes the person's familial status, disposable income and favorite pastime; the second includes the person's political affinity, hair color and favorite TV show. We expect the first of these model to be much more effective in predicting preferred destinations than the second, since the context conveyed by factors such as whether the person has young children and whether the person enjoys the outdoors is relevant to the choice of destination. To conclude, The accuracy of similar models trained with different information will vary depending on the relevance of the information for the output.
+
+\subsection{Proposed analysis approach}
+Based on the above premise, the research will compare models trained with different contexts, or different fields in the input data, in order to analyze which types of data are more relevant to the outcome. The outcomes will be the scores of the group performance based on a participant's answers to the questionnaires. The input data, or the context on which the model will be trained, will include some permutations of the following:
+\begin{itemize}
+    \item The person's own signal-pair during the experiment
+    \item The person's own signal-pair during the baseline sessions
+    \item The signal-pairs of the  group's two other participants 
+    \item Additional background information regarding the group participants, including demographic data and personality type.
+\end{itemize}
+
+
 
 \subsection{Research questions}
-Our goal in this research is to leverage the rich data collected in the experiment to advance the understanding of the development of enjoyment and rapport during the drumming task. The two physiological signals recorded (heart rate and skin conductivity) should provide important indications regarding the development of feelings such as excitement and anxiety, and so we believe that patterns can be detected which can be directly linked to the self-reported degree of enjoyment. We therefore propose focusing on the following research questions:
+Our goal in this research is to leverage the rich data collected in the experiment to advance the understanding of the development of group performance and rapport during the drumming task. The two physiological signals recorded (heart rate and skin conductivity) should provide important indications regarding the development of feelings such as excitement and anxiety, and so we believe that patterns can be detected which can be directly linked to the various measures of group success. 
+
+We therefore propose focusing on the following research questions:
 \begin{itemize}
 \item 
-Patterns in signals of an individual (isolated from group):
-\begin{itemize}
-    \item 
-    Can the signals of each individual, when analyzed in isolation from teammates' signals, predict the level of positive feelings (enjoyment, satisfaction and delight) experienced by the same individual in response to the task?
-    \item
-    As a followup question, if such prediction is possible, can we \emph{expose} the patterns that are linked to positive feelings and explain \emph{how} they relate to positive feelings?
+Comparing the prediction level of the signals of each individual, without the context of the signals of the other group members, to the prediction level of the three signals combined. 
+\item 
+Can the signals of each individual, when analyzed in isolation from teammates' signals, predict the level of positive feelings (enjoyment, satisfaction and delight) experienced by the same individual in response to the task?
+\item
+As a followup question, if such prediction is possible, can we \emph{expose} the patterns that are linked to positive feelings and explain \emph{how} they relate to positive feelings?
 \end{itemize}
-\item Joint patterns in the signals from the three group members
+
 \begin{itemize}
     \item Can the signals of the three teammates, when analyzed collectively, predict the level of positive feelings experienced by the group as a whole? 
     \item If so, can we expose what features of the signal combination are related to group positive feelings?
 \end{itemize}
 
-\item
+
 Do the signals recorded prior to the interaction, when the prospective participants were together in one room but not engaged in group activity, reflect in any way the outcome of the experiment?
-\end{itemize}
+
 
 The following paragraph explains why deep learning methods should offer an effective approach to dealing with these question.
 
@@ -134,3 +189,4 @@ While the previous to proposed investigation would use the signals recording \em
 
 
 \end{document}
+

@@ -88,15 +88,56 @@ A brief description of the experiment on which this work focuses follows. The ex
 \section{Proposed Research}
 
 \subsection{Focus of the research}
-Each participant's experience has both physiological and psychological perspectives. The physiological perspective is represented in this experiment by the recorded physiological signals. The psychological perspective is represented by the questionnaire responses provided before and after the group drumming session. The existence of interrelations between the physiological and psychological functions of the human is well established. Likewise, substantial attention has been given to demonstrating that physiological signals from different individuals can exhibit similar patterns during social interactions - this is the phenomenon known as physiological synchrony. However, the interplay between physiological synchrony and group performance is less understood, and will be the focus of the current research.
+Each participant's experience has both physiological and psychological perspectives. The physiological perspective is represented in this experiment by the recorded physiological signals. The psychological perspective is represented by the questionnaire responses provided before and after the group drumming session. The existence of interrelations between psychology and the signals measured in this experiment is already well established. Likewise, substantial attention has been given to demonstrating that physiological signals from different individuals can exhibit similar patterns during social interactions - this is the phenomenon known as physiological synchrony. However, the interplay between physiological synchrony and group performance is not as well understood, and will be the focus of the current research.
 
-\subsection{Deep learning techniques for investigating dependence between parameters}
+\subsection{Deep learning techniques for investigating dependence between parameters and their application}
+
+Machine-learning (ML) models are very flexible in terms of inputs and outputs. They can also be adapted, through specialized cost functions, to learn representations with certain desirable features. These qualities will allow us to uncover relationships among the group participants' signals, and achieve greater insight about the phenomenon of physiological synchronization, its occurrence in group interaction, and its relation to group performance indicators.
+
+The following two paragraphs describe approaches used in the literature to uncover dependencies in data, and suggestions how they may be adapted to our case.
+
 \subsubsection{Input masking}
-Deep learning models are known to exploit features in input space without requiring those features to be to explicitly specified to them. Therefore, well-trained models are expected to exploit almost any feature of the input relevant to the output. If features irrelevant to the output are (unwittingly) used by the model to determine the output, it means over-fitting has occurred. Therefore an effective model is one that utilizes any relevant information while ignoring clutter. 
+Deep learning models are known to exploit features in input space without requiring those features to be to explicitly specified to them. An effective generalization is achieved when the model learns to utilize relevant information while ignoring clutter. This has guided [] to propose \emph{masking} as a way to investigate the dependence between input and output spaces and deduce relevance. In short, the technique calls for replacing a consistent segment of the input samples with non-informative data, then quantify the change in model accuracy between the mutilated samples and the original sample. If a significant change occurs following the substitution, it's an indication that the segment of the input that has been masked was relevant for the output.
 
-This has led to the technique of \emph{masking} as a way to investigate the dependence between input and output spaces and deduce relevance. In short, the technique simply calls for a segment of the input to be replaced with non-informative data, then run both the original and the mutilated samples through the model and observe the changes in output (e.g. prediction accuracy of the model output). If a significant change such as a drop in prediction accuracy occurs following this substitution, it's an indication that the masked segment of the input was relevant for the output.
+Taking this approach to our context, we can test to see how much the signals from two of a group participants are helpful in predicting the psychological signals of the third. This can be done by first training a network to predict one of the participant's psychological indices based on the three signals, then comparing the result between actual test groups and surrogate test groups where the two auxiliary participants' signals were replaced with signals from other groups.
+
 
 \subsubsection{Deep canonical correlation analysis}
+Deep canonical correlation analysis is concerned with creating the best representation for the entire input space, when fed with only a subset of the input coordinates. The DCCA network training pattern is akin to other encoders, but the architecture splits the input vector at a predetermined location and processes each part separate. Therefore, the representation layer contains distinct groups of neurons, each can be attributed to one side of the split in the input space. Additionally, the output neurons are trained to be \emph{minimally correlated within} each group, and \emph{maximally correlated (in pairs) between the groups}. This means that if one side of the split is missing in the input, its representation can be estimated simply by copying the representation of the correlated neurons from the other side.
+
+For our purposes, DCCA can be trained with the signals from one individual in the group on one side of the split and another group member's signals on the other side. Comparing the reconstruction fidelity of the encoder-decoder system, when both signals are present, and then when one of the signals is missing, should provide interesting insight regarding the features that are common between group participants' signals.
+
+
+\subsection{Proposed experiments}
+\subsubsection{Masking of peers' signal}
+In this experiment, a deep-learning model will be trained to predict each participant's psychological indexes - trust, group efficacy, similarity, etc. The inputs to this model for training purposes will be the physiological signals of all three group members during the drumming session. We expect the model to utilize the signals from all three participants in order to maximize the prediction accuracy.
+
+In the test phase of this experiment, the model will be scored on two types of test data:
+\begin{itemize}
+    \item 
+    Signals from test data similar to the data the model was trained on.
+    \item
+    Signal from surrogate groups, i.e. data where each signal came from a different group
+\end{itemize}
+This is a form of masking, where potentially useful parts of the inputs are replaced with similar, but uninformative inputs.
+If a significant drop in accuracy is observed with the surrogate group, it will serve as an indication that the signals of the group participants need to be analyzed jointly in order to  deduce the participants' psychological states.
+
+\subsection{Comparing performance of models with different representations}
+Some training techniques are aimed at creating effective representations of the input space. The techniques vary in the statistical properties of the output space. Variational auto encoders strive to map the input space to a multivariate-normal output space while other types of auto-encoders produce sparse mappings of the input space. Another technique is deep canonical correlation analysis, where different views of the input are transformed to a representation that maximizes the correlation between the representations of the views.
+
+In this experiment, I aim to compare models that are based on different kinds of representations of the input. Each model will try to predict the psychological indexes of a participant, using different representations. 
+
+By comparing the performance of the regressors, I will be able to test which representation is more effective for the purpose of predicting group performance. Achieving a significantly higher performance with the DCCA representation, for example, would indicate that the relationships between the signal plays an important part in predicting group performance.
+
+
+\subsection{prediction using the baseline signals}
+How much of the outcome of the interaction is determined before the interaction even started? In this experiment, I will use the baseline signals (recorded when the participants were at rest, in the same room, but not in any kind of interaction) to predict the outcome, namely the psychological indicators. Any result that is significantly better than random would be an interesting result as it will serve as proof that the psychological state of the participants is already determined before the interaction started. If so, it will be interesting to repeat the masking protocol discussed above in order to determine whether synchrony during the baseline phase predicts group performance.
+
+
+the signals of the peers will be masked, by replacing them with random 
+
+
+
 
 If we mutilate the test data by replacing parts of the input with data that is irrelevant to the current case, we expect the model's accuracy to degrade, if the model relied on the data that has been removed. Conversely, replacing parts of the input that the model regarded as clutter with similar data, is not likely to affect 
 at data  This means that the overall performance on a test dataset would be more pr Once the model has been trained, we can use the technique of masking in order to test whether a particular part of the input contributed to the output.
@@ -105,7 +146,6 @@ if we are interested in understanding which parts of the input had  we can gain 
 The reason machine-learning model are 
 When training a machine learning model, we expect the model to be 
 
-Machine-learning (ML) models are very flexible in terms of inputs and outputs. They can also be adapted, through specialized cost functions, to learn representations with certain desirable features. These qualities will allow us to uncover relationships among the group participants' signals, and achieve greater insight about the phenomenon of physiological synchronization, its occurrence in group interaction, and its relation to group performance indicators such as affinity.
 
 
 

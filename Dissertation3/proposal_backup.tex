@@ -9,6 +9,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{csquotes}
 
 % The following packages can be found on http:\\www.ctan.org
 %\usepackage{graphics} % for pdf, bitmapped graphics files
@@ -41,24 +42,27 @@ A research proposal.
 
 \end{abstract}
 
-\section{Motivation - team performance}
-Team performance is an important research topic in social sciences. Successful teams are characterized by both higher performance and better individual (subjective) experiences during the interaction, compared to less successful teams. This is why it's not surprising that team success is determined not only by individual competence levels, but also by the extent to which team members are able to respond effectively to their peers' changing moods and psychological states during the interaction. While these changes cannot be measured directly, they affect physiological changes which can be measured as physiological signals such as heart rate and skin conductance. Recently, portable and lightweight electronic measurement devices have allowed researchers to measure such signals during an interactive experiment without interfering significantly with the experiment's progress. Using these signal to gain deeper understanding of group interaction is a major current effort of the research community. 
+\section{Background}
+\subsection{Physiological synchrony}
+\subsubsection{Concept}
+Notionally, synchrony occurs when the development in time of the physiological states of two (or more) individuals, align in a way that implies a common causal factor and matched phase (\cite{palumbo2017interpersonal}). 
+While the concept itself is considered intuitively clear, defining it quantitatively has proven less straightforward. As shall be explained in the next two subsections, the main reason is the fact that physiological time series tend to exhibit complex patterns of auto-dependence \cite{ivanov20011}. 
 
-
-\section{Physiological synchrony}
-\subsection{Synchrony}
-Notionally, synchrony occurs when the development in time of the physiological states of two (or more) individuals, align in a way that implies a common causal factor and matched phase. 
-While the concept itself is considered intuitively clear, defining it quantitatively has proven less straightforward. As shall be explained in the next two sections, the main reason is the fact that physiological time series tend to exhibit complex patterns of auto-dependence. 
-
-\subsection{Quantifying synchrony}
+\subsubsection{Quantifying synchrony}
 Typically, to demonstrate synchrony, the researcher first attempts to model the dynamics of each time series separately. While such a model has no direct significance in the context of investigating synchrony, it helps establish the  baseline dynamics of a "stable" signal i.e. the expected development of a signal that is not influenced by other participants' emotions. As an example for a model of a stable signal, consider the ARIMA family of models. Such models assume short-memory, linearity and stationarity. 
 
 Once the model for each signal's auto-dependence is specified, its parameters for the particular participant are estimated. This model is used to separate the interaction-related component as follows: each sample (or short batch of samples) is first predicted based on past samples. Deviations of the actual signal from model prediction are assumed to be due to external influences, including neural influence stemming from psychological changes. In some time-series modeling contexts, this is referred to as the \emph{innovation component} of the signal. 
 
 Taking the innovation component of each participant's signal, the researcher then quantifies the level of dependence between the individuals' signals. A widely-adopted practice is to compare the empirical level of statistical dependence between the population of "true pairs" (i.e. the pairs of signals from individuals that actually interacted) to the level found in randomly-matched pairs (signals of individuals from different groups that were matched at random post-experiment).
 
-\subsection{Difficulties in quantifying synchrony}
+\subsubsection{Difficulties in quantifying synchrony}
 The main difficulty associated with the above approach is in modeling the self-dependence of a physiological signal. Physiological signals have been shown to exhibit complex patterns of long-term auto-dependence, and do not generally exhibit stationarity. This makes ARIMA a poor choice, and more elaborate models require more parameters whose estimation accuracy may be poor. In most cases, the available sample duration is too short for estimating the large number of parameters that a long-range autocorrelation model would require. Many different methods have been applied to the problem, and the choice of methodology can potentially lead to different conclusions regarding synchrony.
+
+\subsection{Physiological synchrony in the study of team performance}
+\subsubsection{Team performance}
+Team performance is an important research topic in social sciences. Team performance has been linked to better individual (subjective) experiences during the interaction \cite{lodahl1961psychometric}, and also to group cohesiveness -- the desire of team members to be part of the group (\cite{cartwright1968nature}). However, none of the models proposed over the years have prevailed. Differences in experimental and observational setups, as well as different analysis approaches, have restricted the ability to generalize and recreate findings across setups (\cite{beal2003cohesion}). Modeling team performance is therefore still a matter of active research, see for example \cite{collins2019explorations}.
+
+\cite{akinola2010measuring} Have suggested that physiological measures be incorporated into the (metaphoric) toolbox of the organizational researcher as a way to \enquote{deepen theoretical insights and enrich our understanding of human behavior in organizations}. \cite{chikersal2017deep} have demonstrated correlation between shared arousal, as measured by electrodermal activity, and group satisfaction. \cite{danyluck2018intergroup}, have taken a different approach, by casting synchrony as the outcome, and examining which of the different priming level induces a higher level of synchrony. 
 
 \section{The experimental setup}
 
@@ -103,130 +107,13 @@ Taking this approach to our context, we can test to see how much the signals fro
 
 
 \subsubsection{Deep canonical correlation analysis}
-Deep canonical correlation analysis is concerned with creating the best representation for the entire input space, when fed with only a subset of the input coordinates. The DCCA network training pattern is akin to other encoders, but the architecture splits the input vector at a predetermined location and processes each part separate. Therefore, the representation layer contains distinct groups of neurons, each can be attributed to one side of the split in the input space. Additionally, the output neurons are trained to be \emph{minimally correlated within} each group, and \emph{maximally correlated (in pairs) between the groups}. This means that if one side of the split is missing in the input, its representation can be estimated simply by copying the representation of the correlated neurons from the other side.
+Deep canonical correlation analysis \cite{andrew2013deep} is concerned with creating the best representation for the entire input space, when fed with only a subset of the input coordinates. The DCCA network training pattern is akin to other encoders, but the architecture splits the input vector at a predetermined location and processes each part separate. Therefore, the representation layer contains distinct groups of neurons, each can be attributed to one side of the split in the input space. Additionally, the output neurons are trained to be \emph{minimally correlated within} each group, and \emph{maximally correlated (in pairs) between the groups}. This means that if one side of the split is missing in the input, its representation can be estimated simply by copying the representation of the correlated neurons from the other side.
 
 For our purposes, DCCA can be trained with the signals from one individual in the group on one side of the split and another group member's signals on the other side. Comparing the reconstruction fidelity of the encoder-decoder system, when both signals are present, and then when one of the signals is missing, should provide interesting insight regarding the features that are common between group participants' signals.
 
 
-\subsection{Proposed experiments}
-\subsubsection{Masking of peers' signal}
-In this experiment, a deep-learning model will be trained to predict each participant's psychological indexes - trust, group efficacy, similarity, etc. The inputs to this model for training purposes will be the physiological signals of all three group members during the drumming session. We expect the model to utilize the signals from all three participants in order to maximize the prediction accuracy.
 
-In the test phase of this experiment, the model will be scored on two types of test data:
-\begin{itemize}
-    \item 
-    Signals from test data similar to the data the model was trained on.
-    \item
-    Signal from surrogate groups, i.e. data where each signal came from a different group
-\end{itemize}
-This is a form of masking, where potentially useful parts of the inputs are replaced with similar, but uninformative inputs.
-If a significant drop in accuracy is observed with the surrogate group, it will serve as an indication that the signals of the group participants need to be analyzed jointly in order to  deduce the participants' psychological states.
-
-\subsection{Comparing performance of models with different representations}
-Some training techniques are aimed at creating effective representations of the input space. The techniques vary in the statistical properties of the output space. Variational auto encoders strive to map the input space to a multivariate-normal output space while other types of auto-encoders produce sparse mappings of the input space. Another technique is deep canonical correlation analysis, where different views of the input are transformed to a representation that maximizes the correlation between the representations of the views.
-
-In this experiment, I aim to compare models that are based on different kinds of representations of the input. Each model will try to predict the psychological indexes of a participant, using different representations. 
-
-By comparing the performance of the regressors, I will be able to test which representation is more effective for the purpose of predicting group performance. Achieving a significantly higher performance with the DCCA representation, for example, would indicate that the relationships between the signal plays an important part in predicting group performance.
-
-
-\subsection{prediction using the baseline signals}
-How much of the outcome of the interaction is determined before the interaction even started? In this experiment, I will use the baseline signals (recorded when the participants were at rest, in the same room, but not in any kind of interaction) to predict the outcome, namely the psychological indicators. Any result that is significantly better than random would be an interesting result as it will serve as proof that the psychological state of the participants is already determined before the interaction started. If so, it will be interesting to repeat the masking protocol discussed above in order to determine whether synchrony during the baseline phase predicts group performance.
-
-
-the signals of the peers will be masked, by replacing them with random 
-
-
-
-
-If we mutilate the test data by replacing parts of the input with data that is irrelevant to the current case, we expect the model's accuracy to degrade, if the model relied on the data that has been removed. Conversely, replacing parts of the input that the model regarded as clutter with similar data, is not likely to affect 
-at data  This means that the overall performance on a test dataset would be more pr Once the model has been trained, we can use the technique of masking in order to test whether a particular part of the input contributed to the output.
-
-if we are interested in understanding which parts of the input had  we can gain understanding of what the model considers as clutte replacing parts of the input with less relevant information should lead to a systematic degradation in model performance. As an example, consider a model trained to detect whether 
-The reason machine-learning model are 
-When training a machine learning model, we expect the model to be 
-
-
-
-
-relationships between the coincident psychological and physiological states of an individual
-'s are. However, the 
-fact that relationships exist between the physiological and psychological is  
-individual's experience 
-The approach I propose is to compare the scores achieved by similar models fed with actual 
-compare the accuracy of models that are fed with correc
-While traditionally, the purpose of research 
-
-\subsection{Prediction }
-
-\section{Maximally-correlated representations}
-Using deep canonical correlation analysis, we would like to investigate the relation between signals of persons 
-allows to train a network on pairs of inputs, such that to transform two signals 
-\subsection{Deep Learning as a system for learning effective representations }
-While most introductory texts in deep learning tend to present examples where networks are trained to perform specific tasks (such as classification of images or sentiment analysis in texts), the training of a network can alternatively be regarded as a process of learning useful abstractions of the dataset. The features learned by an auto-encoder network, for example, can be used as inputs to a classifier, with the benefits of less task-specific learning and improved performance. This realization has led to the development of pre-trained multi-purpose networks in various fields.
-
-My research will involve creating representations that encode 
-
-
-Machine learning models are able to learn complex relations between data points in an input space on one side, and outcomes in an output space, on the other. Different input spaces may result in different models, depending, among other factors, on what data fields are available for each case. The more relevant data fields are available, the higher the model's expected accuracy. For example, imagine a model is being trained to predict a person's preferred vacation destination, based on personal data. Let's assume that the initial version of the model was trained with age as the only input, i.e. the input to the training was a set of ages of past vacationers and where they spent their vacations. The model is not likely to be very accurate, since age is only one of many factor related to a person's preferred destination. Now, assume two additional models are trained, each with different fields added: The first includes the person's familial status, disposable income and favorite pastime; the second includes the person's political affinity, hair color and favorite TV show. We expect the first of these model to be much more effective in predicting preferred destinations than the second, since the context conveyed by factors such as whether the person has young children and whether the person enjoys the outdoors is relevant to the choice of destination. To conclude, The accuracy of similar models trained with different information will vary depending on the relevance of the information for the output.
-
-\subsection{Proposed analysis approach}
-Based on the above premise, the research will compare models trained with different contexts, or different fields in the input data, in order to analyze which types of data are more relevant to the outcome. The outcomes will be the scores of the group performance based on a participant's answers to the questionnaires. The input data, or the context on which the model will be trained, will include some permutations of the following:
-\begin{itemize}
-    \item The person's own signal-pair during the experiment
-    \item The person's own signal-pair during the baseline sessions
-    \item The signal-pairs of the  group's two other participants 
-    \item Additional background information regarding the group participants, including demographic data and personality type.
-\end{itemize}
-
-
-
-\subsection{Research questions}
-Our goal in this research is to leverage the rich data collected in the experiment to advance the understanding of the development of group performance and rapport during the drumming task. The two physiological signals recorded (heart rate and skin conductivity) should provide important indications regarding the development of feelings such as excitement and anxiety, and so we believe that patterns can be detected which can be directly linked to the various measures of group success. 
-
-We therefore propose focusing on the following research questions:
-\begin{itemize}
-\item 
-Comparing the prediction level of the signals of each individual, without the context of the signals of the other group members, to the prediction level of the three signals combined. 
-\item 
-Can the signals of each individual, when analyzed in isolation from teammates' signals, predict the level of positive feelings (enjoyment, satisfaction and delight) experienced by the same individual in response to the task?
-\item
-As a followup question, if such prediction is possible, can we \emph{expose} the patterns that are linked to positive feelings and explain \emph{how} they relate to positive feelings?
-\end{itemize}
-
-\begin{itemize}
-    \item Can the signals of the three teammates, when analyzed collectively, predict the level of positive feelings experienced by the group as a whole? 
-    \item If so, can we expose what features of the signal combination are related to group positive feelings?
-\end{itemize}
-
-
-Do the signals recorded prior to the interaction, when the prospective participants were together in one room but not engaged in group activity, reflect in any way the outcome of the experiment?
-
-
-The following paragraph explains why deep learning methods should offer an effective approach to dealing with these question.
-
-\subsection{Motivation for applying machine learning}
-Machine learning techniques are useful when large amounts of data are available, and existing models fail to fully utilize these data and/or omit potentially important interactions among the system's components. The interactions between a signal and itself, a signal and the other signal from the same individual and (through communication and psychological influence) among the signals of the individuals in the room, do not conform to any known model, but can be picked up by correctly applying deep learning techniques to the problem. Together with the rather large number of repetitions of the experiment, we believe machine learning techniques can help support and expedite the analysis. A successful application of deep learning methods would pave the way for, and motivate, additional researches in the field to consider and adopt similar analysis method in their research endeavours.
-\subsection{Proposed lines of investigation}
-In this section, I go into further details 
-\subsubsection{satisfied vs. dissatisfied individuals}
-Using the signals available per individual, we first want to see whether the individual's self-reported feelings following the experiment can be predicted based on his/her signals during the experiment. If we reach a high degree of prediction, it would indicate that "happiness" felt during the experiment can be associated with specific patterns of arousal (as captured by the signals measured from those individuals). A positive answer would motivate a more through and detailed investigation into what those patterns are, and whether we can explain the relation between these patterns and the positive feelings. A negative answer would indicate that happiness can be associated to a particular pattern of arousal during the experiment, and would motivate two followup investigation:
-\begin{itemize}
-    \item examining the post-experiment signals, in order to establish that the self-reported positive feeling are also reflected by differences in physiology.
-    \item examining the experiment signals jointly for the three team members, more details in the next paragraph.
-\end{itemize}
-
-\subsubsection{satisfied vs. dissatisfied groups}
-Here we investigate whether the overall happiness level of the group can be predicted by looking at the combination of the signals taken during the interaction. If we are able to demonstrate so, while at the same time demonstrating that each signal separately is a poor predictor, we would help substantiate the claim that while there are no specific patterns that indicate \emph{individual} satisfaction levels, the combinations of signals from the different individuals can help predict whether the group as a whole had a positive experience. This would embody a significant support for the hypothesis that features of the combinations of the physiological signals 
-
-As a second stage of this line of investigation, groups that had high variance in reported feelings (i.e. one or two members were highly satisfied while the other member or members were highly dissatisfied) can be compared to more consistent groups, in order to gain more insights regarding the dynamics of the triad.
-
-\subsubsection{Early indications of accord}
-While the previous to proposed investigation would use the signals recording \emph{during} the interaction, here I propose using the signals recorded prior to the interaction to predict the interaction outcome. If successful, this would be a strong indication that the dynamics of the experiments were actually determined before the experiment started, when the individuals comprising the prospective group responded to the presence of the other individuals in the same room.
-
-
-\subsection{}
-
-
+\bibliographystyle{apalike}
+\bibliography{ref}
 \end{document}
 

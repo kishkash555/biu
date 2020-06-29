@@ -8,61 +8,58 @@ import loader
 class ann_model(nn.Module):
   #conv1d(in_channels: int, out_channels: int, kernel_size, stride: ..., padding: ..., dilation: ..., groups: int, bias: bool, padding_mode: str) -> None
   #MaxPool1d(kernel_size, stride=None, padding=0, dilation=1,
+
+  # torch.nn.ConvTranspose1d(in_channels: int, out_channels: int, kernel_size, 
+  # stride, padding, output_padding, groups, bias= True, dilation= 1, padding_mode = 'zeros')
   def __init__(self):
     super(ann_model,self).__init__()
-    self.conv1 = nn.Conv1d(1, 64, 21, 5, 5)
-    self.conv2 = nn.Conv1d(64, 64, 21, 1, 5)
-    self.pool1 = nn.MaxPool1d(2,2)
-
-    self.conv3 = nn.Conv1d(64, 128, 5, 1, 0)
-    self.conv4 = nn.Conv1d(128, 128, 5, 1, 0)
-    self.pool2 = nn.MaxPool1d(2,2)
-
-    self.conv5 = nn.Conv1d(128, 256, 6, 1, 0)
-    self.conv6 = nn.Conv1d(256, 256, 6, 1, 0)
-    self.pool3 = nn.AvgPool1d(3)
-    self.linear1 = nn.Linear(256,1)
-#    self.linear2 = nn.Linear(6,1)
+    self.convE1 = nn.Conv1d(1, 20, 40, 36, 18)
+    self.convE2 = nn.Conv1d(20, 40, 4, 3, 2)
+    
+    self.convD1 = nn.ConvTranspose1d(40,20,4,2)
+    self.convD2 = nn.ConvTranspose1d(20,1,40,36, 18)
+    
  
   def forward(self,x):
-    x = self.conv1(x)
+    # 1, 1, 400
+    x = self.convE1(x) # 1 -> 64, ----21, ^$+5, ...5
+    # 1, 20, 12
     x = F.relu(x)
-    x = self.conv2(x)
+    # 1, 20, 12
+    x = self.convE2(x) # 64 -> 64, ----21, ^$+5, ...1
+    # 1, 40, 5
     x = F.relu(x)
-    x = self.pool1(x)
+    encoded = x
 
-    x = self.conv3(x)
+    # 1, 40, 5
+    x = self.convD1(x) # 64 -> 64, ----21, ^$+5, ...1
+    # 1, 20, 12
     x = F.relu(x)
-    x = self.conv4(x)
-    x = F.relu(x)
-    x = self.pool2(x)
-    x = self.conv5(x)
-    x = F.relu(x)
-    x = self.conv6(x)
-    x = F.relu(x)
-    x = self.pool3(x).view(-1)
-    x = self.linear1(x)
-#    x = F.relu(x)
-#    x = self.linear2(x)
-    x = torch.sigmoid(x)
-    return x
+    # 1, 20, 12
+    x = self.convD2(x)
+    # 1, 1, 400
+
+    decoded = x
+    return encoded, decoded
+
 
 def train(model, epochs):
   criterion = nn.MSELoss()
   losslist = []
   #running_loss = 
   epochloss = 0.
-  optimizer = optim.SGD(model.parameters(),lr=0.1,weight_decay=1e-5)
-  data = loader.loader(None, 'disk', True)
+  optimizer = optim.Adam(model.parameters(),lr=0.0001,weight_decay=0.001)
+  data = loader.loader(None, 'disk')
 
   for epoch in range(epochs):
     l = 0
     print("Entering Epoch: ",epoch)
     for id, x, y in data.generator(training=True):
       optimizer.zero_grad()
-      y_hat = model(x)
-      loss = criterion(y_hat.view(1),torch.Tensor([y]))
-
+      encoded, decoded = model(x)
+      loss = criterion(decoded,x)  + 0.01*torch.abs(torch.norm(decoded)-torch.norm(x))
+      if torch.isnan(loss):
+          print('a')
       loss.backward()
 
       #if l%50==0:
@@ -73,10 +70,11 @@ def train(model, epochs):
       epochloss += loss.item()
       l += 1
     losslist.append(epochloss/l)
-    print("\n======> epoch: {}/{}, Loss:{:.6f}, l: {}".format(epoch,epochs,100*epochloss/l, l))
+    print("\n======> epoch: {}/{}, Loss:{:.4f}, l: {}".format(epoch,epochs,epochloss/l, l))
+    print("\tlast loss: {:.4f} + {:.4f}".format(criterion(decoded,x),  0.01*torch.abs(torch.norm(decoded)-torch.norm(x))))
     epochloss=0
 
-    if not (epoch % 5):
+    if 0:
       validation_loss=0.
       m = 0
       for id, x, y in data.generator(training=False):
@@ -91,7 +89,7 @@ def train(model, epochs):
 if __name__ == "__main__":
     #con = loader.connect()
     dn = ann_model()
-    train(dn, 120)
+    train(dn, 1200)
     1
 
 if 0:

@@ -4,16 +4,33 @@
 
 %\documentclass[letterpaper, 10 pt, conference]{ieeeconf}  % Comment this line out
                                                           % if you need a4paper
-\documentclass[a4paper, 11pt]{article}      % Use this line for a4
+\documentclass[a4paper, 11pt]{report}      % Use this line for a4
                                                           % paper
 
-\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{csquotes}
 \usepackage{natbib}
+\usepackage{graphicx}
+
+%\usepackage{culmus}
+%\usepackage{fontspec}
+%\usepackage{polyglossia}
+%\newfontfamily{\hebrewfont}{David CLM}
+
+
+%\usepackage[english,hebrew]{babel}
+
+%\selectlanguage{english}
+\usepackage{fontspec}
+
 \bibliographystyle{abbrvnat}
+
 \setcitestyle{authoryear,round}
- 
+
+\pagestyle{myheadings} 
+
+\renewcommand{\thesection}{\arabic{section}}
+%\DeclareUnicodeCharacter{}
 % The following packages can be found on http:\\www.ctan.org
 %\usepackage{graphics} % for pdf, bitmapped graphics files
 %\usepackage{epsfig} % for postscript graphics files
@@ -22,50 +39,116 @@
 %\usepackage{amsmath} % assumes amsmath package installed
 %\usepackage{amssymb}  % assumes amsmath package installed
 
-\title{\LARGE \bf
-Investigation of team performance 
-and physiological synchrony
-using deep learning }
-
-\author{Shahar Siegman}
-
 \begin{document}
 
+\begin{titlepage} % Suppresses headers and footers on the title page
+	
+	\centering % Centre everything on the title page
+	\rule{\textwidth}{1pt} % Thick horizontal rule
+	
+	\vspace{2pt}\vspace{-\baselineskip} 
+	% Whitespace between rules
+	
+	\rule{\textwidth}{0.4pt} % Thin horizontal rule
+		\vspace{0.05\textheight} % Whitespace between 
+	
+	%--------------------pastes randomly----------------------------
+	%	Top rules
+	%------------------------------------------------
+	\huge{Department of Computer Science
+	
+	Bar-Ilan University
+	
+	\vspace{30pt}}
+	\Large{
+	M. Sc. Research Proposal - July 2020
+	}
+	\vspace{15pt}
+	
+	%\vspace{0.1\textheight} % Whitespace between the top rules and title
+	
+	%------------------------------------------------
+	%	Title
+	%------------------------------------------------
+{\renewcommand{\baselinestretch}{1.8}\selectfont
+    {\Huge \textsc{Investigation of team performance 
+and physiological synchrony
+using deep learning}} % Title line 
+\par}
 
+	
+	\vspace{0.025\textheight} % Whitespace between the title and short horizontal rule
+	
+	\rule{0.3\textwidth}{0.4pt} % Short horizontal rule under the title
+	\includegraphics[scale=0.5]{hebrew_title.png}
+%	\vspace{0.1\textheight}
+%	\par% Whitespace between 
+%	\vspace{0.1\textheight} % Whitespace between the thin horizontal rule and the author name
+%\selectlanguage{English}
+	
+	\vspace{0.01\textheight} % Whitespace between 
+	\rule{0.3\textwidth}{0.4pt} % Short horizontal rule under the title
+	
+	\vspace{10pt} % Whitespace between the thin horizontal rule and the author name
+	
+	%------------------------------------------------
+	%	Author
+	%------------------------------------------------
+	
+	{\Large Shahar Siegman} % Author name
+	\vspace{0.05\textheight} % Whitespace between the 
 
-\maketitle
-\thispagestyle{empty}
-\pagestyle{empty}
+	{\Large Advisor: Ronny Bartsch} % Author name
+	
+	%------------------------------------------------
+	%	Publisher
+	%------------------------------------------------
+	
+	
+
+	\vfill % Whitespace under the publisher text
+	
+	%------------------------------------------------
+	%	Bottom rules
+	%------------------------------------------------
+	
+	\rule{\textwidth}{0.4pt} % Thin horizontal rule
+	
+	\vspace{2pt}\vspace{-\baselineskip} % Whitespace between rules
+	
+	\rule{\textwidth}{1pt} % Thick horizontal rule
+	
+\end{titlepage}
+
+%\selectlanguage{English}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{abstract}
+{\renewcommand{\baselinestretch}{1.3}\selectfont
+\tableofcontents
+}
 
-A research proposal.
+\pagebreak
 
-\end{abstract}
-
-\section{Synchrony in physiological signals}
-\subsection{Introduction}
+\section{Background}
+\subsection{Synchrony in physiological signals}
+\subsubsection{Introduction}
 Physiological synchrony (PS) occurs when the development in time of the measured physiological states of two or more individuals, align in a way that implies a common causal factor and matched phase. Synchrony has been shown to occur in varied social settings, including among family members, between friends, and in people interacting for the first time \citep{palumbo2017interpersonal}. The main underlying mechanism for PS is believed to be the common psychological experience, leading to synchronized patters of autonomous nervous system (ANS) activity, which in turn influence the physiological signals in a similar fashion \citep{palumbo2017interpersonal}. While the concept of PS is intuitively clear, the details and the dynamics of the underlying mechanisms are yet to be described and validated. 
 
 
-\subsection{Quantifying synchrony}
-\subsubsection{Challenges of modeling synchrony}
+\subsubsection{Quantifying synchrony}
 The physiological signals considered when analyzing for synchrony are influenced by three sources: level changes due to autonomous nervous system (ANS) activity, self-regulation, and random noise. The component of interest to the psycho-physiological researcher is the influence of ANS activity. However, the patterns of self regulation cannot be easily accounted for, as they are typically nonlinear, multi-scaled, and vary in characteristics among individuals \citep{ivanov20011}. In recent years, 
 nonlinear/non-parametric methods are gradually replacing classical, linear methods for detecting synchrony.
 
-\subsubsection{Examples of nonparametric methods}
-One such nonparametric method is phase synchronization.Phase synchronization is effective in detecting a low-integer-ratio relation between the instantaneous frequencies of two signals. The signals frequency are assumed to be variable and noisy. An example of a pair of such signals in the human body is heartbeat and breathing \citep{schafer1998heartbeat}. The method consists of extracting the (unwrapped) phase angle of each signal against time, then plotting the instantaneous phase of one signal each time the second signal completes a cycle, against cycle number. If the ratio between the frequencies of the signals is $m:n$, where $m$ and $n$ are small positive integers, the points on the \emph{synchrogram}, as this plot is known, will tend to form straight lines. Conversely, if the signal's underlying frequencies are independent of each other, the points of the synchrogram will exhibit no clear pattern.
+One such nonparametric method is phase synchronization. Phase synchronization is effective for detecting a low-integer-ratio relation between the instantaneous frequencies of two signals. The signals frequencies are assumed to be variable and noisy. An example of a pair of such signals in the human body is heartbeat and breathing \citep{schafer1998heartbeat}. The method consists of extracting the (unwrapped) phase angle of each signal against time, then plotting the instantaneous phase of one signal each time the second signal completes a cycle, against cycle number. If the ratio between the frequencies of the signals is $m:n$, where $m$ and $n$ are small positive integers, the points on the \emph{synchrogram}, as this plot is known, will tend to form a repeating pattern. Conversely, if the signal's underlying frequencies are independent of each other, the points of the synchrogram will exhibit no clear pattern.
 
 The method used by \cite{wallot2016multidimensional} is somewhat analogous to phase synchronization, but is more involved, and its authors have conceded that not all the patterns that arose in the chart at the base of this method during their experiments were fully interpreted.
 
-\subsubsection{Quantifying synchrony -- conclusion}
 The question of detection and quantification of synchrony is largely an open one, with research in this field usually focused on demonstrating that synchrony exists in a specific setting, rather than attempting to establish an absolute measure of synchrony. Researchers are increasingly turning to novel non-parametric analysis approaches, as the inadequacy of linear assumptions is gradually recognized. 
 
 Additionally, to cope with the variability and poor detection rate at the single-experiment level, researchers apply statistical methods in order to compare groups of experiments that were subject to similar treatments. Still, a model that would explain more precisely the variations in observed synchrony is highly desirable.   
 
-\section{Physiological synchrony in the study of team performance}
+\subsection{Physiological synchrony in the study of team performance}
 Team performance is an important research topic in social sciences. Team performance has been linked to better individual (subjective) experiences during the interaction \citep{lodahl1961psychometric}, and also to group cohesiveness -- the desire of team members to be part of the group \citep{cartwright1968nature}. However, our understanding of this field is fragmented, with limited success in generalizing the proposed models and recreating findings across setups. \citet{beal2003cohesion} cite differences in experimental and observational setups, as well as disparate analysis approaches, among the reasons for this state of affairs. Modeling team performance is therefore still very much a matter of active research, see for example \citet{collins2019explorations}.
 
 The link between group performance research and physiological signal analysis is at least a decade old. \cite{akinola2010measuring} has suggested that physiological measures be incorporated into the (metaphoric) toolbox of the organizational researcher as a way to \enquote{deepen theoretical insights and enrich our understanding of human behavior in organizations}. More recently, \cite{chikersal2017deep} have demonstrated a correlation between shared arousal, as measured by electrodermal activity, and group satisfaction. \cite{danyluck2018intergroup}, have taken a different approach to incorporating physiological measurements in the study of group performance, by casting physiological synchrony as the outcome, and examining which of the different priming levels induces a higher level of PS. 
@@ -120,8 +203,6 @@ Taking this approach to our context, we can test to see how much the signals fro
 Deep canonical correlation analysis, or DCCA  \citep{andrew2013deep}, is concerned with creating the best representation for the entire input space, when fed with only a subset of the input coordinates. The DCCA network training pattern is akin to other encoders, but the architecture call for the input vector to be split first, at some predetermined location, and then processes each part separately. Therefore, the representation layer contains distinct groups of neurons, each can be attributed to one side of the split in the input vector space. Additionally, the output neurons are trained to be \emph{minimally correlated within} each group, and \emph{maximally correlated (in respective pairs) between the groups}. This means that if one side of the split is missing in the input, its representation can be estimated simply by copying the representation of the correlated neurons from the other side.
 
 For our purposes, DCCA can be trained with the signals from one individual in the group on one side of the split and another group member's signals on the other side. Comparing the reconstruction fidelity of the encoder-decoder system, when both signals are present, and then when one of the signals is missing, should provide interesting insight regarding the features that are common between group participants' signals.
-
-\section{Conclusion}
 
 
 

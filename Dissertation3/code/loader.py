@@ -71,6 +71,8 @@ class loader:
         np.random.shuffle(signal_id_list)
 
         for sig_id in signal_id_list:
+            if sig_id=='119_3':
+                continue
             data = self.all_data.loc[sig_id].reset_index()
             par = sig_id.split("_")[0]
             coh = self.cohesion_dict.get(par)

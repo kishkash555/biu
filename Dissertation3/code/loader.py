@@ -5,8 +5,9 @@ import glob
 from os import path, sep
 import numpy as np
 from sklearn.model_selection import train_test_split
+from collections import namedtuple
 
-BASE_LEN = 400
+signal_rec = namedtuple("signal_rec","group_id,sig_id,signal,cohesion".split(","))
 
 server = "thesis.ca6j6heoraog.eu-central-1.rds.amazonaws.com"
 engine = sql.create_engine(f"mysql+pymysql://admin:FphvsYQek4@{server}/thesis_db")
@@ -23,7 +24,7 @@ ORDER BY signal_id, series_type_id, data_ordinal;
 """
 
 load_cohesion_query = """ 
-SELECT participant_id, (cohesion-1)/5 norm_cohesion
+SELECT participant_id, group_id, (cohesion-1)/5 norm_cohesion
 FROM participants
 WHERE cohesion is not null
 """
@@ -36,7 +37,7 @@ def get_data_from_sql(con):
     return all_data, cohesion_data
 
 class loader:
-    def __init__(self, con, source='disk', split=False):
+    def __init__(self, con, source='disk', split=False, base_len=400):
         if source == 'disk':
             all_data = pd.read_pickle('all_data.pkl')
             cohesion_data = pd.read_pickle('cohesion_data.pkl')
@@ -57,18 +58,25 @@ class loader:
             
         #self.all_data = all_data
         self.cohesion_dict = { 
-            str(int(par)): co 
-            for _, (par, co) in cohesion_data.iterrows()
+            str(int(r.participant_id)): r.norm_cohesion 
+            for _, r in cohesion_data.iterrows()
             }
-
+        
+        self.group_id_dict = { 
+            str(int(r.participant_id)): int(r.group_id) 
+            for _, r in cohesion_data.iterrows()
+            }
         self.all_data = all_data.set_index("signal_id")
-     
-    def generator(self,training=True):
+        self.base_len = base_len
+
+    def generator(self, training=True, group_id=False):
+        BASE_LEN = self.base_len
         learn_group = training and "train" or "validation"
         curr_df = self.all_data[self.all_data.learn_group==learn_group]
         
         signal_id_list = list(curr_df.index.unique())
-        np.random.shuffle(signal_id_list)
+        if not group_id:
+            np.random.shuffle(signal_id_list)
 
         for sig_id in signal_id_list:
             if sig_id=='119_3':
@@ -89,7 +97,14 @@ class loader:
             for i in range(min_ord, max_ord-BASE_LEN,BASE_LEN):
                 x = data.loc[i:i+BASE_LEN-1,"data_value"].values
                 x = torch.FloatTensor(x- x.mean())
-                yield sig_id, x.reshape(1,1,-1), coh
+                if group_id:
+                    yield signal_rec(
+                        self.group_id_dict[sig_id.split("_")[0]],
+                        sig_id, 
+                        x.reshape(1,1,-1), 
+                        coh)
+                else:
+                    yield sig_id, x.reshape(1,1,-1), coh
 
 class abcd:
     def __init__(self):

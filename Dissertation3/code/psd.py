@@ -7,7 +7,7 @@ import numpy as np
 from numpy.fft import fft, fftshift, fftfreq, ifftshift
 from collections import namedtuple
 
-FFT = namedtuple('FTT','freq,psd_db,psd,phase'.split(','))
+FFT = namedtuple('FFT','freq,psd_db,psd,phase'.split(','))
 
 def psd(signal, sampling_rate,hide_bias=False):
     n = len(signal)

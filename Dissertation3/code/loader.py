@@ -6,22 +6,32 @@ from os import path, sep
 import numpy as np
 from sklearn.model_selection import train_test_split
 from collections import namedtuple
+from scipy.stats import zscore
 
 signal_rec = namedtuple("signal_rec","group_id,sig_id,signal,cohesion".split(","))
 
 server = "thesis.ca6j6heoraog.eu-central-1.rds.amazonaws.com"
 engine = sql.create_engine(f"mysql+pymysql://admin:FphvsYQek4@{server}/thesis_db")
 
-load_signal_query = """
+signal_query_version = 2
+
+load_signal_query_template = """
 SELECT Concat(participant_id, "_", series_type_id) signal_id,
        data_time,
        data_ordinal,
        data_value
 FROM   interpolated_interval_data
-WHERE  interpolation_series_id = 4
+WHERE  interpolation_series_id = {}
        AND data_value IS NOT NULL
+       {}
 ORDER BY signal_id, series_type_id, data_ordinal;  
 """
+
+load_signal_query = load_signal_query_template.format(*
+    signal_query_version==1 and (4,"") or 
+    signal_query_version==2 and (3,"AND series_type_id = 2")
+    )
+
 
 load_cohesion_query = """ 
 SELECT participant_id, group_id, (cohesion-1)/5 norm_cohesion
@@ -37,6 +47,12 @@ def get_data_from_sql(con):
     return all_data, cohesion_data
 
 class loader:
+    """
+    This class handles getting the signal data and providing it to any consumer class
+    as a generator.
+    The generator handles slicing signals and shuffling.
+    The data may also be split to train and validation
+    """
     def __init__(self, con, source='disk', split=False, base_len=400):
         if source == 'disk':
             all_data = pd.read_pickle('all_data.pkl')
@@ -69,7 +85,7 @@ class loader:
         self.all_data = all_data.set_index("signal_id")
         self.base_len = base_len
 
-    def generator(self, training=True, group_id=False):
+    def generator(self, training=True, group_id=False, standardize=False):
         BASE_LEN = self.base_len
         learn_group = training and "train" or "validation"
         curr_df = self.all_data[self.all_data.learn_group==learn_group]
@@ -94,20 +110,35 @@ class loader:
             min_ord = data.data_ordinal.iloc[0]
             max_ord = data.data_ordinal.iloc[-1]
             data = data.set_index("data_ordinal")
+            if standardize:
+                data["data_value"] = zscore(data["data_value"])
+            y = []
             for i in range(min_ord, max_ord-BASE_LEN,BASE_LEN):
                 x = data.loc[i:i+BASE_LEN-1,"data_value"].values
-                x = torch.FloatTensor(x- x.mean())
+                x = x- x.mean()
+                x = torch.FloatTensor(x)
                 if group_id:
-                    yield signal_rec(
+                    y.append((
+                        signal_rec(
                         self.group_id_dict[sig_id.split("_")[0]],
                         sig_id, 
                         x.reshape(1,1,-1), 
                         coh)
+                    ))
                 else:
-                    yield sig_id, x.reshape(1,1,-1), coh
+                    y.append((sig_id, x.reshape(1,1,-1), coh))
+            yield y
 
-class abcd:
-    def __init__(self):
-        super().__init__()
+
 def connect():
     return engine.connect()
+
+
+if __name__ == "__main__":
+    ld = loader(connect(),'sql',base_len=50)
+
+    a = ld.generator()
+
+    sig_id, x, coh = next(a)
+    print(x.shape)
+    1

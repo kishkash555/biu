@@ -4,7 +4,7 @@ import torch.optim as optim
 import torch
 def train_lstm():
     ld = loader.loader(loader.connect(),base_len=20)
-    lstm = lfi.ind_lstm(20,40)
+    lstm = lfi.ind_lstm(20,200)
     optimizer = optim.SGD(lstm.parameters(), lr=0.1, momentum=0.1)
 
     for epoch in range(2000):

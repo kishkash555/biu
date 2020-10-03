@@ -16,18 +16,21 @@ class ind_lstm(nn.Module):
         # self.decoder_input_size = self.signal_size + self.block_size
         # self.decoder_output_size = self.block_size
  #       self.decoder_hidden_Siz
-        
+        self.num_layers = 1
+
         self.encoder_input_size = self.block_size
         self.encoder_hidden_size = self.signal_size
 
         self.encoder = nn.LSTM(
             input_size=self.encoder_input_size, 
             hidden_size=self.encoder_hidden_size,
+            num_layers=self.num_layers
             )
 
         self.decoder = nn.LSTM(
             input_size=self.signal_size,
-            hidden_size=self.block_size
+            hidden_size=self.block_size,
+            num_layers=self.num_layers
         ) 
 
         
@@ -37,6 +40,7 @@ class ind_lstm(nn.Module):
         self.decoded = None
 
         self.lam = 0.25
+        self.dropout = 0.4
         
     def encode(self,inputs):
         self.inputs = torch.cat(inputs).view( -1, 1, self.encoder_input_size)
@@ -49,15 +53,18 @@ class ind_lstm(nn.Module):
         return self.signal
 
     def decode(self):
-        state = torch.zeros(1,1,self.block_size)
+        state = torch.zeros(self.num_layers,1,self.block_size)
+        hidden = torch.zeros(self.num_layers-1,1,self.block_size)
         decoded_blocks = []
         for i in range(self.inputs.shape[0]-1):
             _, (decoded_block, state) = self.decoder(
                 self.signal[i+1:i+2,:,:], # the encoded vector
-                (self.inputs[i:i+1,:,:], # the block
+                (self.inputs[i:i+1,:,:],
+                #(torch.cat([self.inputs[i:i+1,:,:],hidden]), # the block
                 state) # propagate internal state
                 ) 
-            decoded_blocks.append(decoded_block)
+            hidden = decoded_block[:-1,:,:]
+            decoded_blocks.append(decoded_block[-1:,:,:])
         self.decoded = torch.cat(decoded_blocks) 
         return self.decoded
 

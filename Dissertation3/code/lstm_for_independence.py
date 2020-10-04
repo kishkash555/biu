@@ -40,7 +40,7 @@ class ind_lstm(nn.Module):
         self.decoded = None
 
         self.lam = 0.25
-        self.dropout = 0.4
+#        self.dropout = 0.4
         
     def encode(self,inputs):
         self.inputs = torch.cat(inputs).view( -1, 1, self.encoder_input_size)

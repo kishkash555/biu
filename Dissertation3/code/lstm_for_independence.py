@@ -39,7 +39,7 @@ class ind_lstm(nn.Module):
         self.inputs = None
         self.decoded = None
 
-        self.lam = 0.25
+        self.lam = 0.05
 #        self.dropout = 0.4
         
     def encode(self,inputs):

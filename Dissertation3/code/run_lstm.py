@@ -3,7 +3,7 @@ import loader
 import torch.optim as optim
 import torch
 def train_lstm():
-    ld = loader.loader(loader.connect(),base_len=20)
+    ld = loader.loader(None,base_len=20)
     lstm = lfi.ind_lstm(20,200)
     optimizer = optim.Adam(lstm.parameters(), lr=0.1)
 

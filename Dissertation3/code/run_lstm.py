@@ -5,7 +5,7 @@ import torch
 def train_lstm():
     ld = loader.loader(None,base_len=20)
     lstm = lfi.ind_lstm(20,200)
-    optimizer = optim.SparseAdam(lstm.parameters(), lr=0.01, betas=(0.7, 0.85))
+    optimizer = optim.SGD(lstm.parameters(), lr=0.1, momentum=0.2)
 
     for epoch in range(2000):
         total_mse = total_l1reg = 0.

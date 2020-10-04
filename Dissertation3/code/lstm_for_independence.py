@@ -39,7 +39,7 @@ class ind_lstm(nn.Module):
         self.inputs = None
         self.decoded = None
 
-        self.lam = 0.01
+        self.lam = 0.1
 #        self.dropout = 0.4
         
     def encode(self,inputs):
@@ -84,7 +84,7 @@ class ind_lstm(nn.Module):
         target = self.inputs[1:,:,:]
         mse_loss = mse(outcome, target)
         #l1_reg_loss = torch.norm(self.signal,1)/self.signal.nelement()
-        sequence_similarity = sum([mse(outcome[i+1,:,:], outcome[i,:,:]) for i in range(outcome.shape[0]-1)])
+        sequence_similarity = sum([mse(self.signal[i+1,:,:], self.signal[i,:,:]) for i in range(self.signal.shape[0]-1)])
         loss = mse_loss + self.lam * sequence_similarity 
         return loss, mse_loss.item(), sequence_similarity.item()
 

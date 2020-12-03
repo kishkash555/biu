@@ -149,21 +149,51 @@ demonstrated that visual cues, such as subtle changes in facial expression, are 
 \subsection{Physiological synchrony in the study of team performance}
 Team performance is a long-established research topic in social sciences. Team performance has been linked to better individual (subjective) experiences during the interaction \citep{lodahl1961psychometric}, and also to group cohesiveness -- the desire of team members to be part of the group \citep{cartwright1968nature}. Still, despite decades of research, our understanding of this field is fragmented, with limited success in generalizing the proposed theoretical models and in recreating findings across setups. \citet{beal2003cohesion} point to differences in experimental and observational setups, as well as disparate analysis approaches, among the reasons for this state of affairs. Modeling team performance remains a matter of active research, see for example \citet{collins2019explorations}.
 
-In the recent decade or so, PS has been harnessed for the study of group performance. An early herald of this trend is \citet{akinola2010measuring}, which suggested that physiological measures be incorporated into the (metaphoric) toolbox of the organizational researcher as a way to \enquote{deepen theoretical insights and enrich our understanding of human behavior in organizations}. More recently,  \citet{chikersal2017deep} have demonstrated a correlation between shared arousal, as measured by electrodermal activity (EDA), and group satisfaction. Another interesting recent example is \citet{danyluck2018intergroup}, which have taken a different approach to incorporating physiological measurements in the study of group performance, by casting physiological synchrony as the outcome, and examining which of the different priming levels induces a higher level of PS. Check out \citet{jar202physiological} for a list of several additional works involving PS and group performance.
+For more than a decade, researchers have been harnessing PS for the study of group performance. An eloquent herald of this trend is \citet{akinola2010measuring}, which suggested that physiological measures be incorporated into the (metaphoric) toolbox of the organizational researcher as a way to \enquote{deepen theoretical insights and enrich our understanding of human behavior in organizations}. More recently,  \citet{chikersal2017deep} have demonstrated a correlation between shared arousal, as measured by electrodermal activity (EDA), and group satisfaction. Another interesting recent example is \citet{danyluck2018intergroup}, which have taken a different approach to incorporating physiological measurements in the study of group performance, by casting physiological synchrony as the outcome, and examining which of the different priming levels induces a higher level of PS. Check out \citet{jar202physiological} for a list of several additional works involving PS and group performance.
+
+\subsection{Musical synchrony tasks}
+The current experiment involves groups of three participants instructed to play musical drums together (for more details on the current experiment, see Appendix A below, or refer to \cite{gordon2020physio}). This task allows us to test for emerging patterns within the performing group. Synchrony in group playing tasks was also reported in  \cite{abp2017symmetry} and \cite{shahal2020synchronization}. However, neither of these studies involve PS as a covariate.
+
+\section{Proposed contribution}
+\subsection{Symmetry-breaking and emerging structure}
+In the current study, we aim to demonstrate that despite the symmetry in the initial setup, a non-symmetrical two-and-one structure sometimes emerges when examining the three participants' playing. The structure is evident looking at the pairwise similarity between each player's sequence of drum beats, applying appropriate similarity measures between these series. We hypothesize that these asymmetries stem from a corresponding asymmetry in personal affinity. Based on personality and mood questionnaires, we intend to isolate explanatory variables in relation to these asymmetries.
+
+\subsection{Correspondence between PS and synchronous performance}
+
+We hypothesize that patterns in PS, both in the session where the interaction occurred and prior sessions, will be predictive of patterns in playing synchrony. See the Methods section for more details on the analysis approach.
+
+Applying distance measures will enable a quantitative analysis of both musical synchrony and PS, and to compare the patterns emerging within the triad in each aspect of the interaction.
+
+\section{Methods}
+Our second set of hypotheses is regarding the relationship between 
+synchrony,
 
 
 
-\section{Research hypothesis and experimental design}
-\subsection{Non-symmetric coupling in a three-person drumming task}
+The proposed study aims to explore the relation between PS and group performance, beyond averages at the group level. We analyze data collected in a group drumming experiment 
+While the task required the three participants to synchronize their drumming, we observe that in many cases, two of the participants tended to be more synchronized in their drumming relative to their synchronization levels with the third drummer.
 
-The proposed study aims to explore the relation between PS and group performance, beyond averages at the group level. We analyze data collected in a group drumming experiment (for more details, see Appendix A below, or refer to \cite{gordon2020physio}). 
+\subsection{The coupled nonlinear oscillator framework}
+We examine these synchronization asymmetries within the framework of nonlinear coupled oscillators. In this framework, each drummer is considered an oscillator, each successive drumbeat indicating another full period of the oscillator. Each oscillator influences, and is influenced by, the other two oscillators. These influences are termed coupling. Stronger coupling results in more co-variation, while weaker coupling allows each oscillator to vary more independently. According to this framework, differences in coupling levels are the reason for the emerging differences in observed synchronization levels. 
 
-While the task required the three participants to synchronize their drumming, we observe that in many cases, two of the participants tended to be more synchronized in their drumming than their respective synchronization level with the third drummer.
-We examine these synchronization asymmetries within the framework of nonlinear coupled oscillators. In this framework, non-symmetric synchronization must come from  similar asymmetries in the coupling strengths between two participants. We hypothesize that these differences are rooted in psychological processes and that they will be further reflected in the respective levels of pairwise PS.
-
-Summarizing the main characteristics of the proposed study:
+Adopting a simple, two-level dyadic coupling strength model, and using the terms \emph{strongly coupled} and \emph{weakly coupled} for the two coupling levels, each triadic performance session must fall into one of the following categories:
 \begin{itemize}
-    \item Interaction in triads, allowing us to examine different internal structures of pairwise synchronization
+    \item Tight: All pairs strongly coupled
+    \item Mediator: One participant strongly coupled to the other two, themselves being weakly coupled.
+    \item One and Two: One strongly coupled pair, with the third participant weakly coupled to the pair.
+    \item Solitude: All pairs weakly coupled.
+\end{itemize}
+
+We determine each team's coupling mode by analyzing the drumming signals and applying a pairwise-distance metric.
+
+We assume that these differences in coupling are rooted in psychological processes and hypothesize that they will be further reflected in the PS measured during the experiment.
+
+
+\subsection{Research goals}
+
+Let us summarize the main characteristics of the proposed study, and how they compare and contrast with other studies:
+\begin{itemize}
+    \item The interaction is performed in triads, allowing us to examine different internal structures of pairwise synchronization
     \item The group task, drumming, is one where good performance is tantamount to synchronous performance, and therefore can be more readily quantified objectively
     \item Participants have no predefined distinct roles.
 \end{itemize}
@@ -174,14 +204,7 @@ In the proposed study, we venture away from the simplifying assumption whereby e
 
 We go back to data from the drumming experiment reported in \citet{gordon2020physio}, where groups of three persons were required to drum together in two short (ca. 4 minute) sessions. In the first session, each group followed a reference provided by an external beat (metronome), while in the second session, no reference was available and the drumming synchronization was based solely on the ability of each participant to stay tuned to, and adjust their own drum beats according to, the beats of the other two participants. 
 
-Based on the binary dyadic coupling framework outlined above, each (triadic) performance session can be categorized into one of the following coupling modes:
-\begin{itemize}
-    \item All pairs coupled
-    \item One coupled pair and one solitary participant
-    \item No coupling - three solitary participants
-\end{itemize}
-
-We determine each team's coupling mode by analyzing the drumming signals and applying a pairwise-distance metric. We then hypothesize that the same coupling modes that are found in the external manifestation of the group's interaction, namely the joint drumming signal, will tend to form in the IBI signals, which are not externally manifested and therefore cannot be directly perceived by other group members. 
+ We then hypothesize that the same coupling modes that are found in the external manifestation of the group's interaction, namely the joint drumming signal, will tend to form in the IBI signals, which are not externally manifested and therefore cannot be directly perceived by other group members. 
 
 \subsection{Synchronous group performance  and drumming}
 A reasonable choice of a group task where PS can be compared to performance, is a task that requires participants to intentionally synchronize their actions. A group drumming task fits this requirement perfectly, as, in the lack of a central coordinator, participants must constantly respond to the auditory feedback and adjust their own drumming as they try to reach, and maintain, a more rhythmic, agreeable total. The researcher's task, then, is to quantify both the instantaneous and overall success of the group in maintaining a synchronous rhythm. Additionally, effective groups are expected to evolve and change the drumming frequency during the experiment, a reflection of an evolving emotional state and an implicit exchange of information.

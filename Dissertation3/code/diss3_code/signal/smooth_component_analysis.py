@@ -1,5 +1,5 @@
 
-import get_db_data as gdd
+from ..database import get_db_data as gdd
 from scipy.signal import savgol_filter
 from scipy.stats import zscore
 import numpy as np

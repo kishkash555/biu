@@ -140,32 +140,62 @@ using deep learning}} % Title line
 
 \section{Background}
 \subsection{Synchrony in physiological signals}
-\subsubsection{Introduction}
-Physiological synchrony (PS) occurs when the development in time of the measured physiological states of two or more individuals, align in a way that implies a common causal factor and matched phase. Synchrony has been shown to occur in varied social settings, including among family members, between friends, and in people interacting for the first time \citep{palumbo2017interpersonal}. The main underlying mechanism for PS is believed to be the common psychological experience, leading to synchronized patters of autonomous nervous system (ANS) activity, which in turn influence the physiological signals in a similar fashion \citep{palumbo2017interpersonal}. While the concept of PS is intuitively clear, the details and the dynamics of the underlying mechanisms are yet to be described and validated. 
+Physiological synchrony (PS) occurs when the development in time of the measured physiological states of two or more individuals, align in a way that implies a common causal factor and matched phase. Of particular interest are measures regulated by the autonomous nervous system (ANS). Synchrony in such signals has been shown to occur in varied social settings, including among family members, between friends, and in people interacting for the first time (\cite{palumbo2017interpersonal}; \cite{jar202physiological}). The current study focuses on synchrony in  inter-beat intervals, a continuous-time measure extracted from ECG readings. 
 
-
-\subsubsection{Quantifying synchrony}
-The physiological signals considered when analyzing for synchrony are influenced by three sources: level changes due to autonomous nervous system (ANS) activity, self-regulation, and random noise. The component of interest to the psycho-physiological researcher is the influence of ANS activity. However, the patterns of self regulation cannot be easily accounted for, as they are typically nonlinear, multi-scaled, and vary in characteristics among individuals \citep{ivanov20011}. In recent years, 
-nonlinear/non-parametric methods are gradually replacing classical, linear methods for detecting synchrony.
-
-One such nonparametric method is phase synchronization. Phase synchronization is effective for detecting a low-integer-ratio relation between the instantaneous frequencies of two signals. The signals frequencies are assumed to be variable and noisy. An example of a pair of such signals in the human body is heartbeat and breathing \citep{schafer1998heartbeat}. The method consists of extracting the (unwrapped) phase angle of each signal against time, then plotting the instantaneous phase of one signal each time the second signal completes a cycle, against cycle number. If the ratio between the frequencies of the signals is $m:n$, where $m$ and $n$ are small positive integers, the points on the \emph{synchrogram}, as this plot is known, will tend to form a repeating pattern. Conversely, if the signal's underlying frequencies are independent of each other, the points of the synchrogram will exhibit no clear pattern.
-
-The method used by \cite{wallot2016multidimensional} is somewhat analogous to phase synchronization, but is more involved, and its authors have conceded that not all the patterns that arose in the chart at the base of this method during their experiments were fully interpreted.
-
-The question of detection and quantification of synchrony is largely an open one, with research in this field usually focused on demonstrating that synchrony exists in a specific setting, rather than attempting to establish an absolute measure of synchrony. Researchers are increasingly turning to novel non-parametric analysis approaches, as the inadequacy of linear assumptions is gradually recognized. 
-
-Additionally, to cope with the variability and poor detection rate at the single-experiment level, researchers apply statistical methods in order to compare groups of experiments that were subject to similar treatments. Still, a model that would explain more precisely the variations in observed synchrony is highly desirable.   
+While the concept of PS is intuitively clear, and the existence of inter-personal synchrony in ANS-related signals well-established, there are still theoretical gaps in understanding the details of the dynamics as well as the underlying mechanisms \citep{jar202physiological}. 
+One proposed mechanism for how PS forms, is through the common psychological experience, leading to synchronized patterns of autonomous nervous system (ANS) activity, which in turn influence the physiological signals in a similar fashion \citep{palumbo2017interpersonal}. \citet{behrens2020physiological} 
+demonstrated that visual cues, such as subtle changes in facial expression, are constructive in forming synchrony. 
 
 \subsection{Physiological synchrony in the study of team performance}
-Team performance is an important research topic in social sciences. Team performance has been linked to better individual (subjective) experiences during the interaction \citep{lodahl1961psychometric}, and also to group cohesiveness -- the desire of team members to be part of the group \citep{cartwright1968nature}. However, our understanding of this field is fragmented, with limited success in generalizing the proposed models and recreating findings across setups. \citet{beal2003cohesion} cite differences in experimental and observational setups, as well as disparate analysis approaches, among the reasons for this state of affairs. Modeling team performance is therefore still very much a matter of active research, see for example \citet{collins2019explorations}.
+Team performance is a long-established research topic in social sciences. Team performance has been linked to better individual (subjective) experiences during the interaction \citep{lodahl1961psychometric}, and also to group cohesiveness -- the desire of team members to be part of the group \citep{cartwright1968nature}. Still, despite decades of research, our understanding of this field is fragmented, with limited success in generalizing the proposed theoretical models and in recreating findings across setups. \citet{beal2003cohesion} point to differences in experimental and observational setups, as well as disparate analysis approaches, among the reasons for this state of affairs. Modeling team performance remains a matter of active research, see for example \citet{collins2019explorations}.
 
-The link between group performance research and physiological signal analysis is at least a decade old. \cite{akinola2010measuring} has suggested that physiological measures be incorporated into the (metaphoric) toolbox of the organizational researcher as a way to \enquote{deepen theoretical insights and enrich our understanding of human behavior in organizations}. More recently, \cite{chikersal2017deep} have demonstrated a correlation between shared arousal, as measured by electrodermal activity, and group satisfaction. \cite{danyluck2018intergroup}, have taken a different approach to incorporating physiological measurements in the study of group performance, by casting physiological synchrony as the outcome, and examining which of the different priming levels induces a higher level of PS. 
+In the recent decade or so, PS has been harnessed for the study of group performance. An early herald of this trend is \citet{akinola2010measuring}, which suggested that physiological measures be incorporated into the (metaphoric) toolbox of the organizational researcher as a way to \enquote{deepen theoretical insights and enrich our understanding of human behavior in organizations}. More recently,  \citet{chikersal2017deep} have demonstrated a correlation between shared arousal, as measured by electrodermal activity (EDA), and group satisfaction. Another interesting recent example is \citet{danyluck2018intergroup}, which have taken a different approach to incorporating physiological measurements in the study of group performance, by casting physiological synchrony as the outcome, and examining which of the different priming levels induces a higher level of PS. Check out \citet{jar202physiological} for a list of several additional works involving PS and group performance.
+
+
+
+\section{Research hypothesis and experimental design}
+\subsection{Non-symmetric coupling in a three-person drumming task}
+
+The proposed study aims to explore the relation between PS and group performance, beyond averages at the group level. We analyze data collected in a group drumming experiment (for more details, see Appendix A below, or refer to \cite{gordon2020physio}). 
+
+While the task required the three participants to synchronize their drumming, we observe that in many cases, two of the participants tended to be more synchronized in their drumming than their respective synchronization level with the third drummer.
+We examine these synchronization asymmetries within the framework of nonlinear coupled oscillators. In this framework, non-symmetric synchronization must come from  similar asymmetries in the coupling strengths between two participants. We hypothesize that these differences are rooted in psychological processes and that they will be further reflected in the respective levels of pairwise PS.
+
+Summarizing the main characteristics of the proposed study:
+\begin{itemize}
+    \item Interaction in triads, allowing us to examine different internal structures of pairwise synchronization
+    \item The group task, drumming, is one where good performance is tantamount to synchronous performance, and therefore can be more readily quantified objectively
+    \item Participants have no predefined distinct roles.
+\end{itemize}
+
+
+
+In the proposed study, we venture away from the simplifying assumption whereby each group is considered a homogeneous single unit, neglecting possible heterogeneity of within-group interactions. This simplifying assumption was implicitly adopted, to the best of our knowledge, by all previous researches of PS and team performance. Instead, we allow the dyadic coupling within the group to vary between two levels. Dealing with just two levels, allows us to investigate heterogeneity, while keeping our model parsimonious. The two levels are referred to as either a coupled (connected) dyad or an uncoupled dyad. 
+
+We go back to data from the drumming experiment reported in \citet{gordon2020physio}, where groups of three persons were required to drum together in two short (ca. 4 minute) sessions. In the first session, each group followed a reference provided by an external beat (metronome), while in the second session, no reference was available and the drumming synchronization was based solely on the ability of each participant to stay tuned to, and adjust their own drum beats according to, the beats of the other two participants. 
+
+Based on the binary dyadic coupling framework outlined above, each (triadic) performance session can be categorized into one of the following coupling modes:
+\begin{itemize}
+    \item All pairs coupled
+    \item One coupled pair and one solitary participant
+    \item No coupling - three solitary participants
+\end{itemize}
+
+We determine each team's coupling mode by analyzing the drumming signals and applying a pairwise-distance metric. We then hypothesize that the same coupling modes that are found in the external manifestation of the group's interaction, namely the joint drumming signal, will tend to form in the IBI signals, which are not externally manifested and therefore cannot be directly perceived by other group members. 
+
+\subsection{Synchronous group performance  and drumming}
+A reasonable choice of a group task where PS can be compared to performance, is a task that requires participants to intentionally synchronize their actions. A group drumming task fits this requirement perfectly, as, in the lack of a central coordinator, participants must constantly respond to the auditory feedback and adjust their own drumming as they try to reach, and maintain, a more rhythmic, agreeable total. The researcher's task, then, is to quantify both the instantaneous and overall success of the group in maintaining a synchronous rhythm. Additionally, effective groups are expected to evolve and change the drumming frequency during the experiment, a reflection of an evolving emotional state and an implicit exchange of information.
+
+\footnote{TBD: references for this section}
+
+\subsection{Coupling }
+
 
 \section{The experimental setup}
 
 \subsection{Technical background on heart rate and skin \mbox{conductivity}}
 The signals to be analyzed in the current work are the heart rate and electrodermal activity (EDA). 
-The heart rate is measured by analyzing the electric potential between electrodes placed on the subject's torso. The RR-interval (a name derived from the "R" peak in the ECG), or IBI (for inter-beat interval) are both names for the interval between successive beats, in other words, the instantaneous reciprocal of the heart rate. The variation of heart rate over time in healthy individuals is controlled by several different pathways in the autonomous nervous system. In many different settings, persons in direct social contact (i.e. in physical proximity and exchanging social cues) have been observed to have some level of synchrony in their heart rates over the course of an experiment, which is understood as an affirmation of the fact that the regulatory states of the two individuals are both affected by (or respond to) the cues exchanged during their social interaction \citep{palumbo2017interpersonal}.
+The heart rate is measured by analyzing the electric potential between electrodes placed on the subject's torso. The RR-interval (a name derived from the "R" peak in the ECG), also termed IBI (for inter-beat interval), are both names for the interval between successive beats, in other words, the instantaneous reciprocal of the heart rate. The variation of heart rate over time in healthy individuals is controlled by several different pathways in the autonomous nervous system. In many different settings, persons in direct social contact (i.e. in physical proximity and exchanging social cues) have been observed to have some level of synchrony in their heart rates over the course of an experiment, which is understood as an affirmation of the fact that the regulatory states of the two individuals are both affected by (or respond to) the cues exchanged during their social interaction \citep{palumbo2017interpersonal}.
 
 Skin conductivity varies mainly due to the presence of sweat. It is measured in units of [ohm\slash meter]. Its level is related to sympathetic nervous system activity.
 
@@ -212,6 +242,21 @@ Deep canonical correlation analysis, or DCCA  \citep{andrew2013deep}, is concern
 
 For our purposes, DCCA can be trained with the signals from one individual in the group on one side of the split and another group member's signals on the other side. Comparing the reconstruction fidelity of the encoder-decoder system, when both signals are present, and then when one of the signals is missing, should provide interesting insight regarding the features that are common between group participants' signals.
 
+
+\subsubsection{Quantifying synchrony}
+The physiological signals considered when analyzing for synchrony are influenced by three sources: level changes due to autonomous nervous system (ANS) activity, self-regulation, and random noise. The component of interest to the psycho-physiological researcher is the influence of ANS activity. However, the patterns of self regulation cannot be easily accounted for, as they are typically nonlinear, multi-scaled, and vary in characteristics among individuals \citep{ivanov20011}. In recent years, 
+nonlinear/non-parametric methods are gradually replacing classical, linear methods for detecting synchrony.
+
+One such nonparametric method is phase synchronization. Phase synchronization is effective for detecting a low-integer-ratio relation between the instantaneous frequencies of two signals. The signals frequencies are assumed to be variable and noisy. An example of a pair of such signals in the human body is heartbeat and breathing \citep{schafer1998heartbeat}. The method consists of extracting the (unwrapped) phase angle of each signal against time, then plotting the instantaneous phase of one signal each time the second signal completes a cycle, against cycle number. If the ratio between the frequencies of the signals is $m:n$, where $m$ and $n$ are small positive integers, the points on the \emph{synchrogram}, as this plot is known, will tend to form a repeating pattern. Conversely, if the signal's underlying frequencies are independent of each other, the points of the synchrogram will exhibit no clear pattern.
+
+The method used by \cite{wallot2016multidimensional} is somewhat analogous to phase synchronization, but is more involved, and its authors have conceded that not all the patterns that arose in the chart at the base of this method during their experiments were fully interpreted.
+
+The question of detection and quantification of synchrony is largely an open one, with research in this field usually focused on demonstrating that synchrony exists in a specific setting, rather than attempting to establish an absolute measure of synchrony. Researchers are increasingly turning to novel non-parametric analysis approaches, as the inadequacy of linear assumptions is gradually recognized. 
+
+Additionally, to cope with the variability and poor detection rate at the single-experiment level, researchers apply statistical methods in order to compare groups of experiments that were subject to similar treatments. Still, a model that would explain more precisely the variations in observed synchrony is highly desirable.   
+
+
+An important distinction needs to be made between quantification of drumming synchronization and that of PS. PS involves complex signals, where synchrony is expressed as common trends at the chosen time scale and time frame. Drumming synchrony, on the other hand, is a more direct, bar-to-bar or even beat-to-beat phenomenon, where drummers reach a clear repeating pattern and are able to maintain it for several cycles. []cite[] introduce $\rho$, an index for cyclical variance. This index reaches its maximum value (of 1) when the drumming pattern, i.e. the relative timings of the drum strokes at a given time window, are constant, even in the presence of lags (i.e. phase shifts) between the drummers. The index reaches its minimum value (of 0) when the relative phases are uniformly distributed on the unit circle.
 
 
 \bibliography{ref}

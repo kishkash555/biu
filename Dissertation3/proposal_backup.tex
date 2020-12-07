@@ -152,41 +152,45 @@ Team performance is a long-established research topic in social sciences. Team p
 For more than a decade, researchers have been harnessing PS for the study of group performance. An eloquent herald of this trend is \citet{akinola2010measuring}, which suggested that physiological measures be incorporated into the (metaphoric) toolbox of the organizational researcher as a way to \enquote{deepen theoretical insights and enrich our understanding of human behavior in organizations}. More recently,  \citet{chikersal2017deep} have demonstrated a correlation between shared arousal, as measured by electrodermal activity (EDA), and group satisfaction. Another interesting recent example is \citet{danyluck2018intergroup}, which have taken a different approach to incorporating physiological measurements in the study of group performance, by casting physiological synchrony as the outcome, and examining which of the different priming levels induces a higher level of PS. Check out \citet{jar202physiological} for a list of several additional works involving PS and group performance.
 
 \subsection{Musical synchrony tasks}
-The current experiment involves groups of three participants instructed to play musical drums together (for more details on the current experiment, see Appendix A below, or refer to \cite{gordon2020physio}). This task allows us to test for emerging patterns within the performing group. Synchrony in group playing tasks was also reported in  \cite{abp2017symmetry} and \cite{shahal2020synchronization}. However, neither of these studies involve PS as a covariate.
+The current experiment involves groups of three participants instructed to play musical drums together (for more details on the current experiment, see Appendix A below, or refer to \cite{gordon2020physio}). This task allows us to test for emerging patterns within the performing group. Analysis of synchronicity patterns in group playing tasks was also performed in  \cite{abp2017symmetry} and \cite{shahal2020synchronization}. These studies focus on the emergence and stability of patterns of synchronicity in playing. They did not involve analysis of PS.
 
-\section{Proposed contribution}
-\subsection{Symmetry-breaking and emerging structure}
-In the current study, we aim to demonstrate that despite the symmetry in the initial setup, a non-symmetrical two-and-one structure sometimes emerges when examining the three participants' playing. The structure is evident looking at the pairwise similarity between each player's sequence of drum beats, applying appropriate similarity measures between these series. We hypothesize that these asymmetries stem from a corresponding asymmetry in personal affinity. Based on personality and mood questionnaires, we intend to isolate explanatory variables in relation to these asymmetries.
+\section{Proposed contributions}
 
-\subsection{Correspondence between PS and synchronous performance}
+We hypothesize that a correspondence exists between PS and synchronous performance, and so measures of PS, both in the session where the interaction occurred and prior sessions, will be predictive of synchronicity in drumming. 
 
-We hypothesize that patterns in PS, both in the session where the interaction occurred and prior sessions, will be predictive of patterns in playing synchrony. See the Methods section for more details on the analysis approach.
+To test this, we follow \cite{abp2017symmetry} and adopt the analysis framework of coupled nonlinear oscillators. This framework gives rise to four distinct modes of synchrony in a symmetrical, three-person group (the symmetry is due to no player being assigned a distinct role). We wish to study the relationship between the modes in the drumming output and those in the physiological signals, both arising spontaneously during the interaction. We aim to demonstrate that the modes reached in the drumming are also reflected in the modes of the PS. Such relationship, if found, will serve as an important reinforcement of the link between social attunement and PS in human dyads. 
 
-Applying distance measures will enable a quantitative analysis of both musical synchrony and PS, and to compare the patterns emerging within the triad in each aspect of the interaction.
 
 \section{Methods}
-Our second set of hypotheses is regarding the relationship between 
-synchrony,
-
-
-
-The proposed study aims to explore the relation between PS and group performance, beyond averages at the group level. We analyze data collected in a group drumming experiment 
-While the task required the three participants to synchronize their drumming, we observe that in many cases, two of the participants tended to be more synchronized in their drumming relative to their synchronization levels with the third drummer.
 
 \subsection{The coupled nonlinear oscillator framework}
-We examine these synchronization asymmetries within the framework of nonlinear coupled oscillators. In this framework, each drummer is considered an oscillator, each successive drumbeat indicating another full period of the oscillator. Each oscillator influences, and is influenced by, the other two oscillators. These influences are termed coupling. Stronger coupling results in more co-variation, while weaker coupling allows each oscillator to vary more independently. According to this framework, differences in coupling levels are the reason for the emerging differences in observed synchronization levels. 
+To examine synchronization asymmetries, we adopt the framework of nonlinear coupled oscillators \citep{abp2017symmetry}. Under this framework, each drummer is considered an oscillator, where each successive drumbeat is an indication the oscillator has gone through another full period. Each oscillator influences, and is influenced by, the other two oscillators. These influences are termed coupling. Stronger coupling results in more co-variation (more synchronicity) while weaker coupling allows each oscillator to vary independently. According to this framework, differences in coupling levels explain the emerging differences in observed synchronization levels. 
 
-Adopting a simple, two-level dyadic coupling strength model, and using the terms \emph{strongly coupled} and \emph{weakly coupled} for the two coupling levels, each triadic performance session must fall into one of the following categories:
+To apply these concepts in practice, we make a simplistic assumption whereby there are just two possible levels of dyadic coupling strengths, \emph{strong coupling} and \emph{weak coupling}. Enumerating the possible combinations for these two coupling levels in a triadic setup, four possible modes emerge. Below, these modes are enumerated, along with a short label describing the mode.
 \begin{itemize}
-    \item Tight: All pairs strongly coupled
-    \item Mediator: One participant strongly coupled to the other two, themselves being weakly coupled.
-    \item One and Two: One strongly coupled pair, with the third participant weakly coupled to the pair.
-    \item Solitude: All pairs weakly coupled.
+    \item \emph{Tight}: All three pairs in the group are strongly coupled (three strong).
+    \item \emph{Mediator}: One participant strongly coupled to the other two, themselves being weakly coupled (two strong, one weak).
+    \item \emph{One-and-Two}: One strongly coupled pair, with the third participant weakly coupled to the pair (one strong, two weak).
+    \item \emph{Loose}: All pairs weakly coupled (three weak).
 \end{itemize}
 
-We determine each team's coupling mode by analyzing the drumming signals and applying a pairwise-distance metric.
+\subsection{preprocessing of the IBI-interval signal}
+The IBI-interval signal produced by the measuring equipment is in the form of a sequence of numbers, representing the time intervals between successive R-peaks, as extracted from the ECG signal. To work with different sequences, it is first necessary to convert the to a constant-interval time series, representing a smoothed heart-beat temporal density. This is achieved by first treating the signal as a sparse high-resolution signal, then applying a low-pass filter to smooth it, and finally reducing the sampling frequency (in our case, from 500Hz to 2Hz). For the current research, we wish to further split the signals into a low-frequency and a high-frequency component. This is achieved by applying a suitable low pass filter, and keeping both the resulting signal (as the low-frequency component) and the residual (as the high frequency component).
 
-We assume that these differences in coupling are rooted in psychological processes and hypothesize that they will be further reflected in the PS measured during the experiment.
+\subsection{Distance metric for IBI signals}
+Once we have the IBI signals of the group members, it is necessary to represent the pairwise distance between them. We choose the angular distance, or $\arccos(\rho)$ where $\rho$ is the Pearson correlation coefficient between the signals.
+
+\subsection{Distance metric for drumming signals}
+In this case, we have two different options:
+\begin{itemize}
+    \item Angular distance, similar to the metric used for IBI
+    \item Distance based on the empirical distribution in the synchrogram of the two signals \citep{schafer1998heartbeat}.
+\end{itemize}
+
+\subsection{Investigating the relationship between the IBI modes and drumming modes}
+
+Our research will involve finding empirical links between the categories assigned to the physiological signals and those assigned to the drumming signals. Since assigning a mode to a triad involves setting thresholds on the distances, we intend to use classification and regression trees (CARTs). The input features will be the three distances assigned to the IBI signals, while the output will be either the coupling mode of the group's drumming or the distances between the drumming signals. The advantage of CARTs are their ability to choose optimal thresholds in the continuous features given a particular classification (or regression) target.
+
 
 
 \subsection{Research goals}
@@ -280,6 +284,41 @@ Additionally, to cope with the variability and poor detection rate at the single
 
 
 An important distinction needs to be made between quantification of drumming synchronization and that of PS. PS involves complex signals, where synchrony is expressed as common trends at the chosen time scale and time frame. Drumming synchrony, on the other hand, is a more direct, bar-to-bar or even beat-to-beat phenomenon, where drummers reach a clear repeating pattern and are able to maintain it for several cycles. []cite[] introduce $\rho$, an index for cyclical variance. This index reaches its maximum value (of 1) when the drumming pattern, i.e. the relative timings of the drum strokes at a given time window, are constant, even in the presence of lags (i.e. phase shifts) between the drummers. The index reaches its minimum value (of 0) when the relative phases are uniformly distributed on the unit circle.
+
+
+\section{Leftovers}
+The proposed study aims to explore the relation between PS and group performance, beyond averages at the group level. We analyze data collected in a group drumming experiment 
+While the task required the three participants to synchronize their drumming, we observe that in many cases, two of the participants tended to be more synchronized in their drumming relative to their synchronization levels with the third drummer.
+
+
+
+
+each group may fall into a different category. 
+These categories are applicable to  where pairwise synchrony is of interest. Since the pairwise distance metrics are continuous, deciding between the modes will require us to set a threshold between weak and strong coupling. 
+
+We note further that the \emph{mediator} and \emph{one-and-two} configuration indicate a symmetry break, while \emph{tight} and \emph{loose} are symmetric.
+
+
+For each time series 
+We determine each team's coupling mode by analyzing the drumming signals and applying a pairwise-distance metric. 
+
+We assume that these differences in coupling are rooted in psychological processes and hypothesize that they will be further reflected in the PS measured during the experiment.
+
+
+
+
+For more details on the analysis approach, see the Methods section.
+
+
+
+\subsection{Extending the model input and output}
+As mentioned in the previous section, while participants in the experiment were all given identical instructions, non-symmetrical patterns sometimes emerged. As a However, the experiment allowed the players to assume slightly different roles in the musical improvisations, by either leading the changes in rhythm or allowing themselves to be led (or, isolating themselves by diverging their rhythm from the group's). We hypothesize this spontaneous, and often subtle, role-taking to be based on character traits and wish to see whether specific combinations, or "relative traits" may help explain the spontaneous role-taking.
+
+
+perception of oneself relative to the others. We want to apply advanced statistical and  
+
+In the current study, the initial setup involves three we aim to demonstrate that despite the symmetry in the initial setup, a non-symmetrical two-and-one structure sometimes emerges when examining the three participants' playing. The structure is evident looking at the pairwise similarity between each player's sequence of drum beats, applying appropriate similarity measures between these series. We hypothesize that these asymmetries stem from a corresponding asymmetry in personal affinity. Based on personality and mood questionnaires, we intend to isolate explanatory variables in relation to these asymmetries.
+
 
 
 \bibliography{ref}

@@ -1,5 +1,8 @@
-
-from ..database import get_db_data as gdd
+import sys
+from os import path 
+sys.path.append(path.abspath('database'))
+print(sys.path)
+import get_db_data as gdd
 from scipy.signal import savgol_filter
 from scipy.stats import zscore
 import numpy as np
@@ -26,6 +29,9 @@ class savitzky_golay:
         self.series_type = series_type
         self.interp_type = interp_type
         self.df = None
+        self.lf_filter = lambda x: savgol_filter(x, self.f1_length,1)
+        self.rms_filter = lambda x: np.sqrt(savgol_filter(x**2, self.f2_length,1,mode="mirror"))
+        self.debug = False
 
     def group_signal_components(self, group_id, return_x=False):
         Raw = "Raw_{}".format
@@ -38,9 +44,10 @@ class savitzky_golay:
         for par_id, sig in yield_group_signals(group_id, self.series_type, self.interp_type):
             x = sig[:,0]
             y = zscore(sig[:,1])
-            sg = savgol_filter(y,self.f1_length,1)
+            sg = self.lf_filter if not self.debug else savgol_filter(y,self.f1_length,1)
             resid = y - sg
-            rms = np.sqrt(savgol_filter(resid**2,self.f2_length,1,mode="mirror"))
+            rms = self.rms_filter(resid) if not self.debug else \
+                np.sqrt(savgol_filter(resid**2,self.f2_length,1,mode="mirror"))
             rmso = gm_orth(rms,sg)
             signals.update({
                 Raw(par_id): y,
@@ -98,3 +105,78 @@ class savitzky_golay:
         df.columns = pd.MultiIndex.from_tuples(df.columns)
         self.df = df
         return df
+
+
+class dataframe_filter:
+    def __init__(self, filter_func, naming_func, pad_output, *filter_args, **filter_kwargs) -> None:
+        """
+        caveats: the filter func must return the same number of samples as the input
+        if your filter function returns a timeseries shorter than the input,
+        pad it as necessary with np.nan before calling __init__
+        or indicate the number of samples that are going to be dropped on either side 
+        using the pad_output argument
+        filter_func: callable: numpy array -> numpy array
+        naming_func: callable: string -> string
+        pad_output: either None or [prepend_size, postpend_size]
+
+        """
+        super().__init__()
+        self.filter_func = filter_func
+        self.naming_func = naming_func
+        self.pad = [0,0] if pad_output is None else pad_output
+        self.filter_args = filter_args
+        self.kwargs = filter_kwargs
+
+    def forward(self, input_df, return_residual=False, resid_naming_func = None):
+        # initialize a dataframe with same shape as input, all values nan
+        df_data = np.nan*np.ones_like(input_df)
+        ls,le = (self.pad[0], df_data.shape[0]-self.pad[1])
+        
+        # calculate start- and end- index of filtered data
+
+        # apply the filter and assign to the correct place in the dataframe
+        df_data[ls:le,:] = input_df.apply(self.filter_func,
+            axis=0,
+            args=self.filter_args,
+            **self.kwargs
+            ).values
+
+        df = pd.DataFrame(data=df_data, 
+            index=input_df.index, 
+            columns = [self.naming_func(col) for col in input_df.columns])
+        
+        if return_residual:
+            resid_naming_func = resid_naming_func if resid_naming_func is not None else lambda s: s
+            resid = pd.DataFrame(
+                columns = [resid_naming_func(col) for col in input_df.columns], 
+                index= input_df.index, 
+                data = input_df.values-df.values
+                )
+            return df, resid
+        return df
+
+def get_signals(group_ids, series_type, interp_type, col_name_func=None, standardize=True):
+    """
+    returns a dataframe with all the signals from the specified series_type and interp_type
+    the x axis (time frame) is inner-joined so any missing samples are dropped
+    """
+    df = pd.DataFrame()
+    how = 'right'
+    stdzr = zscore if standardize else lambda x: x
+    for gid in group_ids:
+        for par_id, signal in yield_group_signals(gid,series_type, interp_type):
+            if signal.shape[0]< 5:
+                print("participant {} has not data".format(par_id))
+                continue
+            df = df.join(
+                pd.DataFrame(
+                    index=signal[:,0],
+                    data=stdzr(signal[:,1]),
+                    columns=[col_name_func(gid, par_id)],
+                    ),
+                how=how
+                )
+            how='inner' # after the first go, everything else should be inner-join
+    return df
+
+

@@ -53,7 +53,7 @@ class get_db_data:
     @staticmethod
     def connect_aws():
         server = "thesis.ca6j6heoraog.eu-central-1.rds.amazonaws.com"
-        engine = sql.create_engine(f"mysql+pymysql://admin:FphvsYQek4@{server}/thesis_db")
+        engine = sql.create_engine(f"mysql+pymysql://admin:FphvsYQek4@{server}/thesis_db",pool_pre_ping=True)
         con = engine.connect()
         return con
 

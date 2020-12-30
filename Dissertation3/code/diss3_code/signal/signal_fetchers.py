@@ -49,12 +49,13 @@ def get_hrv_data_for_groups(group_ids, session_type, lf=True, hf=True, rms=True)
         else:
             ret.join(lf)
         if rms:
-            rms_df = ecg_rms_filter.forward(hf_df**2)
-            ret = ret.join(rms_df)
+            rms_df = ecg_rms_filter.forward(hf_df.dropna()**2)
+            ret = ret.join(rms_df, how='left')
     
     return ret
 
 
 if __name__ == "__main__":
+    print(__file__)
     works = get_hrv_data_for_groups(valid_ecg_groups, 2)
     a=5

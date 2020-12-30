@@ -1,6 +1,11 @@
 import sys
 from os import path 
-sys.path.append(path.abspath('database'))
+sys.path.append(
+    path.abspath(
+        path.join(__file__,
+        '../../database')
+        )
+)
 print(sys.path)
 import get_db_data as gdd
 from scipy.signal import savgol_filter
@@ -110,15 +115,15 @@ class savitzky_golay:
 class dataframe_filter:
     def __init__(self, filter_func, naming_func, pad_output, *filter_args, **filter_kwargs) -> None:
         """
-        caveats: the filter func must return the same number of samples as the input
-        if your filter function returns a timeseries shorter than the input,
+        caveat: 
+        - the filter func must return the same number of samples as the input.
+        Therefore, if your filter function returns a timeseries shorter than the input,
         pad it as necessary with np.nan before calling __init__
         or indicate the number of samples that are going to be dropped on either side 
         using the pad_output argument
         filter_func: callable: numpy array -> numpy array
         naming_func: callable: string -> string
         pad_output: either None or [prepend_size, postpend_size]
-
         """
         super().__init__()
         self.filter_func = filter_func
@@ -162,7 +167,7 @@ def get_signals(group_ids, series_type, interp_type, col_name_func=None, standar
     """
     df = pd.DataFrame()
     how = 'right'
-    stdzr = zscore if standardize else lambda x: x
+#    stdzr = zscore if standardize else lambda x: x
     for gid in group_ids:
         for par_id, signal in yield_group_signals(gid,series_type, interp_type):
             if signal.shape[0]< 5:
@@ -171,12 +176,15 @@ def get_signals(group_ids, series_type, interp_type, col_name_func=None, standar
             df = df.join(
                 pd.DataFrame(
                     index=signal[:,0],
-                    data=stdzr(signal[:,1]),
+                    data=signal[:,1],
                     columns=[col_name_func(gid, par_id)],
                     ),
                 how=how
                 )
             how='inner' # after the first go, everything else should be inner-join
+    if standardize:
+        # discovered weird behavior that can be corrected by setting ddof=1
+        df = df.apply(zscore) 
     return df
 
 

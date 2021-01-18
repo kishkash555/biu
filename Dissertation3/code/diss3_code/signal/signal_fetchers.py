@@ -26,7 +26,12 @@ ecg_rms_filter = sca.dataframe_filter(
 )
 
 INTERPOLATION_SERIES_ID_FOR_HRV = 3
-valid_ecg_groups = [1001, 1004, 1006]
+# 1005 does not have cohesions so removed for now
+valid_ecg_groups = [1004,  1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014,
+       1016, 1019, 1020, 1022, 1024, 1025, 1026, 1027, 1028, 1029, 1030,
+       1031, 1032, 1033, 1034, 1035, 1036, 1037, 1038, 1039, 1040, 1041,
+       1042, 1043, 1044, 1045, 1046, 1047, 1048, 1049, 1050, 1051]
+sample_groups = [1001, 1004, 1006]
 session_codes = {'BL': 1, 'I':2, 'BLE': 3, 'FS': 4}
 
 

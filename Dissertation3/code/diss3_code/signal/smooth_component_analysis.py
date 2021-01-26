@@ -6,7 +6,7 @@ sys.path.append(
         '../../database')
         )
 )
-print(sys.path)
+#print(sys.path)
 import get_db_data as gdd
 from scipy.signal import savgol_filter
 from scipy.stats import zscore

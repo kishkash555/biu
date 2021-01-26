@@ -33,7 +33,6 @@ def get_drumbeat_ticks_for_midi(midi_path):
         else:
             all_events[row.parameter1]=all_events.get(row.parameter1,[])+[(open_events[row.parameter1], row.time_abs)]
 
-
     return all_events
    
 
@@ -104,7 +103,7 @@ class event_filter:
         min_duration = self.params['min_duration']
         return [a for a in event_list if a[1]-a[0] >= min_duration]
 
-        return event_filter(self.type = 'duration'
+        return event_filter(type = 'duration')
         # durations = events_obj.get_durations()
 
         event_dict_filtered = { 

@@ -14,28 +14,72 @@ document.write("Hello, World!");
 <body>
 <h1>Hello</h1>
 
+<div id="session">
+    <div id="interaction" class="sessionClass">Interaction</div>
+    <div id="freestyle" class="sessionClass">Freestyle</div>
+</div>
+
 <div id="groups"></div>
 
 <div id="plots" style="clear:both"></div>
 
 <script type="text/javascript">
+var session = "Interaction"
 var groups = ['1001', '1002', '1003', '1004', '1005', '1006', '1007', '1008', '1009', '1010', '1011', '1012', '1013', '1014', '1015', '1016', '1017', '1018', '1019', '1020', '1021', '1022', '1023', '1024', '1025', '1026', '1027', '1028', '1029', '1030', '1031', '1032', '1033', '1034', '1035', '1036', '1037', '1038', '1039', '1040', '1041', '1042', '1043', '1044', '1045', '1046', '1047', '1048', '1049', '1050', '1051']
+var lastclicked, alldata={}, plotdata = [{ x: [], y: [], type: 'line'}]
 
+function reset_selector_element(ele) {
+    $(ele).css("background-color","transparent")
+}
 
 
 groups.forEach(function(gr) {
-    $('#groups').append(`<div id=${gr} class="groupsClass">${gr}`)
+    $('#groups').append(`<div id=${gr} class="groupsClass">${gr}</div>`)
 })
 
 $(".groupsClass").hover(
-    function () { $(this).css("background-color","lightblue")},
-    function () { $(this).css("background-color","transparent")},
+    function () { if (!(this==lastclicked)) $(this).css("background-color","lightblue")},
+    function () { if (!(this==lastclicked)) reset_selector_element(this)},
     )
-</script>
 
-<!-- loads a variable named data -->
-<script type="text/javascript" src='load_data.js'> </script>  
-<script type="text/javascript"> Plotly.newPlot('plots', data);
+$.getJSON( "data_by_group.json", function( data ) {
+    // alert(`got ${Object.keys(data).length} groups`)
+    alldata=data
+})
+
+
+Plotly.newPlot('plots', plotdata);
+
+function refresh_plot(new_group_id) {
+
+    if (!alldata.hasOwnProperty(new_group_id)) {
+        alert(`group ${new_group_id} not found`)
+        return
+    }
+    //console.log('in refresh plot. new x length ' + Object.keys(alldata[new_group_id]).length)
+
+    // for (var i=0; i<alldata[new_group_id].length; i++) {
+    //     plotdata[i] = alldata[new_group_id][i]
+    // }
+    // Plotly.redraw('plots',)
+    plotdata = alldata[new_group_id]
+    Plotly.react('plots', plotdata, {"title": session + " Group "+ new_group_id})
+}
+$(".groupsClass").click(function () {
+    new_group_id = this.id
+    console.log("new group id " + new_group_id)
+    $this = $(this)
+    if (lastclicked && lastclicked==this) { console.log('doing nothing'); return }
+    if (lastclicked) { reset_selector_element(lastclicked) }
+    lastclicked=this
+    
+    $this.css("background-color", "lightseagreen")
+    if (!alldata) { alert("wait for data loading to complete!") }
+    refresh_plot(new_group_id)
+})
+
+
+
 </script>
 <style>
     .groupsClass {

@@ -18,6 +18,25 @@ def load_midi(midi_path):
     return mf
 
 
+def populate_music_dictionary(midi_files):
+    all_ticks = {}
+    for mf in midi_files:
+        group_num = path.basename(mf).split('_')[1].split('.')[0]
+        session = path.basename(mf).split('_')[0]
+        group_ticks = get_drumbeat_ticks_for_midi(mf)
+        for track, ticks in group_ticks.items():
+            print((group_num, session, track))
+            assert (group_num, session, track) not in all_ticks
+            all_ticks[(group_num, session, track)]= [t[0] for t in ticks if t[1]-t[0]>10] 
+    return all_ticks
+
+def to_dense(t,max_len=None):
+    max_len = max_len or t[-1]
+    ret = np.zeros(max_len)
+    max_index_to_include = np.sum(t<max_len).astype(int)
+    ret[t[:max_index_to_include]]=1.
+    return ret
+
 def get_drumbeat_ticks_for_midi(midi_path):
     mf = load_midi(midi_path)
     ev = mf.tracks[0].events

@@ -24,9 +24,9 @@ document.write("Hello, World!");
 <div id="plots" style="clear:both"></div>
 
 <script type="text/javascript">
-var session = "Interaction"
+var session_name = "Interaction", session_selector, sessiondata
 var groups = ['1001', '1002', '1003', '1004', '1005', '1006', '1007', '1008', '1009', '1010', '1011', '1012', '1013', '1014', '1015', '1016', '1017', '1018', '1019', '1020', '1021', '1022', '1023', '1024', '1025', '1026', '1027', '1028', '1029', '1030', '1031', '1032', '1033', '1034', '1035', '1036', '1037', '1038', '1039', '1040', '1041', '1042', '1043', '1044', '1045', '1046', '1047', '1048', '1049', '1050', '1051']
-var lastclicked, alldata={}, plotdata = [{ x: [], y: [], type: 'line'}]
+var lastclicked,  alldata={}, plotdata = [{ x: [], y: [], type: 'line'}]
 
 function reset_selector_element(ele) {
     $(ele).css("background-color","transparent")
@@ -42,9 +42,12 @@ $(".groupsClass").hover(
     function () { if (!(this==lastclicked)) reset_selector_element(this)},
     )
 
-$.getJSON( "data_by_group.json", function( data ) {
-    // alert(`got ${Object.keys(data).length} groups`)
-    alldata=data
+$.getJSON( "interaction_data_by_group.json", function( data ) {
+    alldata["interaction"]=data
+})
+
+$.getJSON( "freestyle_data_by_group.json", function( data ) {
+    alldata["freestyle"]=data
 })
 
 
@@ -52,7 +55,7 @@ Plotly.newPlot('plots', plotdata);
 
 function refresh_plot(new_group_id) {
 
-    if (!alldata.hasOwnProperty(new_group_id)) {
+    if (!sessiondata.hasOwnProperty(new_group_id)) {
         alert(`group ${new_group_id} not found`)
         return
     }
@@ -62,8 +65,8 @@ function refresh_plot(new_group_id) {
     //     plotdata[i] = alldata[new_group_id][i]
     // }
     // Plotly.redraw('plots',)
-    plotdata = alldata[new_group_id]
-    Plotly.react('plots', plotdata, {"title": session + " Group "+ new_group_id})
+    plotdata = sessiondata[new_group_id]
+    Plotly.react('plots', plotdata, {"title": session_name + ", Group "+ new_group_id})
 }
 $(".groupsClass").click(function () {
     new_group_id = this.id
@@ -78,6 +81,21 @@ $(".groupsClass").click(function () {
     refresh_plot(new_group_id)
 })
 
+$(".sessionClass").click(function () {
+    if (session_selector && session_selector == this) { console.log("do notng"); return }
+    if (session_selector) reset_selector_element(session_selector)
+    session_selector = this
+    
+    session_name = session_selector.id
+    sessiondata = alldata[session_name]
+    console.log('set name to '+session_name)
+    console.log('alldata has '+Object.keys(sessiondata).length)
+
+    session_name = session_name.charAt(0).toUpperCase() + session_name.slice(1);
+    
+    $(this).css("background-color","lightsalmon")
+    refresh_plot(new_group_id)
+})
 
 
 </script>
@@ -92,6 +110,17 @@ $(".groupsClass").click(function () {
         border: 2px blue;
         text-align: center;
     }
+
+    .sessionClass {
+        width: 10%;
+        padding: 5px;
+        padding-top: 10px;
+        background-color: transparent;
+        padding-bottom: 10px;
+        border: 2px blue;
+        text-align: center;
+    }
+
 </style>
 </body>
 </html>
